@@ -178,6 +178,7 @@ public class TrackFragment extends Fragment implements ActionMode.Callback {
         trackViewModel.getTracks(mediaBrowserCompat, new Bundle(), trackLiveData ->
                 trackLiveData.observe(TrackFragment.this, tracks -> {
                     trackAdapter.setTrackList(tracks);
+                    swipeRefreshLayout.setRefreshing(false);
                 }));
     }
 
