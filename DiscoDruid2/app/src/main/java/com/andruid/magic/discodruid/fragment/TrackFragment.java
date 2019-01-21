@@ -33,17 +33,23 @@ import com.andruid.magic.discodruid.BackgroundAudioService;
 import com.andruid.magic.discodruid.R;
 import com.andruid.magic.discodruid.adapter.TrackAdapter;
 import com.andruid.magic.discodruid.data.Constants;
+import com.andruid.magic.discodruid.model.HeaderItem;
 import com.andruid.magic.discodruid.model.Track;
+import com.andruid.magic.discodruid.model.TrackItem;
 import com.andruid.magic.discodruid.util.MediaUtils;
 import com.andruid.magic.discodruid.util.RecyclerTouchListener;
 import com.andruid.magic.discodruid.viewmodel.TrackViewModel;
+import com.xwray.groupie.GroupAdapter;
+import com.xwray.groupie.Section;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 public class TrackFragment extends Fragment implements ActionMode.Callback {
     @BindView(R.id.recycler_view) RecyclerView recyclerView;
@@ -55,6 +61,7 @@ public class TrackFragment extends Fragment implements ActionMode.Callback {
     private boolean isMultiSelect = false;
     private List<String> selectedTrackIds = new ArrayList<>();
     private TrackViewModel trackViewModel;
+    private GroupAdapter groupAdapter;
 
     public TrackFragment() {}
 
@@ -118,7 +125,9 @@ public class TrackFragment extends Fragment implements ActionMode.Callback {
                 android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
-        recyclerView.setAdapter(trackAdapter);
+        groupAdapter = new GroupAdapter();
+        recyclerView.setAdapter(groupAdapter);
+        //recyclerView.setAdapter(trackAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(Objects.requireNonNull(getContext()), DividerItemDecoration.VERTICAL);
@@ -177,7 +186,24 @@ public class TrackFragment extends Fragment implements ActionMode.Callback {
     private void loadTracks() {
         trackViewModel.getTracks(mediaBrowserCompat, new Bundle(), trackLiveData ->
                 trackLiveData.observe(TrackFragment.this, tracks -> {
-                    trackAdapter.setTrackList(tracks);
+                    Map<Character,List<Track>> characterListMap = new TreeMap<>();
+                    for(Track track : tracks){
+                        char c = track.getTitle().charAt(0);
+                        if(!characterListMap.containsKey(c))
+                            characterListMap.put(c,new ArrayList<>());
+                        characterListMap.get(c).add(track);
+                    }
+                    for(char key : characterListMap.keySet()) {
+                        Section section = new Section();
+                        HeaderItem headerItem = new HeaderItem(key);
+                        section.setHeader(headerItem);
+                        for(Track track : Objects.requireNonNull(characterListMap.get(key))){
+                            TrackItem trackItem = new TrackItem(track,getContext());
+                            section.add(trackItem);
+                        }
+                        groupAdapter.add(section);
+                    }
+                    //trackAdapter.setTrackList(tracks);
                     swipeRefreshLayout.setRefreshing(false);
                 }));
     }

@@ -12,12 +12,13 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
+import com.xwray.groupie.ViewHolder;
 
 import androidx.annotation.NonNull;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class TrackViewHolder extends GeneralViewHolder {
+public class TrackViewHolder extends ViewHolder {
     @BindView(R.id.track_thumbnail) ImageView imageView;
     @BindView(R.id.track_nameTV) TextView trackNameTV;
     @BindView(R.id.track_artistTV) TextView artistNameTV;
@@ -47,15 +48,5 @@ public class TrackViewHolder extends GeneralViewHolder {
                     .apply(new RequestOptions()
                         .diskCacheStrategy(DiskCacheStrategy.NONE))
                     .into(imageView);
-    }
-
-    @Override
-    public boolean canDrag() {
-        return true;
-    }
-
-    @Override
-    public boolean canSwipe() {
-        return true;
     }
 }
