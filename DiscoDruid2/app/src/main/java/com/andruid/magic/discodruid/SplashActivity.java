@@ -8,6 +8,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
+import com.andruid.magic.discodruid.util.MediaUtils;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -25,7 +26,7 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        buildAlertDialog();
+        alertDialog = MediaUtils.getPermissionsDialogBuilder(this).create();
     }
 
     @Override
@@ -54,21 +55,5 @@ public class SplashActivity extends AppCompatActivity {
                     })
                     .onSameThread()
                     .check();
-    }
-
-    private void buildAlertDialog() {
-        alertDialog = new AlertDialog.Builder(this)
-                .setTitle(R.string.storage_permission)
-                .setMessage("Storage permission is needed to view your music")
-                .setIcon(R.mipmap.ic_launcher)
-                .setPositiveButton(R.string.settings, (dialog, which) -> {
-                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                    intent.setData(Uri.fromParts(packageString,getPackageName(),null));
-                    dialog.dismiss();
-                    startActivity(intent);
-                })
-                .setNegativeButton(android.R.string.cancel, (dialog, which) ->
-                        dialog.dismiss())
-                .create();
     }
 }

@@ -3,16 +3,18 @@ package com.andruid.magic.discodruid;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Handler;
 import androidx.annotation.NonNull;
 
+import com.andruid.magic.discodruid.fragment.QueueDialogFragment;
 import com.andruid.magic.discodruid.fragment.TrackFragment;
 import com.andruid.magic.discodruid.model.Track;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.tabs.TabLayout;
 
@@ -22,6 +24,8 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.SnapHelper;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,13 +35,14 @@ import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.andruid.magic.discodruid.adapter.CustomPagerAdapter;
 import com.andruid.magic.discodruid.adapter.TrackDetailAdapter;
@@ -50,6 +55,7 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
     private boolean userScroll = false;
     private MediaBrowserCompat mediaBrowserCompat;
     private MediaControllerCompat mediaControllerCompat;
+    private AlertDialog alertDialog, inputDialog;
     private Handler mSeekBarUpdateHandler = new Handler();
     private Runnable mUpdateSeekBar = new Runnable() {
         @Override
@@ -148,6 +155,8 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        alertDialog = MediaUtils.getPermissionsDialogBuilder(this).create();
+        inputDialog = MediaUtils.getPlaylistDialogBuilder(this).create();
         setViewPager();
         setRecyclerView();
         setBottomSheet();
@@ -167,8 +176,8 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
                     }
                     @Override
                     public void onPermissionDenied(PermissionDeniedResponse response) {
-                        Toast.makeText(MainActivity.this,response.getPermissionName()+" permission denied. Stopping activity",Toast.LENGTH_SHORT).show();
-                        finishAffinity();
+                        if(!alertDialog.isShowing())
+                            alertDialog.show();
                     }
                     @Override
                     public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
@@ -195,7 +204,6 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
                 mediaControllerCompat = new MediaControllerCompat(MainActivity.this, mediaBrowserCompat.getSessionToken());
                 mediaControllerCompat.registerCallback(callback);
                 MediaControllerCompat.setMediaController(MainActivity.this,mediaControllerCompat);
-                //Util.startForegroundService(MainActivity.this,new Intent(MainActivity.this,BackgroundAudioService.class));
                 if(Intent.ACTION_VIEW.equalsIgnoreCase(getIntent().getAction())){
                     mediaControllerCompat.getTransportControls().playFromUri(getIntent().getData(),null);
                     return;
@@ -310,6 +318,36 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
             mode = modeNew;
         }
         mediaControllerCompat.getTransportControls().skipToQueueItem(pos);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menu_create:
+                if(!inputDialog.isShowing())
+                    inputDialog.show();
+                break;
+            case R.id.menu_queue:
+                QueueDialogFragment dialog = new QueueDialogFragment();
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                dialog.show(fragmentTransaction,Constants.QUEUE_DIALOG);
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_EXPANDED)
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        else
+            super.onBackPressed();
     }
 
     private void setSeekBar(){
@@ -443,8 +481,23 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
 
     @Override
     public void onTrackClicked(List<Track> trackList, int pos) {
-        changePlayList(trackList);
-        mode = Constants.MODE_ALL_TRACKS;
+        changeMode(Constants.MODE_ALL_TRACKS,trackList,pos);
         mediaControllerCompat.getTransportControls().skipToQueueItem(pos);
+    }
+
+    public static class CreatePlayListAsyncTask extends AsyncTask<Void,Void,Void> {
+        private WeakReference<Context> contextRef;
+        private String name;
+
+        public CreatePlayListAsyncTask(Context context, String name) {
+            this.contextRef = new WeakReference<>(context);
+            this.name = name;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            MediaUtils.createNewPlayList(contextRef.get(),name);
+            return null;
+        }
     }
 }

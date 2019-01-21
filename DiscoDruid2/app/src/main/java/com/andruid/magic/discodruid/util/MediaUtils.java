@@ -1,14 +1,28 @@
 package com.andruid.magic.discodruid.util;
 
+import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.RemoteException;
+import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 
+import com.andruid.magic.discodruid.MainActivity;
+import com.andruid.magic.discodruid.R;
 import com.andruid.magic.discodruid.data.Constants;
 import com.andruid.magic.discodruid.model.Album;
 import com.andruid.magic.discodruid.model.Artist;
@@ -22,6 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+
+import androidx.appcompat.app.AlertDialog;
 
 public class MediaUtils {
     public static List<MediaBrowserCompat.MediaItem> getMediaItemsFromPlayLists(List<PlayList> playLists) {
@@ -146,7 +162,7 @@ public class MediaUtils {
         return String.format(Locale.getDefault(),"%02d:%02d",sec/60,sec%60);
     }
 
-    public static MediaDescriptionCompat getMediaDescription(Context context, Track track) {
+    public static MediaDescriptionCompat getMediaDescription(Track track) {
         Bundle extras = new Bundle();
         Bitmap bitmap = BitmapFactory.decodeFile(track.getAlbumArtUri());
         extras.putParcelable(MediaMetadataCompat.METADATA_KEY_ALBUM_ART,bitmap);
@@ -158,5 +174,72 @@ public class MediaUtils {
                 .setDescription(track.getAlbum())
                 .setExtras(extras)
                 .build();
+    }
+
+    public static AlertDialog.Builder getPermissionsDialogBuilder(Context context) {
+        return new AlertDialog.Builder(context)
+                .setTitle(R.string.storage_permission)
+                .setMessage("Storage permission is needed to view your music")
+                .setIcon(R.mipmap.ic_launcher)
+                .setPositiveButton(R.string.settings, (dialog, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.setData(Uri.fromParts(context.getString(R.string.str_package),context.getPackageName(),null));
+                    dialog.dismiss();
+                    context.startActivity(intent);
+                })
+                .setNegativeButton(android.R.string.cancel, (dialog, which) ->
+                        dialog.dismiss());
+    }
+
+    public static AlertDialog.Builder getPlaylistDialogBuilder(Context context){
+        final EditText input = new EditText(context);
+        input.setHint(context.getString(R.string.playlist_name));
+        FrameLayout container = new FrameLayout(context);
+        FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        int margin = context.getResources().getDimensionPixelSize(R.dimen.dialog_margin);
+        params.setMarginEnd(margin);
+        params.setMarginStart(margin);
+        input.setLayoutParams(params);
+        container.addView(input);
+        return new AlertDialog.Builder(context)
+                .setTitle("Create New Playlist")
+                .setView(container)
+                .setCancelable(true)
+                .setIcon(R.mipmap.ic_launcher)
+                .setPositiveButton("Create", (dialog, which) -> {
+                    new MainActivity.CreatePlayListAsyncTask(context.getApplicationContext(),
+                            input.getText().toString().trim()).execute();
+                    dialog.cancel();
+                })
+                .setNegativeButton("Cancel", (dialog, which) ->
+                        dialog.cancel());
+    }
+
+    public static void createNewPlayList(Context context, String name){
+        ContentResolver contentResolver = context.getContentResolver();
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Audio.Playlists.NAME,name);
+        values.put(MediaStore.Audio.Playlists.DATE_ADDED,System.currentTimeMillis());
+        values.put(MediaStore.Audio.Playlists.DATE_MODIFIED,System.currentTimeMillis());
+        contentResolver.insert(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,values);
+    }
+
+    public static void deleteSongsFromStorage(Context context, List<String> audioIdList){
+        ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+        ContentProviderOperation operation;
+        Uri uri;
+        for(String id : audioIdList){
+            uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, Long.parseLong(id));
+            operation = ContentProviderOperation
+                    .newDelete(uri)
+                    .build();
+            operations.add(operation);
+        }
+        ContentResolver contentResolver = context.getContentResolver();
+        try {
+            contentResolver.applyBatch(MediaStore.AUTHORITY,operations);
+        } catch (OperationApplicationException | RemoteException e) {
+            e.printStackTrace();
+        }
     }
 }

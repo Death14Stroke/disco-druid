@@ -13,4 +13,10 @@
     <string name="_03_30">03:30</string>
     <string name="content_description">content_description</string>
     <string name="media_channel_name">Media Controls</string>
+    <string name="current_queue">Current Queue</string>
+    <string name="new_playlist">New Playlist</string>
+    <string name="queue">Queue</string>
+    <string name="add">Add</string>
+    <string name="delete">Delete</string>
+    <string name="playlist_name">Playlist Name</string>
 </resources>

@@ -31,7 +31,6 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -125,7 +124,7 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
         mediaSessionConnector.setQueueNavigator(new TimelineQueueNavigator(mediaSessionCompat) {
             @Override
             public MediaDescriptionCompat getMediaDescription(Player player, int windowIndex) {
-                return MediaUtils.getMediaDescription(BackgroundAudioService.this,trackList.get(windowIndex));
+                return MediaUtils.getMediaDescription(trackList.get(windowIndex));
             }
         });
         mediaSessionConnector.setPlayer(exoPlayer,null);
@@ -207,7 +206,7 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
             }
             catch (IllegalStateException e){
                 e.printStackTrace();
-                Toast.makeText(getApplicationContext(),"Unable to play",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
             }
         } else
             playbackStateBuilder.setState(state, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 0);
