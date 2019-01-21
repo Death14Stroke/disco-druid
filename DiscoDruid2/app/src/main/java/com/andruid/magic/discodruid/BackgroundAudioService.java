@@ -23,6 +23,7 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.session.MediaButtonReceiver;
 
@@ -30,6 +31,7 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -146,7 +148,7 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
                 int icon = android.R.drawable.ic_media_play;
                 if(playWhenReady)
                     icon = android.R.drawable.ic_media_pause;
-                updateWidgetButton(android.R.drawable.ic_media_play);
+                updateWidgetButton(icon);
                 MediaMetadataCompat metadataCompat = mediaSessionCompat.getController().getMetadata();
                 if(metadataCompat==null)
                     return;
@@ -155,8 +157,10 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
                 Notification notification = Objects.requireNonNull(notificationBuilder).build();
                 if(playWhenReady)
                     startForeground(Constants.MEDIA_NOTI_ID,notification);
-                else
+                else {
+                    NotificationManagerCompat.from(BackgroundAudioService.this).notify(Constants.MEDIA_NOTI_ID, notification);
                     stopForeground(false);
+                }
             }
 
             @Override
