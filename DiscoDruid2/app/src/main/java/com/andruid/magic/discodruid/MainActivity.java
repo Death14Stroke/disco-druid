@@ -12,6 +12,7 @@ import com.andruid.magic.discodruid.model.Track;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.tabs.TabLayout;
 
@@ -194,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
                 mediaControllerCompat = new MediaControllerCompat(MainActivity.this, mediaBrowserCompat.getSessionToken());
                 mediaControllerCompat.registerCallback(callback);
                 MediaControllerCompat.setMediaController(MainActivity.this,mediaControllerCompat);
+                //Util.startForegroundService(MainActivity.this,new Intent(MainActivity.this,BackgroundAudioService.class));
                 if(Intent.ACTION_VIEW.equalsIgnoreCase(getIntent().getAction())){
                     mediaControllerCompat.getTransportControls().playFromUri(getIntent().getData(),null);
                     return;

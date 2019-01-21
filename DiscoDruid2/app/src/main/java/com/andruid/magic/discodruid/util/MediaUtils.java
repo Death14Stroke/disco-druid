@@ -1,7 +1,9 @@
 package com.andruid.magic.discodruid.util;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -15,7 +17,6 @@ import com.andruid.magic.discodruid.model.Track;
 import com.andruid.magic.discodruid.provider.AlbumProvider;
 import com.andruid.magic.discodruid.provider.ArtistProvider;
 import com.andruid.magic.discodruid.provider.PlaylistProvider;
-import com.andruid.magic.discodruid.provider.TrackProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,11 +103,6 @@ public class MediaUtils {
         return mediaItems;
     }
 
-    public static List<Track> getTracksForPage(TrackProvider trackProvider, int page, int pageSize) {
-        int start = page*pageSize;
-        return trackProvider.getTracksAtRange(start,Math.min(start+pageSize, trackProvider.getListSize()));
-    }
-
     public static List<Track> getTracksFromMediaItems(List<MediaBrowserCompat.MediaItem> children) {
         List<Track> trackList = new ArrayList<>();
         Bundle extras;
@@ -148,5 +144,19 @@ public class MediaUtils {
 
     public static String getTimeString(long sec){
         return String.format(Locale.getDefault(),"%02d:%02d",sec/60,sec%60);
+    }
+
+    public static MediaDescriptionCompat getMediaDescription(Context context, Track track) {
+        Bundle extras = new Bundle();
+        Bitmap bitmap = BitmapFactory.decodeFile(track.getAlbumArtUri());
+        extras.putParcelable(MediaMetadataCompat.METADATA_KEY_ALBUM_ART,bitmap);
+        extras.putParcelable(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON,bitmap);
+        return new MediaDescriptionCompat.Builder()
+                .setMediaId(track.getPath())
+                .setIconBitmap(bitmap)
+                .setTitle(track.getTitle())
+                .setDescription(track.getAlbum())
+                .setExtras(extras)
+                .build();
     }
 }

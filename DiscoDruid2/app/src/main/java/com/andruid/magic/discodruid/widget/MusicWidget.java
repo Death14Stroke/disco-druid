@@ -1,4 +1,4 @@
-package com.andruid.magic.discodruid;
+package com.andruid.magic.discodruid.widget;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -10,6 +10,8 @@ import android.graphics.Bitmap;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.widget.RemoteViews;
 
+import com.andruid.magic.discodruid.MainActivity;
+import com.andruid.magic.discodruid.R;
 import com.andruid.magic.discodruid.data.Constants;
 import com.andruid.magic.discodruid.model.Track;
 import com.bumptech.glide.Glide;

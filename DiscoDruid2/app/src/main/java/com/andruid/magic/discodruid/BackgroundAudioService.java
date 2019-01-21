@@ -1,7 +1,6 @@
 package com.andruid.magic.discodruid;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
@@ -11,11 +10,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -25,10 +22,12 @@ import android.os.ResultReceiver;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 
+import androidx.core.app.NotificationCompat;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.session.MediaButtonReceiver;
 
 import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.widget.RemoteViews;
@@ -43,21 +42,25 @@ import com.andruid.magic.discodruid.provider.AlbumProvider;
 import com.andruid.magic.discodruid.provider.ArtistProvider;
 import com.andruid.magic.discodruid.provider.PlaylistProvider;
 import com.andruid.magic.discodruid.provider.TrackProvider;
-import com.andruid.magic.discodruid.util.DescriptionAdapter;
 import com.andruid.magic.discodruid.util.MediaUtils;
+import com.andruid.magic.discodruid.util.NotificationHelper;
+import com.andruid.magic.discodruid.widget.MusicWidget;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.AppWidgetTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.IllegalSeekPositionException;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
+import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
@@ -74,14 +77,13 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class BackgroundAudioService extends MediaBrowserServiceCompat {
     private MediaSessionCompat mediaSessionCompat;
     private MediaSessionCallback mediaSessionCallback;
-    private ExoPlayer exoPlayer;
-    private PlayerNotificationManager playerNotificationManager;
-    private DescriptionAdapter descriptionAdapter;
-    private AudioManager audioManager;
+    private SimpleExoPlayer exoPlayer;
+    private NotificationCompat.Builder notificationBuilder;
     private ArrayList<Track> trackList = new ArrayList<>();
     private ConcatenatingMediaSource concatenatingMediaSource;
     private DataSource.Factory dataSourceFactory;
@@ -91,6 +93,7 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
     private ArtistProvider artistProvider;
     private PlaylistProvider playlistProvider;
     private Track currentTrack;
+    private MediaSessionConnector mediaSessionConnector;
     private BroadcastReceiver mNoisyReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -101,10 +104,8 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
     @Override
     public void onCreate() {
         super.onCreate();
-        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         initMediaSession();
         initExoPlayer();
-        initNotification();
     }
 
     private void initMediaSession(){
@@ -117,29 +118,15 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
         mediaSessionCallback = new MediaSessionCallback();
         mediaSessionCompat.setCallback(mediaSessionCallback);
         mediaSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
-    }
-
-    private void initNotification() {
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if(notificationManager==null)
-            return;
-        String channelId = Constants.CHANNEL_MEDIA_CONTROL;
-        String channelName = Constants.MEDIA_CONTROLS;
-        int importance = 0;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            importance = NotificationManager.IMPORTANCE_HIGH;
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel(channelId,channelName,importance);
-            notificationChannel.enableLights(true);
-            notificationChannel.setLightColor(Color.CYAN);
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
-        descriptionAdapter = new DescriptionAdapter(this);
-        playerNotificationManager = new PlayerNotificationManager(this,
-                Constants.CHANNEL_MEDIA_CONTROL,Constants.MEDIA_NOTI_ID, descriptionAdapter);
-        playerNotificationManager.setPlayer(exoPlayer);
-        playerNotificationManager.setMediaSessionToken(mediaSessionCompat.getSessionToken());
+        mediaSessionCompat.setActive(true);
+        mediaSessionConnector = new MediaSessionConnector(mediaSessionCompat);
+        mediaSessionConnector.setQueueNavigator(new TimelineQueueNavigator(mediaSessionCompat) {
+            @Override
+            public MediaDescriptionCompat getMediaDescription(Player player, int windowIndex) {
+                return MediaUtils.getMediaDescription(BackgroundAudioService.this,trackList.get(windowIndex));
+            }
+        });
+        mediaSessionConnector.setPlayer(exoPlayer,null);
     }
 
     private void initExoPlayer() {
@@ -156,10 +143,20 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
                         mediaButtonIntent = null;
                     }
                 }
+                int icon = android.R.drawable.ic_media_play;
                 if(playWhenReady)
-                    updateWidgetButton(android.R.drawable.ic_media_pause);
+                    icon = android.R.drawable.ic_media_pause;
+                updateWidgetButton(android.R.drawable.ic_media_play);
+                MediaMetadataCompat metadataCompat = mediaSessionCompat.getController().getMetadata();
+                if(metadataCompat==null)
+                    return;
+                notificationBuilder = NotificationHelper.buildNotification(icon,
+                        BackgroundAudioService.this, metadataCompat, mediaSessionCompat.getSessionToken());
+                Notification notification = Objects.requireNonNull(notificationBuilder).build();
+                if(playWhenReady)
+                    startForeground(Constants.MEDIA_NOTI_ID,notification);
                 else
-                    updateWidgetButton(android.R.drawable.ic_media_play);
+                    stopForeground(false);
             }
 
             @Override
@@ -171,25 +168,11 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
                 }
             }
         });
-    }
-
-    private boolean isAudioFocusGranted() {
-        int focusRequest = audioManager.requestAudioFocus(focusChange -> {
-            switch (focusChange) {
-                case AudioManager.AUDIOFOCUS_GAIN:
-                    mediaSessionCallback.onPlay();
-                    break;
-                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                    break;
-                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                    mediaSessionCallback.onPause();
-                    break;
-                case AudioManager.AUDIOFOCUS_LOSS:
-                    mediaSessionCallback.onStop();
-                    break;
-            }
-        }, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-        return focusRequest == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setUsage(C.USAGE_MEDIA)
+                .setContentType(C.CONTENT_TYPE_MUSIC)
+                .build();
+        exoPlayer.setAudioAttributes(audioAttributes,true);
     }
 
     private void setMediaSourceFromTrackList() {
@@ -231,7 +214,6 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
         if(pos>=trackList.size() || pos<0)
             return;
         Track track = trackList.get(pos);
-        descriptionAdapter.setTrack(track);
         currentTrack = track;
         mediaSessionCompat.setMetadata(MediaUtils.buildMetaData(track).build());
         SharedPreferences.Editor editor = getSharedPreferences(Constants.SHARED_PREF,0).edit();
@@ -285,7 +267,7 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
             MediaButtonReceiver.handleIntent(mediaSessionCompat, intent);
         else
             mediaButtonIntent = intent;
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     @Override
@@ -301,9 +283,11 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
 
     @Override
     public void onDestroy() {
-        playerNotificationManager.setPlayer(null);
-        exoPlayer.release();
         mediaSessionCompat.release();
+        mediaSessionConnector.setPlayer(null,null);
+        exoPlayer.release();
+        exoPlayer = null;
+        super.onDestroy();
     }
 
     @Override
@@ -429,10 +413,6 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
         @Override
         public void onPlay() {
             super.onPlay();
-            if (!isAudioFocusGranted()) {
-                Toast.makeText(BackgroundAudioService.this, "No audio focus", Toast.LENGTH_SHORT).show();
-                return;
-            }
             if(trackList==null)
                 return;
             exoPlayer.setPlayWhenReady(true);
@@ -463,10 +443,6 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
         }
 
         @Override
-        public void onPlayFromMediaId(String mediaId, Bundle extras) {
-        }
-
-        @Override
         public void onPause() {
             updateWidgetButton(android.R.drawable.ic_media_play);
             unregisterReceiver(mNoisyReceiver);
@@ -477,6 +453,8 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
         @Override
         public void onStop() {
             updateWidgetButton(android.R.drawable.ic_media_play);
+            Toast.makeText(getApplicationContext(),"stop",Toast.LENGTH_SHORT).show();
+            stopForeground(true);
             stopSelf();
         }
 
