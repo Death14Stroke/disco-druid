@@ -31,6 +31,7 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -361,16 +362,17 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
             int pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE);
             if(page==0)
                 specialTrackProvider = new TrackProvider(getApplicationContext(),options);
-            List<Track> trackList = MediaUtils.getTracksForPage(specialTrackProvider,page,pageSize);
+            List<Track> trackList = new ArrayList<>();//MediaUtils.getTracksForPage(specialTrackProvider,page,pageSize);
             List<MediaBrowserCompat.MediaItem> mediaItems = MediaUtils.getMediaItemsFromTracks(trackList);
             result.sendResult(mediaItems);
         }
         else if(parentId.contains(Constants.TRACK)){
             int page = options.getInt(MediaBrowserCompat.EXTRA_PAGE);
-            int pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE);
+            char key = options.getChar(Constants.LOAD_KEY);
             if(page==0)
                 generalTrackProvider = new TrackProvider(getApplicationContext());
-            List<Track> trackList = MediaUtils.getTracksForPage(generalTrackProvider,page,pageSize);
+            List<Track> trackList = generalTrackProvider.getTracksForKey(key);
+            Log.d("itemds","service for key: "+key+":"+trackList.size());
             List<MediaBrowserCompat.MediaItem> mediaItems = MediaUtils.getMediaItemsFromTracks(trackList);
             result.sendResult(mediaItems);
         }

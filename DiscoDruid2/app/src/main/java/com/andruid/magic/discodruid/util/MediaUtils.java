@@ -243,9 +243,4 @@ public class MediaUtils {
             e.printStackTrace();
         }
     }
-
-    public static List<Track> getTracksForPage(TrackProvider trackProvider, int page, int pageSize) {
-        int start = page*pageSize;
-        return trackProvider.getTracksAtRange(start,Math.min(start+pageSize, trackProvider.getListSize()));
-    }
 }

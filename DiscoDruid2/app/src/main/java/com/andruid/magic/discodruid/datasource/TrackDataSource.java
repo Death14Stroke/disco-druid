@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.andruid.magic.discodruid.data.Constants;
 import com.andruid.magic.discodruid.model.Track;
+import com.andruid.magic.discodruid.util.MediaUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -19,7 +20,7 @@ public class TrackDataSource extends ItemKeyedDataSource<Character,Track> {
     private final MediaBrowserCompat mediaBrowserCompat;
     private String rootId;
     private Bundle options;
-    private Set<Integer> loadedPages = new HashSet<>();
+    private Set<Character> loadedPages = new HashSet<>();
 
     public TrackDataSource(MediaBrowserCompat mediaBrowserCompat, Bundle options) {
         this.mediaBrowserCompat = mediaBrowserCompat;
@@ -39,20 +40,63 @@ public class TrackDataSource extends ItemKeyedDataSource<Character,Track> {
         return rootId + key + requestedKey;
     }
 
-    @Override
-    public void loadInitial(@NonNull LoadInitialParams params, @NonNull LoadInitialCallback callback) {
-        Log.d("itemdslog", String.valueOf(params.requestedInitialKey));
+    @NonNull
+    private Bundle getInitialPageBundle(@NonNull LoadInitialParams params) {
+        Bundle extra = new Bundle();
+        extra.putInt(MediaBrowserCompat.EXTRA_PAGE, 0);
+        extra.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, params.requestedLoadSize);
+        extra.putChar(Constants.LOAD_KEY,Constants.SPECIAL_SYMBOLS);
+        return extra;
     }
 
     @Override
-    public void loadAfter(@NonNull LoadParams params, @NonNull LoadCallback callback) {
-
+    public void loadInitial(@NonNull LoadInitialParams<Character> params, @NonNull LoadInitialCallback<Track> callback) {
+        Log.d("itemds","load initial");
+        String parentId = getParentId(Constants.SPECIAL_SYMBOLS);
+        Bundle extra = getInitialPageBundle(params);
+        if(options!=null)
+            extra.putAll(options);
+        mediaBrowserCompat.subscribe(parentId, extra, new MediaBrowserCompat.SubscriptionCallback() {
+            @Override
+            public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaBrowserCompat.MediaItem> children, @NonNull Bundle options) {
+                List<Track> trackList = MediaUtils.getTracksFromMediaItems(children);
+                for(Track track : trackList)
+                    Log.d("itemds","initial item: "+track.getTitle());
+                loadedPages.add(Constants.SPECIAL_SYMBOLS);
+                callback.onResult(trackList,0,trackList.size());
+            }
+        });
     }
 
     @Override
-    public void loadBefore(@NonNull LoadParams params, @NonNull LoadCallback callback) {
-
+    public void loadAfter(@NonNull LoadParams<Character> params, @NonNull LoadCallback<Track> callback) {
+        Log.d("itemds","load after");
+        if(loadedPages.contains(params.key)) {
+            callback.onResult(new ArrayList<>());
+            return;
+        }
+        String parentId = getParentId(params.key);
+        Bundle extras = getRangeBundle(params);
+        mediaBrowserCompat.subscribe(parentId, extras, new MediaBrowserCompat.SubscriptionCallback() {
+            @Override
+            public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaBrowserCompat.MediaItem> children, @NonNull Bundle options) {
+                List<Track> trackList = MediaUtils.getTracksFromMediaItems(children);
+                loadedPages.add(trackList.get(0).getTitle().charAt(0));
+                callback.onResult(trackList);
+            }
+        });
     }
+
+    private Bundle getRangeBundle(LoadParams<Character> params) {
+        Bundle extra = new Bundle();
+        extra.putInt(MediaBrowserCompat.EXTRA_PAGE,1);
+        extra.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE,params.requestedLoadSize);
+        extra.putChar(Constants.LOAD_KEY,params.key);
+        return extra;
+    }
+
+    @Override
+    public void loadBefore(@NonNull LoadParams<Character> params, @NonNull LoadCallback<Track> callback) { }
 
     @NonNull
     @Override

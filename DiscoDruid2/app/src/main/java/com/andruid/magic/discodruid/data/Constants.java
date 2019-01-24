@@ -28,7 +28,7 @@ public class Constants {
     public static final String SET_QUEUE = "set_queue";
     public static final String POSITION = "position";
     public static final String REMOVE_QUEUE = "remove_queue";
-    public static final int PAGE_SIZE = 10;
+    public static final int PAGE_SIZE = 2;
     public static final String ALBUM = "album";
     public static final String ARTIST = "artist";
     public static final String PLAYLIST = "playlist";
@@ -37,4 +37,6 @@ public class Constants {
     public static final String ALBUM_TRACK = "album_track";
     public static final String ARTIST_TRACK = "artist_track";
     public static final String PLAYLIST_TRACK = "playlist_track";
+    public static final Character SPECIAL_SYMBOLS = '$';
+    public static final String LOAD_KEY = "load_key";
 }
