@@ -2,8 +2,6 @@ package com.andruid.magic.discodruid;
 
 import android.Manifest;
 import android.content.Intent;
-import android.net.Uri;
-import android.provider.Settings;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,10 +15,7 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import java.util.List;
 
-import butterknife.BindString;
-
 public class SplashActivity extends AppCompatActivity {
-    @BindString(R.string.str_package) String packageString;
     private AlertDialog alertDialog;
 
     @Override

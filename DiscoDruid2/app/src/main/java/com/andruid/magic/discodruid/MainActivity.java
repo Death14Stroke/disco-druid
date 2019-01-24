@@ -43,6 +43,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.andruid.magic.discodruid.adapter.CustomPagerAdapter;
 import com.andruid.magic.discodruid.adapter.TrackDetailAdapter;
@@ -161,11 +162,44 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
         setRecyclerView();
         setBottomSheet();
         setSeekBar();
-        trackDetailAdapter = new TrackDetailAdapter(this);
-        recyclerView.setAdapter(trackDetailAdapter);
-        mediaBrowserCompat = new MediaBrowserCompat(MainActivity.this,
-                new ComponentName(MainActivity.this, BackgroundAudioService.class),
-                connectionCallback, null);
+        mediaBrowserCompat = new MediaBrowserCompat(MainActivity.this, new ComponentName(MainActivity.this, BackgroundAudioService.class),
+                new MediaBrowserCompat.ConnectionCallback(){
+                    @Override
+                    public void onConnected() {
+                        super.onConnected();
+                        try {
+                            mediaControllerCompat = new MediaControllerCompat(MainActivity.this, mediaBrowserCompat.getSessionToken());
+                            mediaControllerCompat.registerCallback(callback);
+                            MediaControllerCompat.setMediaController(MainActivity.this,mediaControllerCompat);
+                            if(Intent.ACTION_VIEW.equalsIgnoreCase(getIntent().getAction())){
+                                mediaControllerCompat.getTransportControls().playFromUri(getIntent().getData(),null);
+                                return;
+                            }
+                            mediaBrowserCompat.subscribe(Constants.PLAY_QUEUE,subscriptionCallback);
+                            setShuffleButton(mediaControllerCompat.getShuffleMode());
+                            setRepeatButton(mediaControllerCompat.getRepeatMode());
+                            PlaybackStateCompat ps = mediaControllerCompat.getPlaybackState();
+                            if(ps!=null){
+                                int state = ps.getState();
+                                Bundle extras = ps.getExtras();
+                                if(state == PlaybackStateCompat.STATE_PLAYING && extras!=null){
+                                    int pos = Integer.parseInt(String.valueOf(extras.getLong(Constants.SEEK_POSITION)));
+                                    seekBar.setProgress(pos/1000);
+                                    mSeekBarUpdateHandler.postDelayed(mUpdateSeekBar,1000);
+                                }
+                                setButtonStates(state);
+                            }
+                        } catch( RemoteException e ) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onConnectionFailed() {
+                        super.onConnectionFailed();
+                        Toast.makeText(getApplicationContext(),"Connection failed",Toast.LENGTH_SHORT).show();
+                    }
+                }, null);
         Dexter.withActivity(this)
                 .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                 .withListener(new PermissionListener() {
@@ -194,39 +228,6 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
         if(mediaBrowserCompat!=null)
             mediaBrowserCompat.disconnect();
     }
-
-
-    private MediaBrowserCompat.ConnectionCallback connectionCallback = new MediaBrowserCompat.ConnectionCallback(){
-        @Override
-        public void onConnected() {
-            super.onConnected();
-            try {
-                mediaControllerCompat = new MediaControllerCompat(MainActivity.this, mediaBrowserCompat.getSessionToken());
-                mediaControllerCompat.registerCallback(callback);
-                MediaControllerCompat.setMediaController(MainActivity.this,mediaControllerCompat);
-                if(Intent.ACTION_VIEW.equalsIgnoreCase(getIntent().getAction())){
-                    mediaControllerCompat.getTransportControls().playFromUri(getIntent().getData(),null);
-                    return;
-                }
-                mediaBrowserCompat.subscribe(Constants.PLAY_QUEUE,subscriptionCallback);
-                setShuffleButton(mediaControllerCompat.getShuffleMode());
-                setRepeatButton(mediaControllerCompat.getRepeatMode());
-                PlaybackStateCompat ps = mediaControllerCompat.getPlaybackState();
-                if(ps!=null){
-                    int state = ps.getState();
-                    Bundle extras = ps.getExtras();
-                    if(state == PlaybackStateCompat.STATE_PLAYING && extras!=null){
-                        int pos = Integer.parseInt(String.valueOf(extras.getLong(Constants.SEEK_POSITION)));
-                        seekBar.setProgress(pos/1000);
-                        mSeekBarUpdateHandler.postDelayed(mUpdateSeekBar,1000);
-                    }
-                    setButtonStates(state);
-                }
-            } catch( RemoteException e ) {
-                e.printStackTrace();
-            }
-        }
-    };
 
     private MediaBrowserCompat.SubscriptionCallback subscriptionCallback = new MediaBrowserCompat.SubscriptionCallback() {
         @Override
@@ -391,6 +392,7 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
 
     private void setRecyclerView() {
         trackDetailAdapter = new TrackDetailAdapter(this);
+        recyclerView.setAdapter(trackDetailAdapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         recyclerView.setLayoutManager(layoutManager);

@@ -5,12 +5,15 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -38,7 +41,7 @@ import com.andruid.magic.discodruid.model.Track;
 import com.andruid.magic.discodruid.model.TrackItem;
 import com.andruid.magic.discodruid.util.MediaUtils;
 import com.andruid.magic.discodruid.util.RecyclerTouchListener;
-import com.andruid.magic.discodruid.viewmodel.TrackViewModel;
+import com.andruid.magic.discodruid.viewmodel.PagedTrackViewModel;
 import com.xwray.groupie.GroupAdapter;
 import com.xwray.groupie.Section;
 
@@ -60,7 +63,7 @@ public class TrackFragment extends Fragment implements ActionMode.Callback {
     private ActionMode actionMode;
     private boolean isMultiSelect = false;
     private List<String> selectedTrackIds = new ArrayList<>();
-    private TrackViewModel trackViewModel;
+    private PagedTrackViewModel pagedTrackViewModel;
     private GroupAdapter groupAdapter;
 
     public TrackFragment() {}
@@ -73,7 +76,7 @@ public class TrackFragment extends Fragment implements ActionMode.Callback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         trackAdapter = new TrackAdapter(getContext(), Constants.VIEW_TRACKS);
-        trackViewModel = ViewModelProviders.of(this).get(TrackViewModel.class);
+        pagedTrackViewModel = ViewModelProviders.of(this).get(PagedTrackViewModel.class);
         mediaBrowserCompat = new MediaBrowserCompat(getContext(), new ComponentName(Objects.requireNonNull(getActivity()),BackgroundAudioService.class),
                 new MediaBrowserCompat.ConnectionCallback(){
                     @Override
@@ -184,28 +187,10 @@ public class TrackFragment extends Fragment implements ActionMode.Callback {
     }
 
     private void loadTracks() {
-        trackViewModel.getTracks(mediaBrowserCompat, new Bundle(), trackLiveData ->
-                trackLiveData.observe(TrackFragment.this, tracks -> {
-                    Map<Character,List<Track>> characterListMap = new TreeMap<>();
-                    for(Track track : tracks){
-                        char c = track.getTitle().charAt(0);
-                        if(!characterListMap.containsKey(c))
-                            characterListMap.put(c,new ArrayList<>());
-                        characterListMap.get(c).add(track);
-                    }
-                    for(char key : characterListMap.keySet()) {
-                        Section section = new Section();
-                        HeaderItem headerItem = new HeaderItem(key);
-                        section.setHeader(headerItem);
-                        for(Track track : Objects.requireNonNull(characterListMap.get(key))){
-                            TrackItem trackItem = new TrackItem(track,getContext());
-                            section.add(trackItem);
-                        }
-                        groupAdapter.add(section);
-                    }
-                    //trackAdapter.setTrackList(tracks);
-                    swipeRefreshLayout.setRefreshing(false);
-                }));
+        pagedTrackViewModel.getTracks(mediaBrowserCompat,null).observe(TrackFragment.this, tracks -> {
+            //pagedTrackAdapter.submitList(tracks);
+            swipeRefreshLayout.setRefreshing(false);
+        });
     }
 
     private void multiSelect(int position) {

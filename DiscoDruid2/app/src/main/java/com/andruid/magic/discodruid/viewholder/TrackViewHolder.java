@@ -15,6 +15,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.xwray.groupie.ViewHolder;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -48,5 +49,15 @@ public class TrackViewHolder extends ViewHolder {
                     .apply(new RequestOptions()
                         .diskCacheStrategy(DiskCacheStrategy.NONE))
                     .into(imageView);
+    }
+
+    @Override
+    public int getSwipeDirs() {
+        return ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+    }
+
+    @Override
+    public int getDragDirs() {
+        return ItemTouchHelper.DOWN | ItemTouchHelper.UP;
     }
 }

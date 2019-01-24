@@ -89,7 +89,7 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
     private ConcatenatingMediaSource concatenatingMediaSource;
     private DataSource.Factory dataSourceFactory;
     private Intent mediaButtonIntent;
-    private TrackProvider trackProvider;
+    private TrackProvider generalTrackProvider, specialTrackProvider;
     private AlbumProvider albumProvider;
     private ArtistProvider artistProvider;
     private PlaylistProvider playlistProvider;
@@ -166,8 +166,11 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
             public void onPositionDiscontinuity(int reason) {
                 if(reason==Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT ||
                         reason==Player.DISCONTINUITY_REASON_PERIOD_TRANSITION || reason==Player.DISCONTINUITY_REASON_INTERNAL) {
-                    setSong(exoPlayer.getCurrentWindowIndex());
-                    updateWidget(trackList.get(exoPlayer.getCurrentWindowIndex()));
+                    int pos = exoPlayer.getCurrentWindowIndex();
+                    if(pos>=0 && pos<trackList.size()) {
+                        setSong(exoPlayer.getCurrentWindowIndex());
+                        updateWidget(trackList.get(exoPlayer.getCurrentWindowIndex()));
+                    }
                 }
             }
         });
@@ -320,13 +323,6 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
             MediaBrowserCompat.MediaItem mediaItem = new MediaBrowserCompat.MediaItem(descriptionCompat,MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
             result.sendResult(Collections.singletonList(mediaItem));
         }
-        else if(parentMediaId.equalsIgnoreCase(Constants.TRACK)){
-            if(trackProvider==null)
-                trackProvider = new TrackProvider(getApplicationContext());
-            List<Track> trackList = trackProvider.getAllTracks();
-            List<MediaBrowserCompat.MediaItem> mediaItems = MediaUtils.getMediaItemsFromTracks(trackList);
-            result.sendResult(mediaItems);
-        }
         else if(parentMediaId.equalsIgnoreCase(Constants.PLAY_QUEUE)){
             if(!tracks.isEmpty()) {
                 List<MediaItem> mediaItems = MediaUtils.getMediaItemsFromTracks(tracks);
@@ -359,10 +355,22 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
     @Override
     public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaItem>> result, @NonNull Bundle options) {
         result.detach();
-        if(parentId.equalsIgnoreCase(Constants.ALBUM_TRACK) ||
-                parentId.equalsIgnoreCase(Constants.ARTIST_TRACK) || parentId.equalsIgnoreCase(Constants.PLAYLIST_TRACK)){
-            TrackProvider trackProvider = new TrackProvider(getApplicationContext(), options);
-            List<Track> trackList = trackProvider.getAllTracks();
+        if(parentId.contains(Constants.ALBUM_TRACK) || parentId.contains(Constants.ARTIST_TRACK)
+            || parentId.equals(Constants.PLAYLIST_TRACK)){
+            int page = options.getInt(MediaBrowserCompat.EXTRA_PAGE);
+            int pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE);
+            if(page==0)
+                specialTrackProvider = new TrackProvider(getApplicationContext(),options);
+            List<Track> trackList = MediaUtils.getTracksForPage(specialTrackProvider,page,pageSize);
+            List<MediaBrowserCompat.MediaItem> mediaItems = MediaUtils.getMediaItemsFromTracks(trackList);
+            result.sendResult(mediaItems);
+        }
+        else if(parentId.contains(Constants.TRACK)){
+            int page = options.getInt(MediaBrowserCompat.EXTRA_PAGE);
+            int pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE);
+            if(page==0)
+                generalTrackProvider = new TrackProvider(getApplicationContext());
+            List<Track> trackList = MediaUtils.getTracksForPage(generalTrackProvider,page,pageSize);
             List<MediaBrowserCompat.MediaItem> mediaItems = MediaUtils.getMediaItemsFromTracks(trackList);
             result.sendResult(mediaItems);
         }

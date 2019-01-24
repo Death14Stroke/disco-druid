@@ -31,6 +31,7 @@ import com.andruid.magic.discodruid.model.Track;
 import com.andruid.magic.discodruid.provider.AlbumProvider;
 import com.andruid.magic.discodruid.provider.ArtistProvider;
 import com.andruid.magic.discodruid.provider.PlaylistProvider;
+import com.andruid.magic.discodruid.provider.TrackProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -241,5 +242,10 @@ public class MediaUtils {
         } catch (OperationApplicationException | RemoteException e) {
             e.printStackTrace();
         }
+    }
+
+    public static List<Track> getTracksForPage(TrackProvider trackProvider, int page, int pageSize) {
+        int start = page*pageSize;
+        return trackProvider.getTracksAtRange(start,Math.min(start+pageSize, trackProvider.getListSize()));
     }
 }
