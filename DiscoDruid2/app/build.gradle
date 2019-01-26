@@ -34,14 +34,12 @@ dependencies {
     implementation 'com.karumi:dexter:5.0.0'
     implementation 'com.github.bumptech.glide:glide:4.8.0'
     implementation 'com.google.code.gson:gson:2.8.5'
-    implementation "android.arch.paging:runtime:1.0.1"
     implementation 'com.google.android.exoplayer:exoplayer:2.9.3'
     implementation 'com.google.android.exoplayer:extension-mediasession:2.9.3'
-    implementation "android.arch.paging:runtime:1.0.1"
-    implementation 'com.annimon:stream:1.2.1'
+    implementation "androidx.paging:paging-runtime:2.1.0"
     implementation 'com.jakewharton:butterknife:10.0.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
-    implementation "android.arch.lifecycle:extensions:1.1.1"
-    annotationProcessor "android.arch.lifecycle:compiler:1.1.1"
+    implementation "androidx.lifecycle:lifecycle-extensions:2.0.0"
+    implementation "androidx.lifecycle:lifecycle-common-java8:2.0.0"
     implementation 'com.xwray:groupie:2.3.0'
 }

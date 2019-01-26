@@ -1,11 +1,13 @@
 package com.andruid.magic.discodruid.datasource;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 import android.util.Log;
 
 import com.andruid.magic.discodruid.data.Constants;
 import com.andruid.magic.discodruid.model.Track;
+import com.andruid.magic.discodruid.model.TrackItem;
 import com.andruid.magic.discodruid.util.MediaUtils;
 
 import java.util.ArrayList;
@@ -16,19 +18,21 @@ import java.util.Set;
 import androidx.annotation.NonNull;
 import androidx.paging.PositionalDataSource;
 
-public class TrackDataSource extends PositionalDataSource<Track> {
+public class TrackDataSource extends PositionalDataSource<TrackItem> {
     private final MediaBrowserCompat mediaBrowserCompat;
     private String rootId;
     private Bundle options;
     private Set<Integer> loadedPages = new HashSet<>();
+    private Context mContext;
 
-    public TrackDataSource(MediaBrowserCompat mediaBrowserCompat, Bundle options) {
+    public TrackDataSource(MediaBrowserCompat mediaBrowserCompat, Bundle options, Context mContext) {
         this.mediaBrowserCompat = mediaBrowserCompat;
         this.options = options;
+        this.mContext = mContext;
     }
 
     @Override
-    public void loadInitial(@NonNull final LoadInitialParams params, @NonNull final LoadInitialCallback<Track> callback) {
+    public void loadInitial(@NonNull final LoadInitialParams params, @NonNull final LoadInitialCallback<TrackItem> callback) {
         String parentId = getParentId(params.requestedStartPosition);
         Bundle extra = getInitialPageBundle(params);
         if(options!=null)
@@ -39,13 +43,16 @@ public class TrackDataSource extends PositionalDataSource<Track> {
                 loadedPages.add(0);
                 List<Track> trackList = MediaUtils.getTracksFromMediaItems(children);
                 Log.d("adapterlog","initial datasource:"+trackList.size());
-                callback.onResult(trackList,params.requestedStartPosition);
+                List<TrackItem> trackItemList = new ArrayList<>();
+                for(Track track : trackList)
+                    trackItemList.add(new TrackItem(track,mContext));
+                callback.onResult(trackItemList,params.requestedStartPosition);
             }
         });
     }
 
     @Override
-    public void loadRange(@NonNull LoadRangeParams params, @NonNull final LoadRangeCallback<Track> callback) {
+    public void loadRange(@NonNull LoadRangeParams params, @NonNull final LoadRangeCallback<TrackItem> callback) {
         final int pageIndex = getPageIndex(params);
         if(loadedPages.contains(pageIndex)){
             callback.onResult(new ArrayList<>());
@@ -59,7 +66,10 @@ public class TrackDataSource extends PositionalDataSource<Track> {
                 loadedPages.add(pageIndex);
                 List<Track> trackList = MediaUtils.getTracksFromMediaItems(children);
                 Log.d("adapterlog","loadrange datasource:"+trackList.size());
-                callback.onResult(trackList);
+                List<TrackItem> trackItemList = new ArrayList<>();
+                for(Track track : trackList)
+                    trackItemList.add(new TrackItem(track,mContext));
+                callback.onResult(trackItemList);
             }
         });
     }

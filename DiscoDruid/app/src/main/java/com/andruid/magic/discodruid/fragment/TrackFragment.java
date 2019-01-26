@@ -21,6 +21,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -184,6 +185,7 @@ public class TrackFragment extends Fragment implements SelectPlayListDialog.Play
                         pagedTrackViewModel.getTracks(mediaBrowserCompat,null).observe(TrackFragment.this, new Observer<PagedList<Track>>() {
                             @Override
                             public void onChanged(@Nullable PagedList<Track> tracks) {
+                                Log.d("adapterlogold",tracks.snapshot().size()+"");
                                 pagedTrackAdapter.submitList(tracks);
                                 swipeRefreshLayout.setRefreshing(false);
                             }

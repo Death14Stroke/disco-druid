@@ -9,15 +9,15 @@ import android.provider.MediaStore;
 import android.support.v4.media.MediaBrowserCompat;
 
 import com.andruid.magic.discodruid.datasource.TrackDataSource;
-import com.andruid.magic.discodruid.model.Track;
+import com.andruid.magic.discodruid.model.TrackItem;
 
 import androidx.paging.DataSource;
 
-public class TrackDataSourceFactory extends DataSource.Factory<Integer,Track> {
+public class TrackDataSourceFactory extends DataSource.Factory<Integer,TrackItem> {
     private TrackDataSource trackDataSource;
 
-    public TrackDataSourceFactory(Context context, final MediaBrowserCompat mediaBrowserCompat, final Bundle options) {
-        trackDataSource = new TrackDataSource(mediaBrowserCompat,options);
+    public TrackDataSourceFactory(Context context,final MediaBrowserCompat mediaBrowserCompat, final Bundle options) {
+        trackDataSource = new TrackDataSource(mediaBrowserCompat,options, context);
         context.getContentResolver().registerContentObserver(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, true,
                 new ContentObserver(new Handler()) {
                     @Override
@@ -25,7 +25,7 @@ public class TrackDataSourceFactory extends DataSource.Factory<Integer,Track> {
                         super.onChange(selfChange, uri);
                         if(uri.getLastPathSegment()!=null && !selfChange) {
                             trackDataSource.invalidate();
-                            trackDataSource = new TrackDataSource(mediaBrowserCompat, options);
+                            trackDataSource = new TrackDataSource(mediaBrowserCompat, options, context);
                             create();
                         }
                     }
@@ -33,7 +33,7 @@ public class TrackDataSourceFactory extends DataSource.Factory<Integer,Track> {
     }
 
     @Override
-    public DataSource<Integer, Track> create() {
+    public DataSource<Integer, TrackItem> create() {
         return trackDataSource;
     }
 }
