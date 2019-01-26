@@ -13,7 +13,7 @@ import com.andruid.magic.discodruid.model.Track;
 
 import androidx.paging.DataSource;
 
-public class TrackDataSourceFactory extends DataSource.Factory<Character, Track> {
+public class TrackDataSourceFactory extends DataSource.Factory<Integer,Track> {
     private TrackDataSource trackDataSource;
 
     public TrackDataSourceFactory(Context context, final MediaBrowserCompat mediaBrowserCompat, final Bundle options) {
@@ -33,7 +33,7 @@ public class TrackDataSourceFactory extends DataSource.Factory<Character, Track>
     }
 
     @Override
-    public DataSource<Character, Track> create() {
+    public DataSource<Integer, Track> create() {
         return trackDataSource;
     }
 }

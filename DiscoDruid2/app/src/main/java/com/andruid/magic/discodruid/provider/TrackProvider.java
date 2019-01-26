@@ -4,40 +4,39 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
-
-import androidx.core.content.ContentResolverCompat;
 
 import com.andruid.magic.discodruid.data.Constants;
 import com.andruid.magic.discodruid.model.Track;
-import com.annimon.stream.Stream;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import androidx.core.content.ContentResolverCompat;
 
 public class TrackProvider {
     private final Cursor cursor;
     private final ContentResolver contentResolver;
     private String selection;
     private Uri uri;
-    private List<Track> trackList;
 
     public TrackProvider(Context context) {
-        trackList = new ArrayList<>();
         contentResolver = context.getContentResolver();
         initSelection();
         uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        cursor = ContentResolverCompat.query(contentResolver, uri, getProjection(), selection,
-                null, getSortOrder(), null);
-        getTracksFromCursor();
+        cursor = ContentResolverCompat.query(
+                contentResolver,
+                uri,
+                getProjection(),
+                selection,
+                null,
+                getSortOrder(),
+                null
+        );
     }
 
     public TrackProvider(Context context, Bundle options){
-        trackList = new ArrayList<>();
         contentResolver = context.getContentResolver();
         uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         initSelection();
@@ -72,49 +71,45 @@ public class TrackProvider {
         else if(options.containsKey(Constants.PLAYLIST_ID)){
             uri = MediaStore.Audio.Playlists.Members.getContentUri("external", options.getLong(Constants.PLAYLIST_ID));
             projection = new String[]{
-                    MediaStore.Audio.Playlists.Members.AUDIO_ID, MediaStore.Audio.Playlists.Members.ARTIST,
-                    MediaStore.Audio.Playlists.Members.TITLE, MediaStore.Audio.Playlists.Members.DATA,
-                    MediaStore.Audio.Playlists.Members.DURATION, MediaStore.Audio.Playlists.Members.ALBUM_ID,
+                    MediaStore.Audio.Playlists.Members.AUDIO_ID,
+                    MediaStore.Audio.Playlists.Members.ARTIST,
+                    MediaStore.Audio.Playlists.Members.TITLE,
+                    MediaStore.Audio.Playlists.Members.DATA,
+                    MediaStore.Audio.Playlists.Members.DURATION,
+                    MediaStore.Audio.Playlists.Members.ALBUM_ID,
                     MediaStore.Audio.Playlists.Members.ALBUM
             };
             sortOrder = MediaStore.Audio.Playlists.Members.PLAY_ORDER;
         }
-        cursor = ContentResolverCompat.query(contentResolver, uri, projection, selection,
-                selectionArgs, sortOrder, null);
-        getTracksFromCursor();
+        cursor = ContentResolverCompat.query(
+                contentResolver,
+                uri,
+                projection,
+                selection,
+                selectionArgs,
+                sortOrder,
+                null
+        );
     }
 
-    private void getTracksFromCursor() {
-        trackList.clear();
-        while (cursor.moveToNext()){
-            trackList.add(getTrackFromCursor());
+    public int getListSize(){
+        return cursor.getCount();
+    }
+
+    public List<Track> getTracksAtRange(int start, int end){
+        List<Track> trackList = new ArrayList<>();
+        for(int i=start;i<end;i++){
+            Track track = getTrackAtPosition(i);
+            if(track!=null)
+                trackList.add(track);
         }
-        cursor.close();
+        return trackList;
     }
 
-    public List<Track> getTracksForKey(char key){
-        Log.d("itemds",trackList.size()+" items");
-        if(key==Constants.SPECIAL_SYMBOLS)
-            return getTracksForSpecialKey();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            return trackList.stream().filter(track -> track.getTitle().charAt(0)==key)
-                    .collect(Collectors.toList());
-        else
-            return Stream.of(trackList).filter(track -> track.getTitle().charAt(0)==key)
-                    .toList();
-    }
-
-    private List<Track> getTracksForSpecialKey(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            return trackList.stream().filter(track ->
-                    !((track.getTitle().charAt(0) >= 'a' && track.getTitle().charAt(0) <= 'z') ||
-                            ((track.getTitle().charAt(0) >= 'A' && track.getTitle().charAt(0) <= 'Z'))))
-                    .collect(Collectors.toList());
-        else
-            return Stream.of(trackList).filterNot(track ->
-                    (track.getTitle().charAt(0) >= 'a' && track.getTitle().charAt(0) <= 'z') ||
-                            ((track.getTitle().charAt(0) >= 'A' && track.getTitle().charAt(0) <= 'Z')))
-                    .toList();
+    private Track getTrackAtPosition(int position){
+        if(!cursor.moveToPosition(position))
+            return null;
+        return getTrackFromCursor();
     }
 
     private Track getTrackFromCursor(){
@@ -129,21 +124,27 @@ public class TrackProvider {
         Cursor c = contentResolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
                 new String[]{MediaStore.Audio.Albums.ALBUM_ART},
                 MediaStore.Audio.Albums._ID + "=?",
-                new String[]{track.getAlbumId()}, null);
+                new String[]{track.getAlbumId()},
+                null);
         if (c != null && c.moveToFirst()) {
             String path = c.getString(0);
             track.setAlbumArtUri(path);
         }
-        if (c != null)
+        if (c != null) {
             c.close();
+        }
         return track;
     }
 
     private String[] getProjection() {
         return new String[]{
-                MediaStore.Audio.Media._ID, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.DURATION,
-                MediaStore.Audio.Media.ALBUM_ID, MediaStore.Audio.Media.ALBUM
+                MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.ALBUM_ID,
+                MediaStore.Audio.Media.ALBUM
         };
     }
 
@@ -160,6 +161,9 @@ public class TrackProvider {
     }
 
     public List<Track> getAllTracks() {
+        List<Track> trackList = new ArrayList<>();
+        for(int i=0;i<cursor.getCount();i++)
+            trackList.add(getTrackAtPosition(i));
         return trackList;
     }
 }

@@ -362,17 +362,17 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
             int pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE);
             if(page==0)
                 specialTrackProvider = new TrackProvider(getApplicationContext(),options);
-            List<Track> trackList = new ArrayList<>();//MediaUtils.getTracksForPage(specialTrackProvider,page,pageSize);
+            List<Track> trackList = MediaUtils.getTracksForPage(specialTrackProvider,page,pageSize);
             List<MediaBrowserCompat.MediaItem> mediaItems = MediaUtils.getMediaItemsFromTracks(trackList);
             result.sendResult(mediaItems);
         }
-        else if(parentId.contains(Constants.TRACK)){
+        else if(parentId.contains(Constants.TRACK) && !parentId.equals(Constants.CURRENT_TRACK)){
             int page = options.getInt(MediaBrowserCompat.EXTRA_PAGE);
-            char key = options.getChar(Constants.LOAD_KEY);
+            int pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE);
             if(page==0)
                 generalTrackProvider = new TrackProvider(getApplicationContext());
-            List<Track> trackList = generalTrackProvider.getTracksForKey(key);
-            Log.d("itemds","service for key: "+key+":"+trackList.size());
+            List<Track> trackList = MediaUtils.getTracksForPage(generalTrackProvider,page,pageSize);
+            Log.d("adapterlog","mediabrowser onloadchildren:"+trackList.size()+":"+parentId);
             List<MediaBrowserCompat.MediaItem> mediaItems = MediaUtils.getMediaItemsFromTracks(trackList);
             result.sendResult(mediaItems);
         }

@@ -21,6 +21,10 @@ public class TrackItem extends Item<TrackViewHolder> {
         this.mContext = mContext;
     }
 
+    public Track getTrack() {
+        return track;
+    }
+
     @Override
     public void bind(@NonNull TrackViewHolder viewHolder, int position) {
         viewHolder.setItem(track,mContext);
