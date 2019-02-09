@@ -6,6 +6,9 @@
         <variable
             name="track"
             type="com.andruid.magic.discodruid.model.Track"/>
+        <variable
+            name="progress"
+            type="int"/>
     </data>
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/activity_main"
@@ -36,6 +39,7 @@
         <include
             android:id="@+id/bottom_sheet"
             layout="@layout/bottom_sheet"
-            app:track="@{track}"/>
+            app:track="@{track}"
+            app:progress="@{progress}"/>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

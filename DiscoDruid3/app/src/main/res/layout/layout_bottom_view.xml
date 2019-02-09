@@ -19,7 +19,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:imageUrl="@{track.path}"
+            android:imageUrl="@{track.albumArtUri}"
             android:contentDescription="@string/content_description" />
         <TextView
             android:id="@+id/track_nameTV"

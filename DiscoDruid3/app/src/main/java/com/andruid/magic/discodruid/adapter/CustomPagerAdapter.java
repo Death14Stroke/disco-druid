@@ -6,6 +6,7 @@ import com.andruid.magic.discodruid.fragment.ArtistFragment;
 import com.andruid.magic.discodruid.fragment.PlaylistFragment;
 import com.andruid.magic.discodruid.fragment.TrackFragment;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -16,24 +17,19 @@ public class CustomPagerAdapter extends FragmentStatePagerAdapter {
         super(fm);
     }
 
+    @NonNull
     @Override
     public Fragment getItem(int position) {
-        Fragment fragment = null;
         switch (position){
             case Constants.POSITION_TRACK:
-                fragment = TrackFragment.newInstance();
-                break;
+                return TrackFragment.newInstance();
             case Constants.POSITION_ALBUM:
-                fragment = AlbumFragment.newInstance();
-                break;
+                return AlbumFragment.newInstance();
             case Constants.POSITION_ARTIST:
-                fragment = ArtistFragment.newInstance();
-                break;
-            case Constants.POSITION_PLAYLIST:
-                fragment = PlaylistFragment.newInstance();
-                break;
+                return ArtistFragment.newInstance();
+            default:
+                return PlaylistFragment.newInstance();
         }
-        return fragment;
     }
 
     @Override

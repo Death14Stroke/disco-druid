@@ -7,9 +7,6 @@
             name="track"
             type="com.andruid.magic.discodruid.model.Track"/>
         <variable
-            name="arrowImage"
-            type="int" />
-        <variable
             name="progress"
             type="int"/>
     </data>
@@ -34,7 +31,7 @@
             android:layout_height="20dp"
             android:layout_marginTop="5dp"
             android:layout_gravity="center_horizontal"
-            android:src="@{arrowImage}"
+            android:src="@android:drawable/arrow_up_float"
             android:contentDescription="@string/content_description" />
         <include layout="@layout/layout_bottom_view"
             android:id="@+id/bottom_collapsed_view"
@@ -103,6 +100,7 @@
                 <SeekBar
                     android:id="@+id/track_detail_seekBar"
                     android:progress="@{progress}"
+                    android:max="@{Integer.parseInt(String.valueOf(track.duration))}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="30dp"

@@ -3,6 +3,8 @@ package com.andruid.magic.discodruid.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.Nullable;
+
 public class Artist implements Parcelable {
     private String artistId, artist;
     private int tracksCount, albumsCount;
@@ -15,6 +17,19 @@ public class Artist implements Parcelable {
         artist = in.readString();
         tracksCount = in.readInt();
         albumsCount = in.readInt();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if(this == obj)
+            return true;
+        if(obj == null)
+            return false;
+        if(getClass() != obj.getClass())
+            return false;
+        Artist artist = (Artist) obj;
+        return artistId.equalsIgnoreCase(artist.artistId) && this.artist.equalsIgnoreCase(artist.artist) &&
+                tracksCount==artist.tracksCount && albumsCount==artist.albumsCount;
     }
 
     public static final Creator<Artist> CREATOR = new Creator<Artist>() {

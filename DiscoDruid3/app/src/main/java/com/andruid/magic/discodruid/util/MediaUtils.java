@@ -17,14 +17,10 @@ import android.provider.Settings;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.andruid.magic.discodruid.MainActivity;
 import com.andruid.magic.discodruid.R;
 import com.andruid.magic.discodruid.data.Constants;
 import com.andruid.magic.discodruid.model.Album;
@@ -35,18 +31,12 @@ import com.andruid.magic.discodruid.provider.AlbumProvider;
 import com.andruid.magic.discodruid.provider.ArtistProvider;
 import com.andruid.magic.discodruid.provider.PlaylistProvider;
 import com.andruid.magic.discodruid.provider.TrackProvider;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
-import com.bumptech.glide.request.RequestOptions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.databinding.BindingAdapter;
 
 public class MediaUtils {
     public static List<MediaBrowserCompat.MediaItem> getMediaItemsFromPlayLists(List<PlayList> playLists) {
@@ -251,29 +241,5 @@ public class MediaUtils {
     public static List<Track> getTracksForPage(TrackProvider trackProvider, int page, int pageSize) {
         int start = page*pageSize;
         return trackProvider.getTracksAtRange(start,Math.min(start+pageSize, trackProvider.getListSize()));
-    }
-
-    @BindingAdapter("android:imageUrl")
-    public static void imageUrl(ImageView imageView, String path){
-        if(path!=null)
-            Glide.with(imageView.getContext())
-                    .load(path)
-                    .apply(new RequestOptions()
-                            .transform(new RoundedCorners(50))
-                            .placeholder(R.drawable.music)
-                            .diskCacheStrategy(DiskCacheStrategy.NONE))
-                    .into(imageView);
-        else
-            Glide.with(imageView.getContext())
-                    .load(R.drawable.music)
-                    .apply(new RequestOptions()
-                            .diskCacheStrategy(DiskCacheStrategy.NONE))
-                    .into(imageView);
-    }
-
-    @BindingAdapter("android:timeFormat")
-    public static void getTimeString(TextView textView, long sec){
-        String s = String.format(Locale.getDefault(),"%02d:%02d",sec/60,sec%60);
-        textView.setText(s);
     }
 }

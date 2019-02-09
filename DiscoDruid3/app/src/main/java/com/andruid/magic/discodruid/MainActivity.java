@@ -13,7 +13,6 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,12 +54,13 @@ import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-public class MainActivity extends AppCompatActivity implements TrackFragment.TrackClickListener {
+public class MainActivity extends AppCompatActivity implements TrackFragment.TrackClickListener{
     private ActivityMainBinding binding;
     private BottomSheetBehavior<LinearLayout> bottomSheetBehavior;
     private TrackDetailAdapter trackDetailAdapter;
     private String mode = "";
     private boolean userScroll = false;
+    private int seekBarProgress = 0;
     private MediaBrowserCompat mediaBrowserCompat;
     private MediaControllerCompat mediaControllerCompat;
     private AlertDialog alertDialog, inputDialog;
@@ -68,8 +68,7 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
     private Runnable mUpdateSeekBar = new Runnable() {
         @Override
         public void run() {
-            binding.bottomSheet.trackDetailSeekBar.setProgress(
-                    binding.bottomSheet.trackDetailSeekBar.getProgress()+1);
+            binding.setProgress(++seekBarProgress);
             mSeekBarUpdateHandler.postDelayed(this, 1000);
         }
     };
@@ -192,7 +191,8 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
                     trackDetailAdapter.setTrackList(trackList);
                     trackDetailAdapter.notifyDataSetChanged();
                     if(trackList.isEmpty()){
-                        binding.bottomSheet.trackDetailSeekBar.setProgress(0);
+                        seekBarProgress=0;
+                        binding.setProgress(seekBarProgress);
                         mSeekBarUpdateHandler.removeCallbacks(mUpdateSeekBar);
                     }
                     MediaMetadataCompat metadataCompat = mediaControllerCompat.getMetadata();
@@ -211,7 +211,8 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
             super.onMetadataChanged(metadata);
             Track track = MediaUtils.getTrackFromMetaData(metadata);
             setActivityUI(track);
-            binding.bottomSheet.trackDetailSeekBar.setProgress(0);
+            seekBarProgress=0;
+            binding.setProgress(seekBarProgress);
         }
 
         @Override
@@ -236,22 +237,26 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
             switch (state.getState()) {
                 case PlaybackStateCompat.STATE_STOPPED:
                 case PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM:
-                    binding.bottomSheet.trackDetailSeekBar.setProgress(0);
+                    seekBarProgress=0;
+                    binding.setProgress(seekBarProgress);
                     mSeekBarUpdateHandler.removeCallbacks(mUpdateSeekBar);
                     break;
                 case PlaybackStateCompat.STATE_BUFFERING:
-                    binding.bottomSheet.trackDetailSeekBar.setProgress(0);
+                    seekBarProgress=0;
+                    binding.setProgress(seekBarProgress);
                     break;
                 case PlaybackStateCompat.STATE_PLAYING:
                     setButtonStates(PlaybackStateCompat.STATE_PLAYING);
                     int pos = Integer.parseInt(String.valueOf(state.getPosition()));
-                    binding.bottomSheet.trackDetailSeekBar.setProgress(pos/1000);
+                    seekBarProgress=pos/1000;
+                    binding.setProgress(seekBarProgress);
                     mSeekBarUpdateHandler.postDelayed(mUpdateSeekBar,0);
                     break;
                 case PlaybackStateCompat.STATE_PAUSED:
                     setButtonStates(PlaybackStateCompat.STATE_PAUSED);
                     pos = Integer.parseInt(String.valueOf(state.getPosition()));
-                    binding.bottomSheet.trackDetailSeekBar.setProgress(pos/1000);
+                    seekBarProgress=pos/1000;
+                    binding.setProgress(seekBarProgress);
                     mSeekBarUpdateHandler.removeCallbacks(mUpdateSeekBar);
                     break;
             }
@@ -265,7 +270,8 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
     }
 
     private void changeMode(String modeNew, List<Track> trackList, int pos){
-        binding.bottomSheet.trackDetailSeekBar.setProgress(0);
+        seekBarProgress=0;
+        binding.setProgress(seekBarProgress);
         mSeekBarUpdateHandler.removeCallbacks(mUpdateSeekBar);
         if(!mode.equalsIgnoreCase(modeNew)) {
             changePlayList(trackList);
@@ -313,20 +319,22 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
             binding.bottomSheet.trackDetailShuffleBtn.setImageResource(R.drawable.ic_shuffle_off);
     }
 
-
     private void setBinding() {
         binding = DataBindingUtil.setContentView(this,R.layout.activity_main);
+        binding.setProgress(seekBarProgress);
     }
 
     private void setSeekBar() {
         binding.bottomSheet.trackDetailSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                binding.bottomSheet.trackDetailSeekBar.setProgress(seekBar.getProgress());
+                seekBarProgress=i;
+                binding.setProgress(seekBarProgress);
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                binding.bottomSheet.trackDetailSeekBar.setProgress(seekBar.getProgress());
+                seekBarProgress=seekBar.getProgress();
+                binding.setProgress(seekBarProgress);
             }
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
@@ -389,35 +397,37 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
 
     private void setViewPager() {
         CustomPagerAdapter pagerAdapter = new CustomPagerAdapter(getSupportFragmentManager());
-        MaterialViewPager materialViewPager = binding.materialViewPager;
-        materialViewPager.getViewPager().setAdapter(pagerAdapter);
-        materialViewPager.getPagerTitleStrip().setViewPager(materialViewPager.getViewPager());
-        materialViewPager.setMaterialViewPagerListener(page -> {
+        binding.materialViewPager.getViewPager().setAdapter(pagerAdapter);
+        binding.materialViewPager.getViewPager().setOffscreenPageLimit(Constants.NUMBER_OF_TABS);
+        binding.materialViewPager.getPagerTitleStrip().setViewPager(binding.materialViewPager.getViewPager());
+        binding.materialViewPager.setMaterialViewPagerListener(page -> {
             switch (page) {
-                case 0:
+                case Constants.POSITION_TRACK:
+                    return HeaderDesign.fromColorResAndDrawable(
+                            R.color.colorPrimaryDark,
+                            ContextCompat.getDrawable(this,R.drawable.track_bg));
+                case Constants.POSITION_ALBUM:
+                    return HeaderDesign.fromColorResAndDrawable(
+                            android.R.color.holo_red_dark,
+                            ContextCompat.getDrawable(this,R.drawable.album_bg));
+                case Constants.POSITION_ARTIST:
+                    return HeaderDesign.fromColorResAndDrawable(
+                            R.color.colorAccent,
+                            ContextCompat.getDrawable(this,R.drawable.artist_bg));
+                default:
                     return HeaderDesign.fromColorResAndDrawable(
                             R.color.blue,
                             ContextCompat.getDrawable(this,R.drawable.music));
-                case 1:
-                    return HeaderDesign.fromColorResAndDrawable(
-                            R.color.green,
-                            ContextCompat.getDrawable(this,R.drawable.music));
-                case 2:
-                    return HeaderDesign.fromColorResAndDrawable(
-                            R.color.cyan,
-                            ContextCompat.getDrawable(this,R.drawable.music));
-                default:
-                    return HeaderDesign.fromColorResAndDrawable(
-                            R.color.red,
-                            ContextCompat.getDrawable(this,R.drawable.music));
             }
         });
-        Toolbar toolbar = materialViewPager.getToolbar();
+        Toolbar toolbar = binding.materialViewPager.getToolbar();
         if (toolbar != null) {
             setSupportActionBar(toolbar);
             ActionBar actionBar = getSupportActionBar();
             if (actionBar != null) {
-                actionBar.setDisplayShowTitleEnabled(true);
+                actionBar.setDisplayShowTitleEnabled(false);
+                actionBar.setDisplayHomeAsUpEnabled(false);
+                actionBar.setHomeButtonEnabled(false);
             }
         }
     }

@@ -97,9 +97,7 @@ public class TrackFragment extends Fragment {
             }
 
             @Override
-            public void onLongClick(View view, int position) {
-
-            }
+            public void onLongClick(View view, int position) {}
         }));
     }
 
