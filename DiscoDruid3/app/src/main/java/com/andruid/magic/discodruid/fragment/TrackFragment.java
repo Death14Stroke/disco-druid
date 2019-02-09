@@ -85,9 +85,6 @@ public class TrackFragment extends Fragment {
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerView.setItemAnimator(new DefaultItemAnimator());
         binding.recyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(Objects.requireNonNull(getContext()),DividerItemDecoration.VERTICAL);
-        dividerItemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(getContext(), R.drawable.line_divider)));
-        binding.recyclerView.addItemDecoration(dividerItemDecoration);
         binding.recyclerView.setAdapter(trackAdapter);
         binding.recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(),
                 binding.recyclerView, new RecyclerTouchListener.ClickListener() {

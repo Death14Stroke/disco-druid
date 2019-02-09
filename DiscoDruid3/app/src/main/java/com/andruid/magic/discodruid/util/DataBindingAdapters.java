@@ -9,6 +9,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import androidx.databinding.BindingAdapter;
@@ -42,5 +43,13 @@ public class DataBindingAdapters {
     @BindingAdapter("android:ibv_badgeValue")
     public static void setBadgeCount(ImageBadgeView imageBadgeView, int count){
         imageBadgeView.setBadgeValue(count);
+    }
+
+    @BindingAdapter("android:createdOn")
+    public static void setCreatedText(TextView textView, long dateCreated) {
+        String res = "Created: ";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy",Locale.getDefault());
+        res = res + dateFormat.format(dateCreated*1000);
+        textView.setText(res);
     }
 }

@@ -417,7 +417,7 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
                 default:
                     return HeaderDesign.fromColorResAndDrawable(
                             R.color.blue,
-                            ContextCompat.getDrawable(this,R.drawable.music));
+                            ContextCompat.getDrawable(this,R.drawable.playlist_bg));
             }
         });
         Toolbar toolbar = binding.materialViewPager.getToolbar();
