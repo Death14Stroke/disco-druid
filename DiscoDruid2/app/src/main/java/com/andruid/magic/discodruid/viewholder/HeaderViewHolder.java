@@ -1,4 +1,4 @@
-package com.andruid.magic.discodruid.model;
+package com.andruid.magic.discodruid.viewholder;
 
 import android.view.View;
 import android.widget.TextView;
@@ -10,8 +10,8 @@ import androidx.annotation.NonNull;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-class HeaderViewHolder extends ViewHolder {
-    @BindView(R.id.textview) TextView textView;
+public class HeaderViewHolder extends ViewHolder {
+    public @BindView(R.id.textview) TextView textView;
 
     public HeaderViewHolder(@NonNull View itemView) {
         super(itemView);

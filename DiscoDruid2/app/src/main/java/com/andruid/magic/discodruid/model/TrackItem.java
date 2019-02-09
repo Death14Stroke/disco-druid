@@ -8,11 +8,12 @@ import com.andruid.magic.discodruid.viewholder.TrackViewHolder;
 import com.xwray.groupie.Group;
 import com.xwray.groupie.GroupAdapter;
 import com.xwray.groupie.Item;
+import com.xwray.groupie.ViewHolder;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
-public class TrackItem extends Item<TrackViewHolder> {
+public class TrackItem extends Item {
     private Track track;
     private Context mContext;
 
@@ -26,11 +27,6 @@ public class TrackItem extends Item<TrackViewHolder> {
     }
 
     @Override
-    public void bind(@NonNull TrackViewHolder viewHolder, int position) {
-        viewHolder.setItem(track,mContext);
-    }
-
-    @Override
     public int getLayout() {
         return R.layout.layout_track;
     }
@@ -39,6 +35,11 @@ public class TrackItem extends Item<TrackViewHolder> {
     @Override
     public TrackViewHolder createViewHolder(@NonNull View itemView) {
         return new TrackViewHolder(itemView);
+    }
+
+    @Override
+    public void bind(@NonNull ViewHolder viewHolder, int position) {
+        ((TrackViewHolder)viewHolder).setItem(track,mContext);
     }
 
     @Override

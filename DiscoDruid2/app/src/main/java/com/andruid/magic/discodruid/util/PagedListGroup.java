@@ -1,5 +1,8 @@
 package com.andruid.magic.discodruid.util;
 
+import android.util.Log;
+
+import com.andruid.magic.discodruid.model.TrackItem;
 import com.xwray.groupie.Group;
 import com.xwray.groupie.GroupDataObserver;
 import com.xwray.groupie.Item;
@@ -15,13 +18,14 @@ import androidx.recyclerview.widget.AsyncDifferConfig;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListUpdateCallback;
 
-public class PagedListGroup<T extends Item> implements Group, GroupDataObserver {
-
+public class PagedListGroup implements Group, GroupDataObserver {
     private GroupDataObserver parentObserver;
-
     private final ListUpdateCallback listUpdateCallback = new ListUpdateCallback() {
         @Override
         public void onInserted(int position, int count) {
+            if(count==0)
+                return;
+            Log.d("paginglog","inserted:"+position+":"+count+":"+differ.getItemCount());
             parentObserver.onItemRangeInserted(PagedListGroup.this, position, count);
         }
 
@@ -40,30 +44,27 @@ public class PagedListGroup<T extends Item> implements Group, GroupDataObserver 
             parentObserver.onItemRangeChanged(PagedListGroup.this, position, count);
         }
     };
-
-    @SuppressWarnings("unchecked")
-    private final AsyncPagedListDiffer<T> differ = new AsyncPagedListDiffer<T>(
+    private final AsyncPagedListDiffer<TrackItem> differ = new AsyncPagedListDiffer<>(
             listUpdateCallback,
-            new AsyncDifferConfig.Builder(new DiffUtil.ItemCallback<T>() {
+            new AsyncDifferConfig.Builder<>(new DiffUtil.ItemCallback<TrackItem>() {
                 @Override
-                public boolean areItemsTheSame(@NotNull T oldItem, @NotNull T newItem) {
+                public boolean areItemsTheSame(@NotNull TrackItem oldItem, @NotNull TrackItem newItem) {
                     return newItem.isSameAs(oldItem);
                 }
 
                 @Override
-                public boolean areContentsTheSame(@NotNull T oldItem, @NotNull T newItem) {
+                public boolean areContentsTheSame(@NotNull TrackItem oldItem, @NotNull TrackItem newItem) {
                     return newItem.equals(oldItem);
                 }
             }).build()
     );
-
     private Item placeHolder = null;
 
     public void setPlaceHolder(Item placeHolder) {
         this.placeHolder = placeHolder;
     }
 
-    public void submitList(PagedList<T> newPagedList) {
+    public void submitList(PagedList<TrackItem> newPagedList) {
         differ.submitList(newPagedList);
     }
 
@@ -78,7 +79,7 @@ public class PagedListGroup<T extends Item> implements Group, GroupDataObserver 
         Item item = differ.getItem(position);
         if (item != null) {
             // TODO find more efficiency registration timing, and removing observer
-            item.registerGroupDataObserver(this);
+            //item.registerGroupDataObserver(this);
             return item;
         }
         return placeHolder;
@@ -86,7 +87,7 @@ public class PagedListGroup<T extends Item> implements Group, GroupDataObserver 
 
     @Override
     public int getPosition(@NonNull Item item) {
-        List<T> currentList = differ.getCurrentList();
+        List<TrackItem> currentList = differ.getCurrentList();
         if (currentList == null) {
             return -1;
         }
@@ -96,6 +97,7 @@ public class PagedListGroup<T extends Item> implements Group, GroupDataObserver 
 
     @Override
     public void registerGroupDataObserver(@NonNull GroupDataObserver groupDataObserver) {
+        Log.d("groupobslog","registered in class");
         parentObserver = groupDataObserver;
     }
 
@@ -161,7 +163,7 @@ public class PagedListGroup<T extends Item> implements Group, GroupDataObserver 
     }
 
     private int getItemPosition(@NonNull Group group) {
-        List<T> currentList = differ.getCurrentList();
+        List<TrackItem> currentList = differ.getCurrentList();
         if (currentList == null) {
             return -1;
         }

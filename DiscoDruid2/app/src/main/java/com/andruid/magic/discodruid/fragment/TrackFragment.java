@@ -5,7 +5,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +14,6 @@ import com.andruid.magic.discodruid.BackgroundAudioService;
 import com.andruid.magic.discodruid.R;
 import com.andruid.magic.discodruid.adapter.TrackAdapter;
 import com.andruid.magic.discodruid.model.Track;
-import com.andruid.magic.discodruid.model.TrackItem;
-import com.andruid.magic.discodruid.util.PagedListGroup;
 import com.andruid.magic.discodruid.viewmodel.PagedTrackViewModel;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -32,9 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,9 +44,7 @@ public class TrackFragment extends Fragment{
     @BindView(R.id.swipe_refresh_layout) SwipeRefreshLayout swipeRefreshLayout;
     private MediaBrowserCompat mediaBrowserCompat;
     private TrackAdapter trackAdapter;
-    private TrackClickListener mListener;
     private PagedTrackViewModel pagedTrackViewModel;
-    private PagedListGroup<TrackItem> pagedListGroup;
 
     public TrackFragment() {}
 
@@ -62,7 +55,6 @@ public class TrackFragment extends Fragment{
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pagedListGroup = new PagedListGroup<>();
         trackAdapter = new TrackAdapter(getContext());
         pagedTrackViewModel = ViewModelProviders.of(this).get(PagedTrackViewModel.class);
         mediaBrowserCompat = new MediaBrowserCompat(getContext(),new ComponentName(Objects.requireNonNull(getActivity()), BackgroundAudioService.class),
@@ -89,7 +81,6 @@ public class TrackFragment extends Fragment{
                 android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
-        trackAdapter.add(pagedListGroup);
         recyclerView.setAdapter(trackAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -103,7 +94,6 @@ public class TrackFragment extends Fragment{
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof TrackClickListener) {
-            mListener = (TrackClickListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement TrackClickListener");
@@ -113,7 +103,6 @@ public class TrackFragment extends Fragment{
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
     @Override
@@ -129,7 +118,7 @@ public class TrackFragment extends Fragment{
                     @Override
                     public void onPermissionGranted(PermissionGrantedResponse response) {
                         pagedTrackViewModel.getTracks(mediaBrowserCompat,null).observe(TrackFragment.this, pagedList -> {
-                            pagedListGroup.submitList(pagedList);
+                            trackAdapter.submitList(pagedList);
                             swipeRefreshLayout.setRefreshing(false);
                         });
                     }

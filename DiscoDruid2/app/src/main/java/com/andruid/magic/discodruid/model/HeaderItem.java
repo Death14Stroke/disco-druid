@@ -3,6 +3,7 @@ package com.andruid.magic.discodruid.model;
 import android.view.View;
 
 import com.andruid.magic.discodruid.R;
+import com.andruid.magic.discodruid.viewholder.HeaderViewHolder;
 import com.xwray.groupie.Item;
 
 import androidx.annotation.NonNull;

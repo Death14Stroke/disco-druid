@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="track"
+            type="com.andruid.magic.discodruid.model.Track"/>
+    </data>
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/activity_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="false"
+        tools:context=".MainActivity">
+        <com.github.florent37.materialviewpager.MaterialViewPager
+            android:id="@+id/materialViewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:viewpager_logo="@layout/header_logo"
+            app:viewpager_logoMarginTop="100dp"
+            app:viewpager_color="@color/colorPrimary"
+            app:viewpager_headerHeight="200dp"
+            app:viewpager_headerAlpha="1.0"
+            app:viewpager_pagerTitleStrip="@layout/material_view_pager_pagertitlestrip_newstand"
+            app:viewpager_hideLogoWithFade="false"
+            app:viewpager_hideToolbarAndTitle="false"
+            app:viewpager_enableToolbarElevation="true"
+            app:viewpager_parallaxHeaderFactor="1.5"
+            app:viewpager_headerAdditionalHeight="20dp"
+            app:viewpager_displayToolbarWhenSwipe="true"
+            app:viewpager_transparentToolbar="false"
+            app:viewpager_animatedHeaderImage="true"
+            app:viewpager_disableToolbar="false"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        <include
+            android:id="@+id/bottom_sheet"
+            layout="@layout/bottom_sheet"
+            app:track="@{track}"/>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>
