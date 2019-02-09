@@ -2,6 +2,7 @@ package com.andruid.magic.discodruid.fragment;
 
 import android.Manifest;
 import android.content.ComponentName;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 import android.view.LayoutInflater;
@@ -13,6 +14,8 @@ import com.andruid.magic.discodruid.BackgroundAudioService;
 import com.andruid.magic.discodruid.R;
 import com.andruid.magic.discodruid.adapter.TrackAdapter;
 import com.andruid.magic.discodruid.databinding.TrackFragmentBinding;
+import com.andruid.magic.discodruid.model.Track;
+import com.andruid.magic.discodruid.util.RecyclerTouchListener;
 import com.andruid.magic.discodruid.viewmodel.TrackViewModel;
 import com.github.florent37.materialviewpager.header.MaterialViewPagerHeaderDecorator;
 import com.karumi.dexter.Dexter;
@@ -22,6 +25,7 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
+import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
@@ -39,6 +43,7 @@ public class TrackFragment extends Fragment {
     private TrackAdapter trackAdapter;
     private TrackViewModel trackViewModel;
     private TrackFragmentBinding binding;
+    private TrackClickListener mListener;
 
     public static TrackFragment newInstance() {
         return new TrackFragment();
@@ -59,13 +64,7 @@ public class TrackFragment extends Fragment {
                 android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.recyclerView.setItemAnimator(new DefaultItemAnimator());
-        binding.recyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(Objects.requireNonNull(getContext()),DividerItemDecoration.VERTICAL);
-        dividerItemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(getContext(), R.drawable.line_divider)));
-        binding.recyclerView.addItemDecoration(dividerItemDecoration);
-        binding.recyclerView.setAdapter(trackAdapter);
+        setRecyclerView();
         mediaBrowserCompat = new MediaBrowserCompat(getContext(),new ComponentName(Objects.requireNonNull(getActivity()), BackgroundAudioService.class),
                 new MediaBrowserCompat.ConnectionCallback(){
                     @Override
@@ -80,6 +79,45 @@ public class TrackFragment extends Fragment {
                 },null);
         mediaBrowserCompat.connect();
         return binding.getRoot();
+    }
+
+    private void setRecyclerView(){
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.recyclerView.setItemAnimator(new DefaultItemAnimator());
+        binding.recyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(Objects.requireNonNull(getContext()),DividerItemDecoration.VERTICAL);
+        dividerItemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(getContext(), R.drawable.line_divider)));
+        binding.recyclerView.addItemDecoration(dividerItemDecoration);
+        binding.recyclerView.setAdapter(trackAdapter);
+        binding.recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(),
+                binding.recyclerView, new RecyclerTouchListener.ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                mListener.onTrackClicked(trackAdapter.getCurrentList(),position);
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof TrackClickListener) {
+            mListener = (TrackClickListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement TrackClickListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        mListener = null;
+        super.onDetach();
     }
 
     @Override
@@ -110,5 +148,9 @@ public class TrackFragment extends Fragment {
                         token.continuePermissionRequest();
                     }
                 }).check();
+    }
+
+    public interface TrackClickListener{
+        void onTrackClicked(List<Track> trackList, int pos);
     }
 }

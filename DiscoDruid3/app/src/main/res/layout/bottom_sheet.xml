@@ -8,7 +8,7 @@
             type="com.andruid.magic.discodruid.model.Track"/>
         <variable
             name="arrowImage"
-            type="int"/>
+            type="int" />
         <variable
             name="progress"
             type="int"/>
@@ -115,10 +115,10 @@
                     app:layout_constraintVertical_chainStyle="spread_inside" />
                 <TextView
                     android:id="@+id/track_detail_current_pos"
+                    android:timeFormat="@{progress}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
-                    android:text="@string/_00_00"
                     android:padding="2dp"
                     android:textColor="@color/colorUnselectedTab"
                     app:layout_constraintStart_toStartOf="@id/track_detail_seekBar"

@@ -17,6 +17,7 @@ import android.provider.Settings;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;

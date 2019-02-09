@@ -13,6 +13,7 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +26,7 @@ import com.andruid.magic.discodruid.adapter.CustomPagerAdapter;
 import com.andruid.magic.discodruid.adapter.TrackDetailAdapter;
 import com.andruid.magic.discodruid.data.Constants;
 import com.andruid.magic.discodruid.databinding.ActivityMainBinding;
+import com.andruid.magic.discodruid.fragment.TrackFragment;
 import com.andruid.magic.discodruid.model.Track;
 import com.andruid.magic.discodruid.util.MediaUtils;
 import com.github.florent37.materialviewpager.MaterialViewPager;
@@ -53,14 +55,12 @@ import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TrackFragment.TrackClickListener {
     private ActivityMainBinding binding;
     private BottomSheetBehavior<LinearLayout> bottomSheetBehavior;
     private TrackDetailAdapter trackDetailAdapter;
     private String mode = "";
     private boolean userScroll = false;
-    private int arrowImage = android.R.drawable.arrow_up_float, seekbarProgress = 0;
-    private Track currentTrack;
     private MediaBrowserCompat mediaBrowserCompat;
     private MediaControllerCompat mediaControllerCompat;
     private AlertDialog alertDialog, inputDialog;
@@ -286,7 +286,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setActivityUI(Track track) {
-        currentTrack = track;
+        binding.setTrack(track);
+        binding.executePendingBindings();
         List<Track> trackList = trackDetailAdapter.getTrackList();
         int pos;
         for(pos=0;pos<trackList.size();pos++){
@@ -315,20 +316,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void setBinding() {
         binding = DataBindingUtil.setContentView(this,R.layout.activity_main);
-        binding.setTrack(currentTrack);
-        binding.setVariable(BR.arrowImage,arrowImage);
-        binding.setVariable(BR.progress,seekbarProgress);
     }
 
     private void setSeekBar() {
         binding.bottomSheet.trackDetailSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                seekbarProgress = seekBar.getProgress();
+                binding.bottomSheet.trackDetailSeekBar.setProgress(seekBar.getProgress());
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                seekbarProgress = seekBar.getProgress();
+                binding.bottomSheet.trackDetailSeekBar.setProgress(seekBar.getProgress());
             }
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
@@ -345,11 +343,11 @@ public class MainActivity extends AppCompatActivity {
             public void onStateChanged(@NonNull View view, int state) {
                 switch (state) {
                     case BottomSheetBehavior.STATE_COLLAPSED:
-                        arrowImage = android.R.drawable.arrow_up_float;
+                        binding.bottomSheet.bottomSheetArrow.setImageResource(android.R.drawable.arrow_up_float);
                         binding.bottomSheet.bottomCollapsedView.getRoot().setVisibility(View.VISIBLE);
                         break;
                     case BottomSheetBehavior.STATE_EXPANDED:
-                        arrowImage = android.R.drawable.arrow_down_float;
+                        binding.bottomSheet.bottomSheetArrow.setImageResource(android.R.drawable.arrow_down_float);
                         binding.bottomSheet.bottomCollapsedView.getRoot().setVisibility(View.GONE);
                         break;
                 }
@@ -459,6 +457,12 @@ public class MainActivity extends AppCompatActivity {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
         else if(bottomSheetBehavior.getState()==BottomSheetBehavior.STATE_EXPANDED)
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    }
+
+    @Override
+    public void onTrackClicked(List<Track> trackList, int pos) {
+        changeMode(Constants.MODE_ALL_TRACKS,trackList,pos);
+        mediaControllerCompat.getTransportControls().skipToQueueItem(pos);
     }
 
     public static class CreatePlayListAsyncTask extends AsyncTask<Void,Void,Void> {
