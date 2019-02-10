@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import com.andruid.magic.discodruid.BackgroundAudioService;
 import com.andruid.magic.discodruid.R;
 import com.andruid.magic.discodruid.adapter.TrackAdapter;
+import com.andruid.magic.discodruid.data.Constants;
 import com.andruid.magic.discodruid.databinding.TrackFragmentBinding;
 import com.andruid.magic.discodruid.model.Track;
 import com.andruid.magic.discodruid.util.RecyclerTouchListener;
@@ -30,12 +32,10 @@ import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 public class TrackFragment extends Fragment {
@@ -71,6 +71,22 @@ public class TrackFragment extends Fragment {
                     public void onConnected() {
                         super.onConnected();
                         loadTracks();
+                        mediaBrowserCompat.subscribe(Constants.CURRENT_TRACK, new MediaBrowserCompat.SubscriptionCallback() {
+                            @Override
+                            public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaBrowserCompat.MediaItem> children) {
+                                super.onChildrenLoaded(parentId, children);
+                                Log.d("tracksellog","mediabrowser subs callback");
+                                if(children.size() == 1) {
+                                    Bundle extras = children.get(0).getDescription().getExtras();
+                                    if(extras!=null) {
+                                        Track track = extras.getParcelable(Constants.TRACK);
+                                        if (track != null) {
+                                            trackAdapter.setPlayingTrackId(track.getAudioId());
+                                        }
+                                    }
+                                }
+                            }
+                        });
                         binding.swipeRefresh.setOnRefreshListener(() -> {
                             binding.swipeRefresh.setRefreshing(true);
                             loadTracks();
@@ -99,7 +115,7 @@ public class TrackFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof TrackClickListener) {
             mListener = (TrackClickListener) context;
@@ -118,6 +134,7 @@ public class TrackFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mediaBrowserCompat.unsubscribe(Constants.CURRENT_TRACK);
         mediaBrowserCompat.disconnect();
     }
 

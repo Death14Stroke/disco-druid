@@ -161,6 +161,7 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
                     NotificationManagerCompat.from(BackgroundAudioService.this).notify(Constants.MEDIA_NOTI_ID, notification);
                     stopForeground(false);
                 }
+                notifyChildrenChanged(Constants.CURRENT_TRACK);
             }
 
             @Override
@@ -373,7 +374,6 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
                 generalTrackProvider = new TrackProvider(getApplicationContext());
             List<Track> trackList = MediaUtils.getTracksForPage(generalTrackProvider,page,pageSize);
             List<MediaBrowserCompat.MediaItem> mediaItems = MediaUtils.getMediaItemsFromTracks(trackList);
-            Log.d("adapterlog","mediabrowser onloadchildren:"+mediaItems.size()+":"+parentId);
             result.sendResult(mediaItems);
         }
         else if(parentId.contains(Constants.ALBUM)){
@@ -383,6 +383,7 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
                 albumProvider = new AlbumProvider(getApplicationContext());
             List<Album> albumList = MediaUtils.getAlbumsForPage(albumProvider,page,pageSize);
             List<MediaBrowserCompat.MediaItem> mediaItems = MediaUtils.getMediaItemsFromAlbums(albumList);
+            Log.d("adapterlog","mediabrowser onloadchildren album:"+mediaItems.size()+":"+parentId);
             result.sendResult(mediaItems);
         }
         else if(parentId.contains(Constants.ARTIST)){
@@ -392,6 +393,7 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
                 artistProvider = new ArtistProvider(getApplicationContext());
             List<Artist> artistList = MediaUtils.getArtistsForPage(artistProvider,page,pageSize);
             List<MediaBrowserCompat.MediaItem> mediaItems = MediaUtils.getMediaItemsFromArtists(artistList);
+            Log.d("adapterlog","mediabrowser onloadchildren artist:"+mediaItems.size()+":"+parentId);
             result.sendResult(mediaItems);
         }
         else if(parentId.contains(Constants.PLAYLIST)){
@@ -401,6 +403,7 @@ public class BackgroundAudioService extends MediaBrowserServiceCompat {
                 playlistProvider = new PlaylistProvider(getApplicationContext());
             List<PlayList> playLists = MediaUtils.getPlayListsForPage(playlistProvider,page,pageSize);
             List<MediaBrowserCompat.MediaItem> mediaItems = MediaUtils.getMediaItemsFromPlayLists(playLists);
+            Log.d("adapterlog","mediabrowser onloadchildren playlist:"+mediaItems.size()+":"+parentId);
             result.sendResult(mediaItems);
         }
     }
