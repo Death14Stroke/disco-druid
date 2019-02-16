@@ -23,6 +23,7 @@
             android:background="@drawable/selector_bg"
             android:layout_height="match_parent">
             <ru.nikartm.support.ImageBadgeView
+                android:transitionName="@{album.albumId}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"

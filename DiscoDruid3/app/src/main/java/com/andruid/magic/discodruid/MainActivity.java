@@ -425,10 +425,10 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
                 Palette.from(bitmap).generate(palette -> {
                     if(palette==null)
                         return;
-                    int vibrantColor = palette.getVibrantColor(getResources().getColor(R.color.colorPrimary));
+                    int vibrantLightColor = palette.getLightVibrantColor(getResources().getColor(R.color.colorPrimary));
                     int vibrantDarkColor = palette.getDarkVibrantColor(getResources().getColor(R.color.colorPrimaryDark));
-                    binding.collapseToolBar.setContentScrimColor(vibrantColor);
-                    binding.collapseToolBar.setStatusBarScrimColor(vibrantDarkColor);
+                    binding.collapseToolBar.setContentScrimColor(vibrantDarkColor);
+                    binding.collapseToolBar.setStatusBarScrimColor(vibrantLightColor);
                 });
             }
 

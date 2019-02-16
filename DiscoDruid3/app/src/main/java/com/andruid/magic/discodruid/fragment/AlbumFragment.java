@@ -13,7 +13,9 @@ import com.andruid.magic.discodruid.R;
 import com.andruid.magic.discodruid.adapter.AlbumAdapter;
 import com.andruid.magic.discodruid.databinding.AlbumFragmentBinding;
 import com.andruid.magic.discodruid.dialog.AlbumTracksDialog;
+import com.andruid.magic.discodruid.model.Album;
 import com.andruid.magic.discodruid.service.BackgroundAudioService;
+import com.andruid.magic.discodruid.util.DetailsTransition;
 import com.andruid.magic.discodruid.util.RecyclerTouchListener;
 import com.andruid.magic.discodruid.viewmodel.AlbumViewModel;
 import com.karumi.dexter.Dexter;
@@ -29,10 +31,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.transition.Fade;
 
 public class AlbumFragment extends Fragment {
     private MediaBrowserCompat mediaBrowserCompat;
@@ -84,21 +86,19 @@ public class AlbumFragment extends Fragment {
                 binding.recyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, int position) {
-//                AlbumTracksDialog dialog = new AlbumTracksDialog();
-//                Bundle args = new Bundle();
-//                args.putParcelable(Constants.ALBUM,Objects.requireNonNull(albumAdapter.getCurrentList()).get(position));
-//                dialog.setArguments(args);
-//                FragmentTransaction fragmentTransaction = null;
-//                if (getFragmentManager() != null) {
-//                    fragmentTransaction = getFragmentManager().beginTransaction();
-//                }
-//                if (fragmentTransaction != null) {
-//                    dialog.show(fragmentTransaction,Constants.ALBUM_DIALOG);
-//                }
-                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.container,AlbumTracksDialog.newInstance(albumAdapter.getCurrentList().get(position)));
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
+                if(getFragmentManager()==null)
+                    return;
+                Album album = albumAdapter.getCurrentList().get(position);
+                AlbumTracksDialog fragment = AlbumTracksDialog.newInstance(album);
+                fragment.setSharedElementEnterTransition(new DetailsTransition());
+                fragment.setEnterTransition(new Fade());
+                setExitTransition(new Fade());
+                fragment.setSharedElementReturnTransition(new DetailsTransition());
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container,fragment)
+                        .addSharedElement(view.findViewById(R.id.album_imageView),getString(R.string.album_shared_element))
+                        .addToBackStack(null)
+                        .commit();
             }
 
             @Override

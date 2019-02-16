@@ -73,11 +73,6 @@ public class AlbumTracksDialog extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = DataBindingUtil.inflate(inflater,R.layout.fullscreen_album_dialog,container,false);
         binding.setAlbum(album);
-        binding.toolbar.setTitle(album.getAlbum());
-        binding.toolbar.setTitleTextColor(getResources().getColor(R.color.colorUnselectedTab));
-        binding.toolbar.setNavigationIcon(android.R.drawable.ic_menu_close_clear_cancel);
-//        binding.toolbar.setNavigationOnClickListener(view ->
-//                dismiss());
         binding.swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
                 android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark,
