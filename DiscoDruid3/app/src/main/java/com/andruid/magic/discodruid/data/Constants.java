@@ -29,4 +29,5 @@ public class Constants {
     public static final String ALBUM_TRACK = "album_track";
     public static final String ARTIST_TRACK = "artist_track";
     public static final String PLAYLIST_TRACK = "playlist_track";
+    public static final String ALBUM_DIALOG = "album_dialog";
 }

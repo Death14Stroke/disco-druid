@@ -1,6 +1,6 @@
 package com.andruid.magic.discodruid.datasourcefactory;
 
-import android.arch.paging.DataSource;
+import androidx.paging.DataSource;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.net.Uri;

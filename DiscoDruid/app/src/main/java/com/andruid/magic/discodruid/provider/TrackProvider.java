@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.content.ContentResolverCompat;
+import androidx.core.content.ContentResolverCompat;
 
 import com.andruid.magic.discodruid.data.Constants;
 import com.andruid.magic.discodruid.model.Track;

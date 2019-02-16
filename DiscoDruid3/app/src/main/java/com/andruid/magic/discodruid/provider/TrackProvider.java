@@ -20,9 +20,11 @@ public class TrackProvider {
     private final ContentResolver contentResolver;
     private String selection;
     private Uri uri;
+    private List<Track> trackList;
 
     public TrackProvider(Context context) {
         contentResolver = context.getContentResolver();
+        trackList = new ArrayList<>();
         initSelection();
         uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         cursor = ContentResolverCompat.query(
@@ -38,6 +40,7 @@ public class TrackProvider {
 
     public TrackProvider(Context context, Bundle options){
         contentResolver = context.getContentResolver();
+        trackList = new ArrayList<>();
         uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         initSelection();
         String[] projection = getProjection();
@@ -97,13 +100,12 @@ public class TrackProvider {
     }
 
     public List<Track> getTracksAtRange(int start, int end){
-        List<Track> trackList = new ArrayList<>();
         for(int i=start;i<end;i++){
             Track track = getTrackAtPosition(i);
             if(track!=null)
                 trackList.add(track);
         }
-        return trackList;
+        return trackList.subList(start, end);
     }
 
     private Track getTrackAtPosition(int position){
@@ -161,8 +163,9 @@ public class TrackProvider {
     }
 
     public List<Track> getAllTracks() {
-        List<Track> trackList = new ArrayList<>();
-        for(int i=0;i<cursor.getCount();i++)
+        if(trackList.size()==cursor.getCount())
+            return trackList;
+        for(int i=trackList.size();i<cursor.getCount();i++)
             trackList.add(getTrackAtPosition(i));
         return trackList;
     }

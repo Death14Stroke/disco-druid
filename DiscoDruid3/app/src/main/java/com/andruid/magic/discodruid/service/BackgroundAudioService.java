@@ -1,4 +1,4 @@
-package com.andruid.magic.discodruid;
+package com.andruid.magic.discodruid.service;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -35,6 +35,7 @@ import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
+import com.andruid.magic.discodruid.R;
 import com.andruid.magic.discodruid.data.Constants;
 import com.andruid.magic.discodruid.model.Album;
 import com.andruid.magic.discodruid.model.Artist;

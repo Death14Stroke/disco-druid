@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.andruid.magic.discodruid.BackgroundAudioService;
+import com.andruid.magic.discodruid.service.BackgroundAudioService;
 import com.andruid.magic.discodruid.R;
 import com.andruid.magic.discodruid.adapter.TrackAdapter;
 import com.andruid.magic.discodruid.data.Constants;
@@ -19,7 +19,6 @@ import com.andruid.magic.discodruid.databinding.TrackFragmentBinding;
 import com.andruid.magic.discodruid.model.Track;
 import com.andruid.magic.discodruid.util.RecyclerTouchListener;
 import com.andruid.magic.discodruid.viewmodel.TrackViewModel;
-import com.github.florent37.materialviewpager.header.MaterialViewPagerHeaderDecorator;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -100,7 +99,6 @@ public class TrackFragment extends Fragment {
     private void setRecyclerView(){
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerView.setItemAnimator(new DefaultItemAnimator());
-        binding.recyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
         binding.recyclerView.setAdapter(trackAdapter);
         binding.recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(),
                 binding.recyclerView, new RecyclerTouchListener.ClickListener() {

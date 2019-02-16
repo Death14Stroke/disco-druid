@@ -9,13 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.andruid.magic.discodruid.BackgroundAudioService;
+import com.andruid.magic.discodruid.service.BackgroundAudioService;
 import com.andruid.magic.discodruid.R;
 import com.andruid.magic.discodruid.adapter.PlaylistAdapter;
 import com.andruid.magic.discodruid.databinding.PlaylistFragmentBinding;
 import com.andruid.magic.discodruid.util.RecyclerTouchListener;
 import com.andruid.magic.discodruid.viewmodel.PlaylistViewModel;
-import com.github.florent37.materialviewpager.header.MaterialViewPagerHeaderDecorator;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -32,7 +31,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 public class PlaylistFragment extends Fragment {
     private MediaBrowserCompat mediaBrowserCompat;
@@ -79,7 +77,6 @@ public class PlaylistFragment extends Fragment {
     private void setRecyclerView(){
         binding.recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
         binding.recyclerView.setItemAnimator(new DefaultItemAnimator());
-        binding.recyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
         binding.recyclerView.setAdapter(playlistAdapter);
         binding.recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(),
                 binding.recyclerView, new RecyclerTouchListener.ClickListener() {

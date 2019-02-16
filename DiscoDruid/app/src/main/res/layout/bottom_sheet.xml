@@ -38,7 +38,7 @@
             app:msrv_gravity="center"
             app:msrv_snap_count="1"
             tools:listitem="@layout/layout_track_detail"/>
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <TextView
@@ -119,7 +119,7 @@
                 android:padding="2dp"
                 app:layout_constraintEnd_toEndOf="@id/track_detail_seekBar"
                 app:layout_constraintTop_toBottomOf="@id/track_detail_seekBar"/>
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/media_actions_ll"
                 app:layout_constraintTop_toBottomOf="@id/track_detail_duration"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -178,7 +178,7 @@
                     app:layout_constraintStart_toEndOf="@id/track_detail_nextBtn"
                     app:layout_constraintEnd_toEndOf="parent"
                     android:src="@drawable/ic_repeat_off"/>
-            </android.support.constraint.ConstraintLayout>
-        </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 </LinearLayout>

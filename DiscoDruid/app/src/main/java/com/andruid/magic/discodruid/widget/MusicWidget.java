@@ -7,8 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
-import android.support.v4.media.session.MediaButtonReceiver;
+import androidx.annotation.NonNull;
+import androidx.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.widget.RemoteViews;
 

@@ -1,8 +1,8 @@
 package com.andruid.magic.discodruid.datasource;
 
-import android.arch.paging.PositionalDataSource;
+import androidx.paging.PositionalDataSource;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.support.v4.media.MediaBrowserCompat;
 
 import com.andruid.magic.discodruid.data.Constants;

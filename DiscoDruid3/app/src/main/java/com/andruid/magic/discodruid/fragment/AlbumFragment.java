@@ -9,13 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.andruid.magic.discodruid.BackgroundAudioService;
 import com.andruid.magic.discodruid.R;
 import com.andruid.magic.discodruid.adapter.AlbumAdapter;
 import com.andruid.magic.discodruid.databinding.AlbumFragmentBinding;
+import com.andruid.magic.discodruid.dialog.AlbumTracksDialog;
+import com.andruid.magic.discodruid.service.BackgroundAudioService;
 import com.andruid.magic.discodruid.util.RecyclerTouchListener;
 import com.andruid.magic.discodruid.viewmodel.AlbumViewModel;
-import com.github.florent37.materialviewpager.header.MaterialViewPagerHeaderDecorator;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -29,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -78,12 +79,26 @@ public class AlbumFragment extends Fragment {
     private void setRecyclerView(){
         binding.recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
         binding.recyclerView.setItemAnimator(new DefaultItemAnimator());
-        binding.recyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
         binding.recyclerView.setAdapter(albumAdapter);
         binding.recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(),
                 binding.recyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, int position) {
+//                AlbumTracksDialog dialog = new AlbumTracksDialog();
+//                Bundle args = new Bundle();
+//                args.putParcelable(Constants.ALBUM,Objects.requireNonNull(albumAdapter.getCurrentList()).get(position));
+//                dialog.setArguments(args);
+//                FragmentTransaction fragmentTransaction = null;
+//                if (getFragmentManager() != null) {
+//                    fragmentTransaction = getFragmentManager().beginTransaction();
+//                }
+//                if (fragmentTransaction != null) {
+//                    dialog.show(fragmentTransaction,Constants.ALBUM_DIALOG);
+//                }
+                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.container,AlbumTracksDialog.newInstance(albumAdapter.getCurrentList().get(position)));
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
             }
 
             @Override

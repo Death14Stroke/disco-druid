@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.v4.content.ContentResolverCompat;
+import androidx.core.content.ContentResolverCompat;
 
 import com.andruid.magic.discodruid.model.Artist;
 

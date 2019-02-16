@@ -1,6 +1,6 @@
 package com.andruid.magic.discodruid.viewholder;
 
-import android.support.constraint.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import android.view.View;
 import android.view.ViewStub;
 

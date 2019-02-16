@@ -9,13 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.andruid.magic.discodruid.BackgroundAudioService;
 import com.andruid.magic.discodruid.R;
 import com.andruid.magic.discodruid.adapter.ArtistAdapter;
 import com.andruid.magic.discodruid.databinding.ArtistFragmentBinding;
+import com.andruid.magic.discodruid.service.BackgroundAudioService;
 import com.andruid.magic.discodruid.util.RecyclerTouchListener;
 import com.andruid.magic.discodruid.viewmodel.ArtistViewModel;
-import com.github.florent37.materialviewpager.header.MaterialViewPagerHeaderDecorator;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -78,7 +77,6 @@ public class ArtistFragment extends Fragment {
     private void setRecyclerView(){
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerView.setItemAnimator(new DefaultItemAnimator());
-        binding.recyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
         binding.recyclerView.setAdapter(artistAdapter);
         binding.recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(),
                 binding.recyclerView, new RecyclerTouchListener.ClickListener() {

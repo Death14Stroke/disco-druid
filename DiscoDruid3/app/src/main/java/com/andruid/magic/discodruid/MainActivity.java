@@ -5,6 +5,8 @@ import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,12 +27,13 @@ import com.andruid.magic.discodruid.adapter.CustomPagerAdapter;
 import com.andruid.magic.discodruid.adapter.TrackDetailAdapter;
 import com.andruid.magic.discodruid.data.Constants;
 import com.andruid.magic.discodruid.databinding.ActivityMainBinding;
+import com.andruid.magic.discodruid.dialog.AlbumTracksDialog;
 import com.andruid.magic.discodruid.fragment.TrackFragment;
 import com.andruid.magic.discodruid.model.Track;
+import com.andruid.magic.discodruid.service.BackgroundAudioService;
 import com.andruid.magic.discodruid.util.MediaUtils;
-import com.github.florent37.materialviewpager.MaterialViewPager;
-import com.github.florent37.materialviewpager.header.HeaderDesign;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.tabs.TabLayout;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -43,18 +46,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
+import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-public class MainActivity extends AppCompatActivity implements TrackFragment.TrackClickListener{
+public class MainActivity extends AppCompatActivity implements TrackFragment.TrackClickListener,
+        AlbumTracksDialog.AlbumDialogClickedListener {
     private ActivityMainBinding binding;
     private BottomSheetBehavior<LinearLayout> bottomSheetBehavior;
     private TrackDetailAdapter trackDetailAdapter;
@@ -80,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
         setBinding();
         alertDialog = MediaUtils.getPermissionsDialogBuilder(this).create();
         inputDialog = MediaUtils.getPlaylistDialogBuilder(this).create();
+        setSupportActionBar(binding.toolbar);
         setViewPager();
         setRecyclerView();
         setBottomSheet();
@@ -151,6 +154,9 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
+            case R.id.menu_search:
+                onSearchRequested();
+                break;
             case R.id.menu_create:
                 if(!inputDialog.isShowing())
                     inputDialog.show();
@@ -397,39 +403,46 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
 
     private void setViewPager() {
         CustomPagerAdapter pagerAdapter = new CustomPagerAdapter(getSupportFragmentManager());
-        binding.materialViewPager.getViewPager().setAdapter(pagerAdapter);
-        binding.materialViewPager.getViewPager().setOffscreenPageLimit(Constants.NUMBER_OF_TABS);
-        binding.materialViewPager.getPagerTitleStrip().setViewPager(binding.materialViewPager.getViewPager());
-        binding.materialViewPager.setMaterialViewPagerListener(page -> {
-            switch (page) {
-                case Constants.POSITION_TRACK:
-                    return HeaderDesign.fromColorResAndDrawable(
-                            R.color.colorPrimaryDark,
-                            ContextCompat.getDrawable(this,R.drawable.track_bg));
-                case Constants.POSITION_ALBUM:
-                    return HeaderDesign.fromColorResAndDrawable(
-                            android.R.color.holo_red_dark,
-                            ContextCompat.getDrawable(this,R.drawable.album_bg));
-                case Constants.POSITION_ARTIST:
-                    return HeaderDesign.fromColorResAndDrawable(
-                            R.color.colorAccent,
-                            ContextCompat.getDrawable(this,R.drawable.artist_bg));
-                default:
-                    return HeaderDesign.fromColorResAndDrawable(
-                            R.color.blue,
-                            ContextCompat.getDrawable(this,R.drawable.playlist_bg));
+        binding.viewPager.setAdapter(pagerAdapter);
+        binding.viewPager.setOffscreenPageLimit(Constants.NUMBER_OF_TABS);
+        binding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                binding.viewPager.setCurrentItem(tab.getPosition());
+                int resource = R.drawable.track_bg;
+                switch (tab.getPosition()){
+                    case Constants.POSITION_ALBUM:
+                        resource = R.drawable.album_bg;
+                        break;
+                    case Constants.POSITION_ARTIST:
+                        resource = R.drawable.artist_bg;
+                        break;
+                    case Constants.POSITION_PLAYLIST:
+                        resource = R.drawable.playlist_bg;
+                }
+                binding.tabImageView.setImageResource(resource);
+                Bitmap bitmap = BitmapFactory.decodeResource(getResources(),resource);
+                Palette.from(bitmap).generate(palette -> {
+                    if(palette==null)
+                        return;
+                    int vibrantColor = palette.getVibrantColor(getResources().getColor(R.color.colorPrimary));
+                    int vibrantDarkColor = palette.getDarkVibrantColor(getResources().getColor(R.color.colorPrimaryDark));
+                    binding.collapseToolBar.setContentScrimColor(vibrantColor);
+                    binding.collapseToolBar.setStatusBarScrimColor(vibrantDarkColor);
+                });
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
             }
         });
-        Toolbar toolbar = binding.materialViewPager.getToolbar();
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.setDisplayShowTitleEnabled(false);
-                actionBar.setDisplayHomeAsUpEnabled(false);
-                actionBar.setHomeButtonEnabled(false);
-            }
-        }
+        binding.tabLayout.setupWithViewPager(binding.viewPager);
     }
 
     public void shuffle(View view){
@@ -473,6 +486,11 @@ public class MainActivity extends AppCompatActivity implements TrackFragment.Tra
     public void onTrackClicked(List<Track> trackList, int pos) {
         changeMode(Constants.MODE_ALL_TRACKS,trackList,pos);
         mediaControllerCompat.getTransportControls().skipToQueueItem(pos);
+    }
+
+    @Override
+    public void onAlbumDialogClicked(List<Track> trackList, int pos) {
+
     }
 
     public static class CreatePlayListAsyncTask extends AsyncTask<Void,Void,Void> {
