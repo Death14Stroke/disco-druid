@@ -90,13 +90,14 @@ public class AlbumFragment extends Fragment {
                     return;
                 Album album = albumAdapter.getCurrentList().get(position);
                 AlbumTracksDialog fragment = AlbumTracksDialog.newInstance(album);
-                fragment.setSharedElementEnterTransition(new DetailsTransition());
+                //fragment.setSharedElementEnterTransition(new DetailsTransition());
                 fragment.setEnterTransition(new Fade());
                 setExitTransition(new Fade());
-                fragment.setSharedElementReturnTransition(new DetailsTransition());
-                getActivity().getSupportFragmentManager().beginTransaction()
+                //fragment.setSharedElementReturnTransition(new DetailsTransition());
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        //.addSharedElement(view.findViewById(R.id.album_imageView),getString(R.string.album_shared_element))
                         .replace(R.id.container,fragment)
-                        .addSharedElement(view.findViewById(R.id.album_imageView),getString(R.string.album_shared_element))
                         .addToBackStack(null)
                         .commit();
             }
