@@ -7,4 +7,5 @@ public class Constants {
     public static final String ALBUM_TRACK = "album_track", ARTIST_TRACK = "artist_track";
     public static final String TRACK = "track", ALBUM = "album", ARTIST = "artist",
             PLAYLIST = "playlist";
+    public static final int PAGE_SIZE = 10;
 }
