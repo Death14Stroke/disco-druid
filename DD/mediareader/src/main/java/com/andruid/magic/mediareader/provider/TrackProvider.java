@@ -9,6 +9,7 @@ import android.provider.MediaStore;
 
 import com.andruid.magic.mediareader.data.Constants;
 import com.andruid.magic.mediareader.model.Track;
+import com.andruid.magic.mediareader.util.TrackUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,30 +98,7 @@ public class TrackProvider {
     private Track getTrackAtPosition(int position){
         if(!cursor.moveToPosition(position))
             return null;
-        return getTrackFromCursor();
-    }
-
-    private Track getTrackFromCursor(){
-        Track track = new Track();
-        track.setAudioId(cursor.getLong(0));
-        track.setArtist(cursor.getString(1));
-        track.setTitle(cursor.getString(2));
-        track.setPath(cursor.getString(3));
-        track.setDuration(cursor.getLong(4) / 1000);
-        track.setAlbumId(cursor.getString(5));
-        track.setAlbum(cursor.getString(6));
-        Cursor c = contentResolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-                new String[]{MediaStore.Audio.Albums.ALBUM_ART},
-                MediaStore.Audio.Albums._ID + "=?", new String[]{track.getAlbumId()},
-                null);
-        if (c != null){
-            if(c.moveToFirst()) {
-                String path = c.getString(0);
-                track.setAlbumArtUri(path);
-            }
-            c.close();
-        }
-        return track;
+        return TrackUtils.getTrackFromCursor(cursor, contentResolver);
     }
 
     private String[] getProjection() {

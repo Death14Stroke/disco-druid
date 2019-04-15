@@ -3,8 +3,9 @@ package com.andruid.magic.mediareader.datasource;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 
-import com.andruid.magic.discodruid.data.Constants;
-import com.andruid.magic.discodruid.model.Album;
+import com.andruid.magic.mediareader.data.Constants;
+import com.andruid.magic.mediareader.model.Album;
+import com.andruid.magic.mediareader.util.PagingUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -39,13 +40,13 @@ public class AlbumDataSource extends PositionalDataSource<Album> {
 
     @Override
     public void loadRange(@NonNull final LoadRangeParams params, @NonNull final LoadRangeCallback<Album> callback) {
-        final int pageIndex = getPageIndex(params);
+        final int pageIndex = PagingUtils.getPageIndex(params);
         if(loadedPages.contains(pageIndex)) {
-            callback.onResult(new ArrayList<>());
+            callback.onResult(new ArrayList<Album>());
             return;
         }
         String parentId = getParentId(params.startPosition);
-        Bundle extras = getRangeBundle(params);
+        Bundle extras = PagingUtils.getRangeBundle(params);
         mediaBrowserCompat.subscribe(parentId, extras, new MediaBrowserCompat.SubscriptionCallback() {
             @Override
             public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaBrowserCompat.MediaItem> children, @NonNull Bundle options) {
@@ -54,17 +55,6 @@ public class AlbumDataSource extends PositionalDataSource<Album> {
                 callback.onResult(albumList);
             }
         });
-    }
-
-    private Bundle getRangeBundle(LoadRangeParams params) {
-        Bundle extra = new Bundle();
-        extra.putInt(MediaBrowserCompat.EXTRA_PAGE,getPageIndex(params));
-        extra.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE,params.loadSize);
-        return extra;
-    }
-
-    private int getPageIndex(LoadRangeParams params){
-        return params.startPosition/params.loadSize;
     }
 
     private String getParentId(int requestedStartPosition) {
