@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <data>
-        <variable
-            name="track"
-            type="com.andruid.magic.discodruid.model.Track"/>
-        <variable
-            name="progress"
-            type="int"/>
-    </data>
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
@@ -52,9 +44,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
-                    app:tabIndicatorColor="@android:color/white"
-                    app:tabSelectedTextColor="@android:color/white"
-                    app:tabTextColor="@color/colorSelectedTab"/>
+                    app:tabIndicatorColor="@color/colorSelectedTab"
+                    app:tabSelectedTextColor="@color/colorSelectedTab"
+                    app:tabTextColor="@color/colorUnselectedTab"/>
             </com.google.android.material.appbar.CollapsingToolbarLayout>
         </com.google.android.material.appbar.AppBarLayout>
         <androidx.viewpager.widget.ViewPager

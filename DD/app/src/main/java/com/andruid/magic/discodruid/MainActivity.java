@@ -7,10 +7,14 @@ import android.os.Bundle;
 import com.andruid.magic.discodruid.adapter.CustomPagerAdapter;
 import com.andruid.magic.discodruid.data.Constants;
 import com.andruid.magic.discodruid.databinding.ActivityMainBinding;
+import com.andruid.magic.discodruid.fragment.TrackFragment;
+import com.andruid.magic.mediareader.model.Track;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.tabs.TabLayout;
+
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,7 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.palette.graphics.Palette;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TrackFragment.TrackClickListener {
     private ActivityMainBinding binding;
 
     @Override
@@ -85,5 +89,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         binding.tabLayout.setupWithViewPager(binding.viewPager);
+    }
+
+    @Override
+    public void onTrackClicked(List<Track> trackList, int pos) {
+
     }
 }

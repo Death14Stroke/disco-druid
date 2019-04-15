@@ -1,91 +1,122 @@
 package com.andruid.magic.discodruid.fragment;
 
-import android.content.Context;
-import android.net.Uri;
+import android.Manifest;
+import android.content.ComponentName;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.support.v4.media.MediaBrowserCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.andruid.magic.discodruid.MyMusicService;
 import com.andruid.magic.discodruid.R;
+import com.andruid.magic.discodruid.adapter.ArtistAdapter;
+import com.andruid.magic.discodruid.databinding.GeneralFragmentBinding;
+import com.andruid.magic.discodruid.util.RecyclerTouchListener;
+import com.andruid.magic.mediareader.viewmodel.ArtistViewModel;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ArtistFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link ArtistFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.Objects;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 public class ArtistFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private MediaBrowserCompat mediaBrowserCompat;
+    private ArtistAdapter artistAdapter;
+    private ArtistViewModel artistViewModel;
+    private GeneralFragmentBinding binding;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    private OnFragmentInteractionListener mListener;
-
-    public ArtistFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment ArtistFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static ArtistFragment newInstance() {
-        ArtistFragment fragment = new ArtistFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
+        return new ArtistFragment();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        artistAdapter = new ArtistAdapter();
+        artistViewModel = ViewModelProviders.of(this).get(ArtistViewModel.class);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_artist, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        binding = DataBindingUtil.inflate(inflater, R.layout.general_fragment,container,false);
+        binding.swipeRefresh.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+        setRecyclerView();
+        mediaBrowserCompat = new MediaBrowserCompat(getContext(),new ComponentName(
+                Objects.requireNonNull(getActivity()), MyMusicService.class),
+                new MediaBrowserCompat.ConnectionCallback(){
+                    @Override
+                    public void onConnected() {
+                        super.onConnected();
+                        loadArtists();
+                        binding.swipeRefresh.setOnRefreshListener(() -> {
+                            binding.swipeRefresh.setRefreshing(true);
+                            loadArtists();
+                        });
+                    }
+                },null);
+        mediaBrowserCompat.connect();
+        return binding.getRoot();
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+    private void setRecyclerView(){
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.recyclerView.setItemAnimator(new DefaultItemAnimator());
+        binding.recyclerView.setAdapter(artistAdapter);
+        binding.recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext(),
+                binding.recyclerView, new RecyclerTouchListener.ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {}
+        }));
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mediaBrowserCompat.disconnect();
+    }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+    private void loadArtists(){
+        Dexter.withActivity(getActivity())
+                .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                .withListener(new PermissionListener() {
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse response) {
+                        artistViewModel.getArtists(mediaBrowserCompat).observe(ArtistFragment.this, artists -> {
+                            artistAdapter.submitList(artists);
+                            binding.swipeRefresh.setRefreshing(false);
+                        });
+                    }
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse response) {
+                        Toast.makeText(getContext(),response.getPermissionName()+" permission denied",Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                }).check();
     }
 }
