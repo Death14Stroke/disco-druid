@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 
 import com.andruid.magic.mediareader.model.Artist;
+import com.andruid.magic.mediareader.util.ArtistUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,16 +38,7 @@ public class ArtistProvider {
     private Artist getArtistAtPosition(int position) {
         if(!cursor.moveToPosition(position))
             return null;
-        return getArtistFromCursor(cursor);
-    }
-
-    private Artist getArtistFromCursor(Cursor cursor) {
-        Artist artist = new Artist();
-        artist.setArtistId(cursor.getString(0));
-        artist.setArtist(cursor.getString(1));
-        artist.setAlbumsCount(cursor.getInt(2));
-        artist.setTracksCount(cursor.getInt(3));
-        return artist;
+        return ArtistUtils.getArtistFromCursor(cursor);
     }
 
     private Uri getUri() {

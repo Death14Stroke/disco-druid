@@ -5,9 +5,11 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.MediaDescriptionCompat;
 
 import com.andruid.magic.mediareader.data.Constants;
 import com.andruid.magic.mediareader.model.Track;
+import com.andruid.magic.mediareader.provider.TrackProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,5 +50,26 @@ public class TrackUtils {
             }
         }
         return trackList;
+    }
+
+    public static List<MediaBrowserCompat.MediaItem> getMediaItemsFromTracks(List<Track> trackList) {
+        List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
+        for(Track track : trackList){
+            Bundle extras = new Bundle();
+            extras.putParcelable(Constants.TRACK,track);
+            MediaDescriptionCompat mediaDescriptionCompat = new MediaDescriptionCompat.Builder()
+                    .setMediaId(track.getPath())
+                    .setTitle(track.getTitle())
+                    .setExtras(extras)
+                    .build();
+            MediaBrowserCompat.MediaItem mediaItem = new MediaBrowserCompat.MediaItem(mediaDescriptionCompat, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
+            mediaItems.add(mediaItem);
+        }
+        return mediaItems;
+    }
+
+    public static List<Track> getTracksForPage(TrackProvider trackProvider, int page, int pageSize) {
+        int start = page*pageSize;
+        return trackProvider.getTracksAtRange(start,Math.min(start+pageSize, trackProvider.getListSize()));
     }
 }

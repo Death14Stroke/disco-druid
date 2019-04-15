@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 
 import com.andruid.magic.mediareader.model.PlayList;
+import com.andruid.magic.mediareader.util.PlaylistUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,23 +48,7 @@ public class PlaylistProvider {
     private PlayList getPlaylistAtPosition(int position) {
         if (!cursor.moveToPosition(position))
             return null;
-        return getPlaylistFromCursor(cursor);
-    }
-
-    private PlayList getPlaylistFromCursor(Cursor cursor) {
-        PlayList playList = new PlayList();
-        playList.setPlayListId(cursor.getLong(0));
-        playList.setName(cursor.getString(1));
-        playList.setDateCreated(cursor.getLong(2));
-        String[] p = {"count(*)"};
-        Cursor c = contentResolver.query(MediaStore.Audio.Playlists.Members.getContentUri("external",
-                playList.getPlayListId()), p, null, null, null);
-        if (c != null) {
-            if (c.moveToFirst())
-                playList.setSongCount(c.getInt(0));
-            c.close();
-        }
-        return playList;
+        return PlaylistUtils.getPlaylistFromCursor(cursor, contentResolver);
     }
 
     private Uri getUri() {
