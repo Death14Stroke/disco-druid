@@ -3,7 +3,7 @@ package com.andruid.magic.mediareader.datasource;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 
-import com.andruid.magic.mediareader.data.Constants;
+import com.andruid.magic.mediareader.data.ReaderConstants;
 import com.andruid.magic.mediareader.model.PlayList;
 import com.andruid.magic.mediareader.util.PagingUtils;
 
@@ -60,7 +60,7 @@ public class PlaylistDataSource extends PositionalDataSource<PlayList> {
     private String getParentId(int requestedStartPosition) {
         if (rootId == null)
             rootId = mediaBrowserCompat.getRoot();
-        return rootId + "_" + Constants.PLAYLIST + "_" + requestedStartPosition;
+        return rootId + "_" + ReaderConstants.PLAYLIST + "_" + requestedStartPosition;
     }
 
     @NonNull
@@ -77,7 +77,7 @@ public class PlaylistDataSource extends PositionalDataSource<PlayList> {
         for(MediaBrowserCompat.MediaItem mediaItem : children){
             extras = mediaItem.getDescription().getExtras();
             if(extras!=null){
-                PlayList playList = extras.getParcelable(Constants.PLAYLIST);
+                PlayList playList = extras.getParcelable(ReaderConstants.PLAYLIST);
                 playLists.add(playList);
             }
         }

@@ -3,7 +3,7 @@ package com.andruid.magic.mediareader.datasource;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 
-import com.andruid.magic.mediareader.data.Constants;
+import com.andruid.magic.mediareader.data.ReaderConstants;
 import com.andruid.magic.mediareader.model.Album;
 import com.andruid.magic.mediareader.util.PagingUtils;
 
@@ -77,7 +77,7 @@ public class AlbumDataSource extends PositionalDataSource<Album> {
         for(MediaBrowserCompat.MediaItem mediaItem : children) {
             extras = mediaItem.getDescription().getExtras();
             if (extras != null) {
-                Album album = extras.getParcelable(Constants.ALBUM);
+                Album album = extras.getParcelable(ReaderConstants.ALBUM);
                 albumList.add(album);
             }
         }

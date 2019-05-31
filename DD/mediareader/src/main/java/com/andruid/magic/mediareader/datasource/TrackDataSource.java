@@ -3,7 +3,7 @@ package com.andruid.magic.mediareader.datasource;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 
-import com.andruid.magic.mediareader.data.Constants;
+import com.andruid.magic.mediareader.data.ReaderConstants;
 import com.andruid.magic.mediareader.model.Track;
 import com.andruid.magic.mediareader.util.PagingUtils;
 import com.andruid.magic.mediareader.util.TrackUtils;
@@ -67,10 +67,10 @@ public class TrackDataSource extends PositionalDataSource<Track> {
             rootId = mediaBrowserCompat.getRoot();
         String key = "_track_";
         if(options!=null){
-            if(options.containsKey(Constants.ALBUM_ID))
-                key = "_" + Constants.ALBUM_TRACK + "_";
-            else if(options.containsKey(Constants.ARTIST_ID))
-                key = "_" + Constants.ARTIST_TRACK + "_";
+            if(options.containsKey(ReaderConstants.ALBUM_ID))
+                key = "_" + ReaderConstants.ALBUM_TRACK + "_";
+            else if(options.containsKey(ReaderConstants.ARTIST_ID))
+                key = "_" + ReaderConstants.ARTIST_TRACK + "_";
         }
         return rootId + key + requestedStartPosition;
     }

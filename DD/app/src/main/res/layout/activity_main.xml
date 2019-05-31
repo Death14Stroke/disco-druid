@@ -54,5 +54,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        <include
+            android:id="@+id/bottomSheet"
+            layout="@layout/bottom_sheet"/>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

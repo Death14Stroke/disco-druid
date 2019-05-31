@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 
-import com.andruid.magic.mediareader.data.Constants;
+import com.andruid.magic.mediareader.data.ReaderConstants;
 import com.andruid.magic.mediareader.model.Album;
 import com.andruid.magic.mediareader.provider.AlbumProvider;
 
@@ -34,7 +34,7 @@ public class AlbumUtils {
         List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
         for(Album album : albumList){
             Bundle extras = new Bundle();
-            extras.putParcelable(Constants.ALBUM,album);
+            extras.putParcelable(ReaderConstants.ALBUM,album);
             MediaDescriptionCompat mediaDescriptionCompat = new MediaDescriptionCompat.Builder()
                     .setMediaId(album.getAlbumId())
                     .setTitle(album.getAlbum())

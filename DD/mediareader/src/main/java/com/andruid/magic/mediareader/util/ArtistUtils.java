@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 
-import com.andruid.magic.mediareader.data.Constants;
+import com.andruid.magic.mediareader.data.ReaderConstants;
 import com.andruid.magic.mediareader.model.Artist;
 import com.andruid.magic.mediareader.provider.ArtistProvider;
 
@@ -32,7 +32,7 @@ public class ArtistUtils {
         List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
         for(Artist artist : artistList){
             Bundle extras = new Bundle();
-            extras.putParcelable(Constants.ARTIST,artist);
+            extras.putParcelable(ReaderConstants.ARTIST,artist);
             MediaDescriptionCompat mediaDescriptionCompat = new MediaDescriptionCompat.Builder()
                     .setMediaId(artist.getArtistId())
                     .setTitle(artist.getArtist())

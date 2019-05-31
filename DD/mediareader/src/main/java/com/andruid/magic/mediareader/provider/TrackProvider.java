@@ -7,7 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 
-import com.andruid.magic.mediareader.data.Constants;
+import com.andruid.magic.mediareader.data.ReaderConstants;
 import com.andruid.magic.mediareader.model.Track;
 import com.andruid.magic.mediareader.util.TrackUtils;
 
@@ -21,11 +21,9 @@ public class TrackProvider {
     private final ContentResolver contentResolver;
     private String selection;
     private Uri uri;
-    private List<Track> trackList;
 
     public TrackProvider(Context context) {
         contentResolver = context.getContentResolver();
-        trackList = new ArrayList<>();
         initSelection();
         uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         cursor = ContentResolverCompat.query(contentResolver, uri, getProjection(), selection,
@@ -34,22 +32,21 @@ public class TrackProvider {
 
     public TrackProvider(Context context, Bundle options){
         contentResolver = context.getContentResolver();
-        trackList = new ArrayList<>();
         uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         initSelection();
         String[] projection = getProjection();
         String[] selectionArgs = null;
         String sortOrder = getSortOrder();
-        if(options.containsKey(Constants.ALBUM_ID)) {
+        if(options.containsKey(ReaderConstants.ALBUM_ID)) {
             selection = selection + " AND " + MediaStore.Audio.Media.ALBUM_ID + "=?";
-            selectionArgs = new String[]{options.getString(Constants.ALBUM_ID)};
+            selectionArgs = new String[]{options.getString(ReaderConstants.ALBUM_ID)};
         }
-        else if(options.containsKey(Constants.ARTIST_ID)){
+        else if(options.containsKey(ReaderConstants.ARTIST_ID)){
             selection = selection + " AND " + MediaStore.Audio.Media.ARTIST_ID + "=?";
-            selectionArgs = new String[]{options.getString(Constants.ARTIST_ID)};
+            selectionArgs = new String[]{options.getString(ReaderConstants.ARTIST_ID)};
         }
-        else if(options.containsKey(Constants.AUDIO_ID_ARRAYLIST)){
-            List<String> audioIdList = options.getStringArrayList(Constants.AUDIO_ID_ARRAYLIST);
+        else if(options.containsKey(ReaderConstants.AUDIO_ID_ARRAYLIST)){
+            List<String> audioIdList = options.getStringArrayList(ReaderConstants.AUDIO_ID_ARRAYLIST);
             StringBuilder builder = new StringBuilder(selection);
             builder.append(" AND ");
             builder.append(MediaStore.Audio.Media._ID);
@@ -63,8 +60,8 @@ public class TrackProvider {
             if (audioIdList != null)
                 selectionArgs = audioIdList.toArray(new String[0]);
         }
-        else if(options.containsKey(Constants.PLAYLIST_ID)){
-            uri = MediaStore.Audio.Playlists.Members.getContentUri("external", options.getLong(Constants.PLAYLIST_ID));
+        else if(options.containsKey(ReaderConstants.PLAYLIST_ID)){
+            uri = MediaStore.Audio.Playlists.Members.getContentUri("external", options.getLong(ReaderConstants.PLAYLIST_ID));
             projection = new String[]{
                     MediaStore.Audio.Playlists.Members.AUDIO_ID,
                     MediaStore.Audio.Playlists.Members.ARTIST,
@@ -85,14 +82,13 @@ public class TrackProvider {
     }
 
     public List<Track> getTracksAtRange(int start, int end){
+        List<Track> trackList = new ArrayList<>();
         for(int i=start;i<end;i++){
-            if(i<trackList.size())
-                continue;
             Track track = getTrackAtPosition(i);
             if(track!=null)
                 trackList.add(track);
         }
-        return new ArrayList<>(trackList.subList(start, end));
+        return trackList;
     }
 
     private Track getTrackAtPosition(int position){
@@ -121,10 +117,6 @@ public class TrackProvider {
     }
 
     public List<Track> getAllTracks() {
-        if(trackList.size()!=cursor.getCount()) {
-            for (int i = trackList.size(); i < cursor.getCount(); i++)
-                trackList.add(getTrackAtPosition(i));
-        }
-        return trackList;
+        return getTracksAtRange(0, cursor.getCount());
     }
 }

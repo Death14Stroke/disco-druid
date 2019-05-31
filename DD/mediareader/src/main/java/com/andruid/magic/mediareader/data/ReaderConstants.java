@@ -1,6 +1,6 @@
 package com.andruid.magic.mediareader.data;
 
-public class Constants {
+public class ReaderConstants {
     public static final String ALBUM_ID = "album_id", ARTIST_ID = "artist_id",
             PLAYLIST_ID = "playlist_id";
     public static final String AUDIO_ID_ARRAYLIST = "audio_id_arraylist";

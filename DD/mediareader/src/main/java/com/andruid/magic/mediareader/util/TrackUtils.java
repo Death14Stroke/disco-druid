@@ -2,17 +2,21 @@ package com.andruid.magic.mediareader.util;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.MediaMetadataCompat;
 
-import com.andruid.magic.mediareader.data.Constants;
+import com.andruid.magic.mediareader.data.ReaderConstants;
 import com.andruid.magic.mediareader.model.Track;
 import com.andruid.magic.mediareader.provider.TrackProvider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class TrackUtils {
 
@@ -45,7 +49,7 @@ public class TrackUtils {
         for(MediaBrowserCompat.MediaItem mediaItem : children){
             extras = mediaItem.getDescription().getExtras();
             if(extras!=null) {
-                Track track = extras.getParcelable(Constants.TRACK);
+                Track track = extras.getParcelable(ReaderConstants.TRACK);
                 trackList.add(track);
             }
         }
@@ -56,7 +60,7 @@ public class TrackUtils {
         List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
         for(Track track : trackList){
             Bundle extras = new Bundle();
-            extras.putParcelable(Constants.TRACK,track);
+            extras.putParcelable(ReaderConstants.TRACK,track);
             MediaDescriptionCompat mediaDescriptionCompat = new MediaDescriptionCompat.Builder()
                     .setMediaId(track.getPath())
                     .setTitle(track.getTitle())
@@ -71,5 +75,34 @@ public class TrackUtils {
     public static List<Track> getTracksForPage(TrackProvider trackProvider, int page, int pageSize) {
         int start = page*pageSize;
         return trackProvider.getTracksAtRange(start,Math.min(start+pageSize, trackProvider.getListSize()));
+    }
+
+    public static MediaDescriptionCompat getMediaDescription(Track track) {
+        Bundle extras = new Bundle();
+        Bitmap bitmap = BitmapFactory.decodeFile(track.getAlbumArtUri());
+        extras.putParcelable(MediaMetadataCompat.METADATA_KEY_ALBUM_ART,bitmap);
+        extras.putParcelable(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON,bitmap);
+        return new MediaDescriptionCompat.Builder()
+                .setMediaId(track.getPath())
+                .setIconBitmap(bitmap)
+                .setTitle(track.getTitle())
+                .setDescription(track.getAlbum())
+                .setExtras(extras)
+                .build();
+    }
+
+    public static MediaMetadataCompat.Builder buildMetaData(Track track) {
+        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
+        if (Objects.requireNonNull(track).getAlbumArtUri() != null) {
+            Bitmap bitmap = BitmapFactory.decodeFile(track.getAlbumArtUri());
+            builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap);
+            builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, track.getAlbumArtUri());
+        }
+        builder.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, track.getAudioId());
+        builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, track.getDuration());
+        builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.getAlbum());
+        builder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.getArtist());
+        builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, track.getTitle());
+        return builder;
     }
 }

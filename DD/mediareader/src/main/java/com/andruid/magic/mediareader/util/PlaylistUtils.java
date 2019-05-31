@@ -7,7 +7,7 @@ import android.provider.MediaStore;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 
-import com.andruid.magic.mediareader.data.Constants;
+import com.andruid.magic.mediareader.data.ReaderConstants;
 import com.andruid.magic.mediareader.model.PlayList;
 import com.andruid.magic.mediareader.provider.PlaylistProvider;
 
@@ -41,7 +41,7 @@ public class PlaylistUtils {
         List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
         for(PlayList playList : playLists){
             Bundle extras = new Bundle();
-            extras.putParcelable(Constants.PLAYLIST,playList);
+            extras.putParcelable(ReaderConstants.PLAYLIST,playList);
             MediaDescriptionCompat mediaDescriptionCompat = new MediaDescriptionCompat.Builder()
                     .setMediaId(String.valueOf(playList.getPlayListId()))
                     .setTitle(playList.getName())
