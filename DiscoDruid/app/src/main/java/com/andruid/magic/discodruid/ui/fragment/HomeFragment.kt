@@ -95,13 +95,6 @@ class HomeFragment : Fragment(), CoroutineScope {
                 Palette.Builder(bitmap)
                     .generate { palette ->
                         palette?.let {
-                            val vibrantLightColor =
-                                it.getLightVibrantColor(
-                                    ContextCompat.getColor(
-                                        requireContext(),
-                                        R.color.colorPrimary
-                                    )
-                                )
                             val vibrantDarkColor =
                                 it.getDarkVibrantColor(
                                     ContextCompat.getColor(
@@ -110,7 +103,7 @@ class HomeFragment : Fragment(), CoroutineScope {
                                     )
                                 )
                             collapseToolBar.setContentScrimColor(vibrantDarkColor)
-                            collapseToolBar.setStatusBarScrimColor(vibrantLightColor)
+                            collapseToolBar.setStatusBarScrimColor(vibrantDarkColor)
                         }
                     }
             }
