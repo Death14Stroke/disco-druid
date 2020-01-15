@@ -4,9 +4,11 @@ import android.app.Application
 import android.content.ContentResolver
 import android.provider.MediaStore
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import androidx.core.content.ContentResolverCompat
 import com.andruid.magic.medialoader.model.Album
 import com.andruid.magic.medialoader.util.getAlbum
+import java.util.jar.Manifest
 
 class AlbumRepository {
     companion object {
@@ -35,6 +37,7 @@ class AlbumRepository {
         }
     }
 
+    @RequiresPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
     fun getAlbums(limit: Int, offset: Int): List<Album> {
         val uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI
         val projection = arrayOf(

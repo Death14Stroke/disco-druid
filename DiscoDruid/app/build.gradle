@@ -55,12 +55,16 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.1.0'
     implementation 'androidx.palette:palette:1.0.0'
     implementation 'androidx.paging:paging-runtime:2.1.1'
+    implementation "androidx.viewpager2:viewpager2:1.0.0"
 
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation "com.google.android.material:material:1.1.0-alpha07"
 
     implementation 'com.flaviofaria:kenburnsview:1.0.7'
     implementation 'com.github.nikartm:image-support:1.0.5'
     implementation "io.coil-kt:coil:0.9.1"
+    implementation 'org.greenrobot:eventbus:3.1.1'
+    implementation "org.permissionsdispatcher:permissionsdispatcher:4.6.0"
+    kapt "org.permissionsdispatcher:permissionsdispatcher-processor:4.6.0"
 
     implementation project(path: ':medialoader')
 }

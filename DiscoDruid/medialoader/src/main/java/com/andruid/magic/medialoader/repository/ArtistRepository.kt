@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.ContentResolver
 import android.provider.MediaStore
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import androidx.core.content.ContentResolverCompat
 import com.andruid.magic.medialoader.model.Artist
 import com.andruid.magic.medialoader.util.getArtist
@@ -35,6 +36,7 @@ class ArtistRepository {
         }
     }
 
+    @RequiresPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
     fun getArtists(limit: Int, offset: Int): List<Artist> {
         val uri = MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI
         val projection = arrayOf(

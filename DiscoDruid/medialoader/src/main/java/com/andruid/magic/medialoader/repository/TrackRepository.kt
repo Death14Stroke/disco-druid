@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.ContentResolver
 import android.provider.MediaStore
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import androidx.core.content.ContentResolverCompat
 import com.andruid.magic.medialoader.model.Track
 import com.andruid.magic.medialoader.util.getTrack
@@ -36,6 +37,7 @@ class TrackRepository {
         }
     }
 
+    @RequiresPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
     fun getTracks(limit: Int, offset: Int): List<Track> {
         val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val selection = ("(${MediaStore.Audio.Media.IS_MUSIC} !=0 ) AND " +

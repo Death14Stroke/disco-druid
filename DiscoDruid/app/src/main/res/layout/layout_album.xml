@@ -29,6 +29,8 @@
                 android:scaleType="fitXY"
                 android:layout_gravity="center"
                 android:padding="10dp"
+                app:uri="@{album.album}"
+                app:albumId="@{album.albumId}"
                 app:ibv_badgeTextSize="12sp"
                 app:ibv_fixedBadgeRadius="15dp"
                 app:ibv_badgeTextStyle="bold"

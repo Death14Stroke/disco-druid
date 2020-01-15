@@ -18,6 +18,8 @@
             android:layout_width="70dp"
             android:layout_height="70dp"
             tools:src="@mipmap/ic_launcher"
+            app:uri="@{track.path}"
+            app:albumId="@{track.albumId}"
             android:scaleType="fitXY"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
