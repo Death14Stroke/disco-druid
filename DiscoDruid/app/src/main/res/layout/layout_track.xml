@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="track"
+            type="com.andruid.magic.medialoader.model.Track" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:background="@drawable/selector_bg"
+        android:id="@+id/foreground_view">
+        <ImageView
+            android:id="@+id/thumbnailIV"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            tools:src="@mipmap/ic_launcher"
+            android:scaleType="fitXY"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:contentDescription="@string/app_name"/>
+        <TextView
+            android:id="@+id/titleTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            tools:text="Song Name"
+            android:text="@{track.title}"
+            android:padding="5dp"
+            android:textColor="@color/colorSelectedTab"
+            android:textStyle="bold"
+            android:maxEms="12"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/thumbnailIV"
+            app:layout_constraintBottom_toTopOf="@id/artistTV" />
+        <TextView
+            android:id="@+id/artistTV"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textColor="@android:color/darker_gray"
+            android:textStyle="italic"
+            android:maxEms="12"
+            tools:text="Artist"
+            android:text="@{track.artist}"
+            android:padding="5dp"
+            android:layout_marginStart="5dp"
+            app:layout_constraintStart_toEndOf="@id/thumbnailIV"
+            app:layout_constraintTop_toBottomOf="@id/titleTV"
+            app:layout_constraintBottom_toBottomOf="parent" />
+        <TextView
+            android:id="@+id/durationTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="03:30"
+            app:timeFormat="@{track.duration}"
+            android:textColor="@color/colorUnselectedTab"
+            android:layout_margin="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

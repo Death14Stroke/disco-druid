@@ -3,6 +3,7 @@
     package="com.andruid.magic.discodruid">
 
     <application
+        android:name=".application.MusicApplication"
         android:allowBackup="true"
         android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"

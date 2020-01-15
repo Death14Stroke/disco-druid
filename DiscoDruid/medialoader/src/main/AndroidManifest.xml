@@ -1,2 +1,4 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.andruid.magic.medialoader" />
+    package="com.andruid.magic.medialoader" >
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+</manifest>

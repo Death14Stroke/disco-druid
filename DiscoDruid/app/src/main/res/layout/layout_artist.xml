@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="artist"
+            type="com.andruid.magic.medialoader.model.Artist" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:background="@drawable/selector_bg">
+        <TextView
+            android:id="@+id/artistNameTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:drawablePadding="6dp"
+            android:drawableStart="@drawable/ic_artist"
+            android:gravity="center_vertical"
+            android:layout_margin="5dp"
+            android:text="@{artist.artist}"
+            tools:text="Artist name"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/colorSelectedTab"
+            android:maxEms="12"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+        <TextView
+            android:id="@+id/albumCountTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:layout_marginEnd="10dp"
+            android:drawableStart="@drawable/ic_album"
+            android:drawablePadding="10dp"
+            tools:text="3"
+            android:text="@{String.valueOf(artist.albumsCount)}"
+            android:textSize="17sp"
+            android:textColor="@color/colorUnselectedTab"
+            android:textStyle="italic"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/songCountTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            tools:text="5"
+            android:text="@{String.valueOf(artist.tracksCount)}"
+            android:textSize="17sp"
+            android:textColor="@color/colorUnselectedTab"
+            android:textStyle="italic"
+            android:layout_marginEnd="10dp"
+            android:drawableStart="@drawable/ic_track"
+            android:drawablePadding="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/albumCountTV"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
