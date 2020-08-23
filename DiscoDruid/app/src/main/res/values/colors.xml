@@ -5,6 +5,11 @@
     <color name="pastel_pink">#FFCDD2</color>
     <color name="fruit_salad">#4CAF50</color>
 
+    <color name="eerie_black">#241615</color>
+    <color name="dark_sienna">#341917</color>
+    <color name="cultured">#FEF0EF</color>
+    <color name="misty_rose">#FDE3E1</color>
+
     <color name="white">#FFFFFF</color>
     <color name="boulder">#757575</color>
 </resources>

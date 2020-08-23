@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme.Main">
+        <item name="android:colorBackground">@color/eerie_black</item>
+        <item name="colorSurface">@color/dark_sienna</item>
+        <item name="android:navigationBarColor">@color/eerie_black</item>
+        <item name="android:statusBarColor">@color/eerie_black</item>
+    </style>
+
+    <style name="AppTheme.Toolbar" parent="Widget.MaterialComponents.Toolbar.PrimarySurface">
+        <item name="title">@string/app_name</item>
+        <item name="titleTextColor">@color/misty_rose</item>
+        <item name="android:background">@color/dark_sienna</item>
+        <item name="android:elevation">0dp</item>
+    </style>
+
+    <style name="AppTheme.Tab">
+        <item name="tabMode">scrollable</item>
+        <item name="tabSelectedTextColor">@color/pastel_pink</item>
+        <item name="tabTextColor">@color/white</item>
+        <item name="android:background">@color/dark_sienna</item>
+    </style>
+</resources>

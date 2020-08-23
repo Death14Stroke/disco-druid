@@ -10,21 +10,28 @@
         <item name="android:windowActionBarOverlay">true</item>
         <item name="toolbarStyle">@style/AppTheme.Toolbar</item>
         <item name="tabStyle">@style/AppTheme.Tab</item>
-        <item name="android:navigationBarColor">?attr/colorPrimaryDark</item>
+    </style>
+
+    <style name="AppTheme.Main">
+        <item name="android:colorBackground">@color/cultured</item>
+        <item name="colorSurface">@color/misty_rose</item>
+        <item name="android:navigationBarColor">@color/cultured</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
         <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
     </style>
 
-    <style name="AppTheme.Toolbar" parent="Widget.MaterialComponents.Toolbar">
+    <style name="AppTheme.Toolbar" parent="Widget.MaterialComponents.Toolbar.PrimarySurface">
         <item name="title">@string/app_name</item>
         <item name="titleTextColor">@color/white</item>
-        <item name="android:background">?attr/colorPrimaryDark</item>
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="android:elevation">0dp</item>
     </style>
 
     <style name="AppTheme.Tab">
         <item name="tabMode">scrollable</item>
         <item name="tabSelectedTextColor">@color/pastel_pink</item>
         <item name="tabTextColor">@color/white</item>
-        <item name="android:background">?attr/colorPrimaryDark</item>
+        <item name="android:background">?attr/colorPrimary</item>
     </style>
 
     <style name="RoundedImageView">
@@ -32,8 +39,7 @@
         <item name="cornerSize">16%</item>
     </style>
 
-    <style name="SubtitleStyle">
-        <item name="android:textColor">@color/boulder</item>
+    <style name="SubtitleStyle" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textStyle">italic</item>
     </style>
 </resources>
