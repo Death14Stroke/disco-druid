@@ -5,6 +5,7 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import com.andruid.magic.discodruid.ui.viewholder.TrackViewHolder
 import com.andruid.magic.medialoader.model.Track
+import kotlinx.coroutines.CoroutineScope
 
 private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Track>() {
     override fun areContentsTheSame(oldItem: Track, newItem: Track) =
@@ -14,11 +15,11 @@ private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Track>() {
         oldItem == newItem
 }
 
-class TracksAdapter : PagingDataAdapter<Track, TrackViewHolder>(DIFF_CALLBACK) {
+class TracksAdapter(private val scope: CoroutineScope) : PagingDataAdapter<Track, TrackViewHolder>(DIFF_CALLBACK) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         TrackViewHolder.from(parent)
 
     override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
-        getItem(position)?.let { track -> holder.bind(track) }
+        getItem(position)?.let { track -> holder.bind(scope, track) }
     }
 }

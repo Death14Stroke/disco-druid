@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
 import com.andruid.magic.discodruid.databinding.FragmentTrackBinding
 import com.andruid.magic.discodruid.ui.adapter.TracksAdapter
@@ -17,7 +18,7 @@ class TrackFragment : Fragment() {
     }
 
     private val tracksViewModel by viewModels<TrackViewModel>()
-    private val tracksAdapter = TracksAdapter()
+    private val tracksAdapter by lazy { TracksAdapter(lifecycleScope) }
 
     private lateinit var binding: FragmentTrackBinding
 

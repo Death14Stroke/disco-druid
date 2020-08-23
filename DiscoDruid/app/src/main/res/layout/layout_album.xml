@@ -32,7 +32,7 @@
                 android:layout_height="150dp"
                 android:layout_gravity="center_horizontal"
                 android:scaleType="fitXY"
-                app:albumArt="@{album.albumId}"
+
                 app:layout_constraintBottom_toTopOf="@id/albumNameTV"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

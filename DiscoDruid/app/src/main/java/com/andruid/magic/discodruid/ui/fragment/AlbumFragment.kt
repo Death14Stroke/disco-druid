@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
 import com.andruid.magic.discodruid.databinding.FragmentAlbumBinding
 import com.andruid.magic.discodruid.ui.adapter.AlbumsAdapter
@@ -16,7 +17,7 @@ class AlbumFragment : Fragment() {
         fun newInstance() = AlbumFragment()
     }
 
-    private val albumsAdapter = AlbumsAdapter()
+    private val albumsAdapter by lazy { AlbumsAdapter(lifecycleScope) }
     private val albumViewModel by viewModels<AlbumViewModel>()
 
     private lateinit var binding: FragmentAlbumBinding
