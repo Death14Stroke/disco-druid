@@ -1,17 +1,39 @@
-<resources>
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/pomegranate</item>
+        <item name="colorPrimaryDark">@color/persian_red</item>
+        <item name="colorSecondary">@color/fruit_salad</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">
+            shortEdges
+        </item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="toolbarStyle">@style/AppTheme.Toolbar</item>
+        <item name="tabStyle">@style/AppTheme.Tab</item>
+        <item name="android:navigationBarColor">?attr/colorPrimaryDark</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
     </style>
 
-    <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
+    <style name="AppTheme.Toolbar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="title">@string/app_name</item>
+        <item name="titleTextColor">@color/white</item>
+        <item name="android:background">?attr/colorPrimaryDark</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.Tab">
+        <item name="tabMode">scrollable</item>
+        <item name="tabSelectedTextColor">@color/pastel_pink</item>
+        <item name="tabTextColor">@color/white</item>
+        <item name="android:background">?attr/colorPrimaryDark</item>
+    </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="RoundedImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16%</item>
+    </style>
+
+    <style name="SubtitleStyle">
+        <item name="android:textColor">@color/boulder</item>
+        <item name="android:textStyle">italic</item>
+    </style>
 </resources>

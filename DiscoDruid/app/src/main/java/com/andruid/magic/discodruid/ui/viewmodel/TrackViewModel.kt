@@ -1,25 +1,31 @@
 package com.andruid.magic.discodruid.ui.viewmodel
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.paging.LivePagedListBuilder
-import androidx.paging.PagedList
-import com.andruid.magic.discodruid.paging.track.TrackDataSourceFactory
-import com.andruid.magic.medialoader.model.Track
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
+import com.andruid.magic.discodruid.data.PAGE_SIZE
+import com.andruid.magic.discodruid.paging.TracksPagingSource
+import kotlinx.coroutines.cancel
 
 class TrackViewModel : ViewModel() {
-    companion object {
-        private const val TRACK_PAGE_SIZE = 10
+    val tracksLiveData = liveData {
+        val config = PagingConfig(PAGE_SIZE)
+        val pager = Pager(config) {
+            TracksPagingSource()
+        }
+
+        emitSource(
+            pager.flow.cachedIn(viewModelScope)
+                .asLiveData()
+        )
     }
 
-    val tracksLiveData: LiveData<PagedList<Track>>
-
-    init {
-        val config = PagedList.Config.Builder()
-            .setPageSize(TRACK_PAGE_SIZE)
-            .setEnablePlaceholders(false)
-            .build()
-        tracksLiveData = LivePagedListBuilder<Int, Track>(TrackDataSourceFactory(), config)
-            .build()
+    override fun onCleared() {
+        super.onCleared()
+        viewModelScope.cancel()
     }
 }

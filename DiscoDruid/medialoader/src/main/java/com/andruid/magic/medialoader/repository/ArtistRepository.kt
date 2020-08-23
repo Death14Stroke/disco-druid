@@ -3,58 +3,51 @@ package com.andruid.magic.medialoader.repository
 import android.app.Application
 import android.content.ContentResolver
 import android.provider.MediaStore
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.core.content.ContentResolverCompat
 import com.andruid.magic.medialoader.model.Artist
-import com.andruid.magic.medialoader.util.getArtist
+import com.andruid.magic.medialoader.model.readArtist
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-class ArtistRepository {
-    companion object {
-        private val TAG = ArtistRepository::class.java.simpleName
+object ArtistRepository {
+    private val projection = arrayOf(
+        MediaStore.Audio.Artists._ID,
+        MediaStore.Audio.Artists.ARTIST,
+        MediaStore.Audio.Artists.NUMBER_OF_ALBUMS,
+        MediaStore.Audio.Artists.NUMBER_OF_TRACKS
+    )
 
-        private lateinit var INSTANCE: ArtistRepository
-        private lateinit var contentResolver: ContentResolver
-        private val LOCK = Any()
+    private lateinit var contentResolver: ContentResolver
 
-        @JvmStatic
-        fun init(application: Application) {
-            contentResolver = application.contentResolver
-        }
-
-        @JvmStatic
-        fun getInstance(): ArtistRepository {
-            if(!::contentResolver.isInitialized)
-                throw Exception("must call init() first in Application class")
-            if (!::INSTANCE.isInitialized) {
-                synchronized(LOCK) {
-                    Log.d(TAG, "Created artist repository instance")
-                    INSTANCE = ArtistRepository()
-                }
-            }
-            return INSTANCE
-        }
+    fun init(application: Application) {
+        contentResolver = application.contentResolver
     }
 
     @RequiresPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-    fun getArtists(limit: Int, offset: Int): List<Artist> {
-        val uri = MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI
-        val projection = arrayOf(
-            MediaStore.Audio.Artists._ID,
-            MediaStore.Audio.Artists.ARTIST,
-            MediaStore.Audio.Artists.NUMBER_OF_ALBUMS,
-            MediaStore.Audio.Artists.NUMBER_OF_TRACKS
-        )
-        val cursor = ContentResolverCompat.query(contentResolver, uri, projection, null,
-            null, getSortOrder(limit, offset), null)
-        cursor.moveToFirst()
+    suspend fun getArtists(limit: Int, offset: Int): List<Artist> {
         val artists = mutableListOf<Artist>()
-        while(!cursor.isAfterLast) {
-            artists.add(cursor.getArtist())
-            cursor.moveToNext()
+
+        val uri = MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI
+
+        return withContext(Dispatchers.IO) {
+            val query = ContentResolverCompat.query(
+                contentResolver,
+                uri,
+                projection,
+                null,
+                null,
+                getSortOrder(limit, offset),
+                null
+            )
+
+            query?.use { cursor ->
+                while (cursor.moveToNext())
+                    artists.add(cursor.readArtist())
+            }
+
+            artists.toList()
         }
-        cursor.close()
-        return artists.toList()
     }
 
     private fun getSortOrder(limit: Int, offset: Int) =

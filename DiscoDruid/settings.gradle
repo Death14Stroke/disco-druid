@@ -1,2 +1,3 @@
-include ':app', ':medialoader'
-rootProject.name='DiscoDruid'
+include ':medialoader'
+include ':app'
+rootProject.name = "DiscoDruid"

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#430000</color>
-    <color name="colorPrimaryDark">#021a00</color>
-    <color name="colorAccent">#043800</color>
+    <color name="pomegranate">#F44336</color>
+    <color name="persian_red">#D32F2F</color>
+    <color name="pastel_pink">#FFCDD2</color>
+    <color name="fruit_salad">#4CAF50</color>
 
-    <color name="colorUnselectedTab">#fff</color>
-    <color name="colorSelectedTab">#ffc800</color>
-    <color name="colorMultiSelect">#4dffc800</color>
+    <color name="white">#FFFFFF</color>
+    <color name="boulder">#757575</color>
 </resources>

@@ -1,25 +1,31 @@
 package com.andruid.magic.discodruid.ui.viewmodel
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.paging.LivePagedListBuilder
-import androidx.paging.PagedList
-import com.andruid.magic.discodruid.paging.album.AlbumDataSourceFactory
-import com.andruid.magic.medialoader.model.Album
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
+import com.andruid.magic.discodruid.data.PAGE_SIZE
+import com.andruid.magic.discodruid.paging.AlbumsPagingSource
+import kotlinx.coroutines.cancel
 
 class AlbumViewModel : ViewModel() {
-    companion object {
-        private const val ALBUM_PAGE_SIZE = 10
+    val albumsLiveData = liveData {
+        val config = PagingConfig(PAGE_SIZE)
+        val pager = Pager(config) {
+            AlbumsPagingSource()
+        }
+
+        emitSource(
+            pager.flow.cachedIn(viewModelScope)
+                .asLiveData()
+        )
     }
 
-    val albumsLiveData: LiveData<PagedList<Album>>
-
-    init {
-        val config = PagedList.Config.Builder()
-            .setPageSize(ALBUM_PAGE_SIZE)
-            .setEnablePlaceholders(false)
-            .build()
-        albumsLiveData = LivePagedListBuilder<Int, Album>(AlbumDataSourceFactory(), config)
-            .build()
+    override fun onCleared() {
+        super.onCleared()
+        viewModelScope.cancel()
     }
 }

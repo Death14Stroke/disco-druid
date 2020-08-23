@@ -1,74 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout  xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+
     <data>
+
         <variable
             name="album"
             type="com.andruid.magic.medialoader.model.Album" />
     </data>
-    <androidx.cardview.widget.CardView
+
+    <com.google.android.material.circularreveal.cardview.CircularRevealCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        app:cardCornerRadius="15dp"
-        app:cardElevation="1dp"
-        app:cardUseCompatPadding="true"
+        android:layout_margin="4dp"
+        android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:background="@drawable/selector_bg">
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        app:cardUseCompatPadding="true">
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingTop="5dp"
-            android:background="@drawable/selector_bg">
-            <ru.nikartm.support.ImageBadgeView
+            android:paddingTop="5dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/thumbnailIV"
                 android:layout_width="150dp"
                 android:layout_height="150dp"
+                android:layout_gravity="center_horizontal"
                 android:scaleType="fitXY"
-                android:layout_gravity="center"
-                android:padding="10dp"
-                app:uri="@{album.album}"
-                app:albumId="@{album.albumId}"
-                app:ibv_badgeTextSize="12sp"
-                app:ibv_fixedBadgeRadius="15dp"
-                app:ibv_badgeTextStyle="bold"
-                app:ibv_badgeTextColor="@color/colorPrimaryDark"
-                app:ibv_badgeColor="@color/colorSelectedTab"
-                app:ibv_badgeLimitValue="false"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:albumArt="@{album.albumId}"
                 app:layout_constraintBottom_toTopOf="@id/albumNameTV"
-                tools:src="@drawable/music" />
-            <TextView
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:shapeAppearanceOverlay="@style/RoundedImageView"
+                tools:src="@mipmap/ic_launcher" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/badge"
+                android:gravity="center"
+                android:text="@{String.valueOf(album.songsCount)}"
+                android:textAppearance="?attr/counterTextAppearance"
+                android:textColor="@color/pastel_pink"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/thumbnailIV"
+                app:layout_constraintEnd_toEndOf="@id/thumbnailIV"
+                app:layout_constraintStart_toEndOf="@id/thumbnailIV"
+                app:layout_constraintTop_toTopOf="@id/thumbnailIV"
+                tools:text="56" />
+
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/albumNameTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:layout_marginStart="3dp"
-                android:textColor="@color/colorSelectedTab"
+                android:layout_marginStart="4dp"
                 android:gravity="center_vertical"
-                android:textStyle="bold"
+                android:padding="4dp"
                 android:text="@{album.album}"
-                tools:text="Album"
+                android:textAppearance="?attr/textAppearanceListItem"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/thumbnailIV"
-                app:layout_constraintStart_toStartOf="parent"/>
-            <TextView
+                tools:text="Album" />
+
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/albumArtistTV"
+                style="@style/SubtitleStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:layout_marginStart="3dp"
-                android:textStyle="italic"
-                android:textColor="@android:color/darker_gray"
+                android:layout_marginStart="4dp"
                 android:gravity="center_vertical"
+                android:padding="4dp"
                 android:text="@{album.artist}"
-                tools:text="Artist"
-                app:layout_constraintTop_toBottomOf="@id/albumNameTV"
+                android:textAppearance="?attr/textAppearanceListItemSecondary"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintTop_toBottomOf="@id/albumNameTV"
+                tools:text="Artist" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.circularreveal.cardview.CircularRevealCardView>
 </layout>

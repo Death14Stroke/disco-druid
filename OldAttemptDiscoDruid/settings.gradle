@@ -1,0 +1,2 @@
+include ':app', ':medialoader'
+rootProject.name='DiscoDruid'

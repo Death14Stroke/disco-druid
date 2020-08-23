@@ -3,59 +3,70 @@ package com.andruid.magic.medialoader.repository
 import android.app.Application
 import android.content.ContentResolver
 import android.provider.MediaStore
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.core.content.ContentResolverCompat
 import com.andruid.magic.medialoader.model.Album
-import com.andruid.magic.medialoader.util.getAlbum
-import java.util.jar.Manifest
+import com.andruid.magic.medialoader.model.readAlbum
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-class AlbumRepository {
-    companion object {
-        private val TAG = AlbumRepository::class.java.simpleName
+object AlbumRepository {
+    private val projection = arrayOf(
+        MediaStore.Audio.Albums._ID,
+        MediaStore.Audio.Albums.ALBUM,
+        MediaStore.Audio.Albums.ARTIST,
+        MediaStore.Audio.Albums.NUMBER_OF_SONGS
+    )
 
-        private lateinit var INSTANCE: AlbumRepository
-        private lateinit var contentResolver: ContentResolver
-        private val LOCK = Any()
+    private lateinit var contentResolver: ContentResolver
 
-        @JvmStatic
-        fun init(application: Application) {
-            contentResolver = application.contentResolver
-        }
+    fun init(application: Application) {
+        contentResolver = application.contentResolver
+    }
 
-        @JvmStatic
-        fun getInstance(): AlbumRepository {
-            if(!::contentResolver.isInitialized)
-                throw Exception("must call init() first in Application class")
-            if (!::INSTANCE.isInitialized) {
-                synchronized(LOCK) {
-                    Log.d(TAG, "Created album repository instance")
-                    INSTANCE = AlbumRepository()
-                }
+    //@RequiresPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+    suspend fun getAlbums(limit: Int, offset: Int): List<Album> {
+        val albums = mutableListOf<Album>()
+        val uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI
+
+        return withContext(Dispatchers.IO) {
+            val query = ContentResolverCompat.query(
+                contentResolver,
+                uri,
+                projection,
+                null,
+                null,
+                getSortOrder(limit, offset),
+                null
+            )
+            query?.use { cursor ->
+                while (cursor.moveToNext())
+                    albums.add(cursor.readAlbum())
             }
-            return INSTANCE
+
+            albums.toList()
         }
     }
 
-    @RequiresPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-    fun getAlbums(limit: Int, offset: Int): List<Album> {
+    //@RequiresPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+    suspend fun getAlbumArtUri(albumId: String): String? {
         val uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI
-        val projection = arrayOf(
-            MediaStore.Audio.Albums._ID,
-            MediaStore.Audio.Albums.ALBUM,
-            MediaStore.Audio.Albums.ARTIST,
-            MediaStore.Audio.Albums.NUMBER_OF_SONGS
-        )
-        val cursor = ContentResolverCompat.query(contentResolver, uri, projection, null,
-            null, getSortOrder(limit, offset), null)
-        cursor.moveToFirst()
-        val albums = mutableListOf<Album>()
-        while(!cursor.isAfterLast) {
-            albums.add(cursor.getAlbum())
-            cursor.moveToNext()
+        val projection = arrayOf(MediaStore.Audio.Albums.ALBUM_ART)
+        val selection = "${MediaStore.Audio.Albums._ID}=?"
+
+        return withContext(Dispatchers.IO) {
+            val query = ContentResolverCompat.query(
+                contentResolver, uri, projection, selection,
+                arrayOf(albumId), null, null
+            )
+
+            query?.use { cursor ->
+                if (cursor.moveToFirst())
+                    cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART))
+                else
+                    null
+            }
         }
-        cursor.close()
-        return albums.toList()
     }
 
     private fun getSortOrder(limit: Int, offset: Int) =
