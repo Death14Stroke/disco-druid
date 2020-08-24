@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/motionLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="80dp"
+    android:elevation="4dp"
+    android:fitsSystemWindows="true"
+    app:layoutDescription="@xml/scene"
+    android:background="?attr/colorSurface"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/thumbnail_image"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="16dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="624dp"
+        android:src="@mipmap/ic_launcher"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/RoundedImageView"
+        tools:src="@tools:sample/avatars" />
+</androidx.constraintlayout.motion.widget.MotionLayout>

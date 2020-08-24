@@ -37,6 +37,7 @@ class TrackViewHolder(private val binding: LayoutTrackBinding) :
             _, exception -> Log.e("imageLog", "Caught $exception")
     }
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     fun bind(scope: CoroutineScope, track: Track) {
         binding.track = track
 

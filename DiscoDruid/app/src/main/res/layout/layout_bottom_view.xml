@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="5dp">
+
+    <ImageView
+        android:id="@+id/track_thumbnail"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="3dp"
+        android:scaleType="fitXY"
+        android:src="@mipmap/ic_launcher"
+        android:tag="image"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/track_nameTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:ellipsize="end"
+        android:maxEms="12"
+        android:maxLines="1"
+        android:padding="5dp"
+        android:text="Song Name"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/track_artistTV"
+        app:layout_constraintStart_toEndOf="@id/track_thumbnail"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/track_artistTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:ellipsize="end"
+        android:maxEms="12"
+        android:maxLines="1"
+        android:padding="5dp"
+        android:text="Artist"
+        android:textColor="@android:color/darker_gray"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/track_thumbnail"
+        app:layout_constraintTop_toBottomOf="@id/track_nameTV" />
+
+    <ImageButton
+        android:id="@+id/track_playBtn"
+        style="?borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:src="@android:drawable/ic_media_play"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

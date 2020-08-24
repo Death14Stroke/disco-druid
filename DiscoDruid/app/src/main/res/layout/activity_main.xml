@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.circularreveal.coordinatorlayout.CircularRevealCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ui.activity.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:elevation="0dp">
+        android:layout_height="wrap_content">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolBar"
@@ -21,15 +21,14 @@
             android:layout_height="?attr/actionBarSize" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-        tools:context=".ui.activity.MainActivity">
+        android:layout_marginBottom="80dp"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</com.google.android.material.circularreveal.coordinatorlayout.CircularRevealCoordinatorLayout>
+    <include
+        android:id="@+id/bottom_sheet_layout"
+        layout="@layout/layout_bottom_sheet" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
