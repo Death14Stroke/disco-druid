@@ -13,18 +13,20 @@ import com.andruid.magic.discodruid.ui.adapter.POSITION_TRACKS
 import com.andruid.magic.discodruid.ui.adapter.TabsAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlin.math.min
 
 class MainActivity : AppCompatActivity() {
-    private val askStoragePermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
-        if (result) {
-            Log.i("permLog", "permission granted")
-            initTabs()
-            initBottomSheet()
-        } else {
-            Log.i("permLog", "permission denied")
-            finish()
+    private val askStoragePermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
+            if (result) {
+                Log.i("permLog", "permission granted")
+                initTabs()
+                initBottomSheet()
+            } else {
+                Log.i("permLog", "permission denied")
+                finish()
+            }
         }
-    }
 
     private lateinit var binding: ActivityMainBinding
 
@@ -51,14 +53,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun initBottomSheet() {
         val sheetBehaviour = BottomSheetBehavior.from(binding.bottomSheetLayout.motionLayout)
-        sheetBehaviour.addBottomSheetCallback(object: BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-
-            }
-
+        sheetBehaviour.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 binding.bottomSheetLayout.motionLayout.progress = slideOffset
+
+                binding.bottomSheetLayout.songNameTv.alpha = min(1f - 2f * slideOffset, 1f)
+                binding.bottomSheetLayout.bottomSheetArrow.rotation = slideOffset * 180
             }
+
+            override fun onStateChanged(bottomSheet: View, newState: Int) {}
         })
     }
 }
