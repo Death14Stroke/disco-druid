@@ -3,7 +3,6 @@ package com.andruid.magic.medialoader.repository
 import android.app.Application
 import android.content.ContentResolver
 import android.provider.MediaStore
-import androidx.annotation.RequiresPermission
 import androidx.core.content.ContentResolverCompat
 import com.andruid.magic.medialoader.model.Album
 import com.andruid.magic.medialoader.model.readAlbum
@@ -49,23 +48,21 @@ object AlbumRepository {
     }
 
     //@RequiresPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-    suspend fun getAlbumArtUri(albumId: String): String? {
+    fun getAlbumArtUri(albumId: String): String? {
         val uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI
         val projection = arrayOf(MediaStore.Audio.Albums.ALBUM_ART)
         val selection = "${MediaStore.Audio.Albums._ID}=?"
 
-        return withContext(Dispatchers.IO) {
-            val query = ContentResolverCompat.query(
-                contentResolver, uri, projection, selection,
-                arrayOf(albumId), null, null
-            )
+        val query = ContentResolverCompat.query(
+            contentResolver, uri, projection, selection,
+            arrayOf(albumId), null, null
+        )
 
-            query?.use { cursor ->
-                if (cursor.moveToFirst())
-                    cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART))
-                else
-                    null
-            }
+        return query?.use { cursor ->
+            if (cursor.moveToFirst())
+                cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART))
+            else
+                null
         }
     }
 
