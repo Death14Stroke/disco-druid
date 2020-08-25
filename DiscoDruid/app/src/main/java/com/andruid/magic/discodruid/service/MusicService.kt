@@ -96,8 +96,8 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
         initMediaSession()
     }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        if (intent.action == ACTION_PREPARE_QUEUE) {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_PREPARE_QUEUE) {
             Log.d("serviceLog", "onStartCommand prepare queue")
             val mode = intent.getStringExtra(EXTRA_TRACK_MODE) ?: MODE_ALL
             prepareTracks(mode)

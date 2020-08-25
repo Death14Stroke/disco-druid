@@ -2,12 +2,15 @@ package com.andruid.magic.medialoader.repository
 
 import android.app.Application
 import android.content.ContentResolver
+import android.content.ContentUris
+import android.net.Uri
 import android.provider.MediaStore
 import androidx.core.content.ContentResolverCompat
 import com.andruid.magic.medialoader.model.Album
 import com.andruid.magic.medialoader.model.readAlbum
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.FileNotFoundException
 
 object AlbumRepository {
     private val projection = arrayOf(
@@ -48,21 +51,15 @@ object AlbumRepository {
     }
 
     //@RequiresPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-    fun getAlbumArtUri(albumId: String): String? {
-        val uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI
-        val projection = arrayOf(MediaStore.Audio.Albums.ALBUM_ART)
-        val selection = "${MediaStore.Audio.Albums._ID}=?"
-
-        val query = ContentResolverCompat.query(
-            contentResolver, uri, projection, selection,
-            arrayOf(albumId), null, null
-        )
-
-        return query?.use { cursor ->
-            if (cursor.moveToFirst())
-                cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART))
-            else
-                null
+    fun getAlbumArtUri(albumId: String): Uri? {
+        return try {
+            ContentUris.withAppendedId(
+                MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+                albumId.toLong()
+            )
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+            null
         }
     }
 

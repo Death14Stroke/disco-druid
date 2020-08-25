@@ -5,12 +5,12 @@
     android:id="@+id/motionLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:behavior_hideable="false"
-    app:behavior_peekHeight="110dp"
+    android:background="?attr/colorSurface"
     android:elevation="4dp"
     android:fitsSystemWindows="true"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="110dp"
     app:layoutDescription="@xml/scene"
-    android:background="?attr/colorSurface"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -18,21 +18,42 @@
         android:layout_width="wrap_content"
         android:layout_height="20dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:src="@android:drawable/arrow_up_float"
         app:layout_constraintEnd_toEndOf="parent"
-        android:src="@android:drawable/arrow_up_float" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/song_name_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bol do na Zara (Mr-Jatt.com)"
         android:layout_marginStart="8dp"
+        android:text="Bol do na Zara (Mr-Jatt.com)"
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@id/thumbnail_image"
         app:layout_constraintTop_toTopOf="@id/thumbnail_image"
-        android:textAppearance="?attr/textAppearanceSubtitle2"
-        tools:text="Bol do na Zara (Mr-Jatt.com)"/>
+        tools:text="Bol do na Zara (Mr-Jatt.com)" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/song_album_tv"
+        style="@style/SubtitleStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Once Upon a time in Mumbai"
+        app:layout_constraintBottom_toBottomOf="@id/thumbnail_image"
+        app:layout_constraintStart_toStartOf="@id/song_name_tv"
+        tools:text="Once Upon a time in Mumbai" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/play_btn"
+        style="?borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_media_play"
+        app:layout_constraintBottom_toBottomOf="@id/thumbnail_image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/thumbnail_image" />
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/thumbnail_image"
@@ -42,4 +63,59 @@
         android:src="@mipmap/ic_launcher"
         app:shapeAppearanceOverlay="@style/RoundedImageView"
         tools:src="@tools:sample/avatars" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/expanded_track_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="Song name extended"
+        android:textAppearance="?attr/textAppearanceSubtitle1"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/thumbnail_image"
+        app:layout_constraintBottom_toTopOf="@id/expanded_album_tv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/expanded_album_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="Album name extended"
+        android:textAppearance="?attr/textAppearanceBody1"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toTopOf="@id/expanded_artist_tv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/expanded_track_tv" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/expanded_artist_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="Artist name extended"
+        android:textAppearance="?attr/textAppearanceBody1"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/expanded_album_tv"
+        app:layout_constraintBottom_toTopOf="@id/mediaProgressView"/>
+
+    <com.andruid.magic.discodruid.ui.custom.MediaProgressView
+        android:id="@+id/mediaProgressView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/expanded_artist_tv"
+        app:layout_constraintBottom_toTopOf="@id/mediaControlView"/>
+
+    <com.andruid.magic.discodruid.ui.custom.MediaControlView
+        android:id="@+id/mediaControlView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/mediaProgressView"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 </androidx.constraintlayout.motion.widget.MotionLayout>

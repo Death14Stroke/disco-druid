@@ -18,7 +18,7 @@ class TrackFragment : Fragment() {
     }
 
     private val tracksViewModel by viewModels<TrackViewModel>()
-    private val tracksAdapter by lazy { TracksAdapter(lifecycleScope) }
+    private val tracksAdapter by lazy { TracksAdapter(requireContext(), lifecycleScope) }
 
     private lateinit var binding: FragmentTrackBinding
 

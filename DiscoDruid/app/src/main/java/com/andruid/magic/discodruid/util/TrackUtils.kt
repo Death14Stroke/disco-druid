@@ -25,17 +25,15 @@ fun Track.buildMediaDescription(context: Context): MediaDescriptionCompat {
 }
 
 fun Track.buildMediaMetaData(context: Context): MediaMetadataCompat {
+    val bitmap = context.getAlbumArtBitmap(albumId)
     val builder = MediaMetadataCompat.Builder()
 
-    context.getAlbumArtBitmap(albumId)?.let { bitmap ->
-        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap)
-            .putString(
-                MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
-                AlbumRepository.getAlbumArtUri(albumId)
-            )
-    }
-
-    builder.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, audioId)
+    builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap)
+        .putString(
+            MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
+            AlbumRepository.getAlbumArtUri(albumId)?.path
+        )
+        .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, audioId)
         .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration)
         .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, album)
         .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)

@@ -42,4 +42,8 @@
     <style name="SubtitleStyle" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textStyle">italic</item>
     </style>
+
+    <style name="MediaButtonStyle" parent="Widget.AppCompat.Button.Borderless">
+        <item name="tint">?android:textColorPrimary</item>
+    </style>
 </resources>

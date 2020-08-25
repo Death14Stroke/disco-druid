@@ -17,7 +17,7 @@ class AlbumFragment : Fragment() {
         fun newInstance() = AlbumFragment()
     }
 
-    private val albumsAdapter by lazy { AlbumsAdapter(lifecycleScope) }
+    private val albumsAdapter by lazy { AlbumsAdapter(requireContext(), lifecycleScope) }
     private val albumViewModel by viewModels<AlbumViewModel>()
 
     private lateinit var binding: FragmentAlbumBinding

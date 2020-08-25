@@ -1,5 +1,6 @@
 package com.andruid.magic.discodruid.ui.adapter
 
+import android.content.Context
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -15,11 +16,11 @@ private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Track>() {
         oldItem == newItem
 }
 
-class TracksAdapter(private val scope: CoroutineScope) : PagingDataAdapter<Track, TrackViewHolder>(DIFF_CALLBACK) {
+class TracksAdapter(private val context: Context, private val scope: CoroutineScope) : PagingDataAdapter<Track, TrackViewHolder>(DIFF_CALLBACK) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         TrackViewHolder.from(parent)
 
     override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
-        getItem(position)?.let { track -> holder.bind(scope, track) }
+        getItem(position)?.let { track -> holder.bind(context, scope, track) }
     }
 }

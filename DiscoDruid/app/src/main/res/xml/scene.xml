@@ -10,13 +10,6 @@
             android:layout_marginTop="16dp"
             motion:layout_constraintStart_toStartOf="parent"
             motion:layout_constraintTop_toBottomOf="@id/bottom_sheet_arrow" />
-        <Constraint
-            android:id="@id/song_name_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            motion:layout_constraintStart_toEndOf="@id/thumbnail_image"
-            motion:layout_constraintTop_toTopOf="@id/thumbnail_image" />
     </ConstraintSet>
     <ConstraintSet android:id="@+id/end">
         <Constraint
@@ -27,13 +20,6 @@
             motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
             motion:layout_constraintTop_toBottomOf="@id/bottom_sheet_arrow" />
-        <Constraint
-            android:id="@id/song_name_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            motion:layout_constraintStart_toEndOf="@id/thumbnail_image"
-            motion:layout_constraintTop_toTopOf="@id/thumbnail_image" />
     </ConstraintSet>
     <Transition
         android:id="@+id/expand"

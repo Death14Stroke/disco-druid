@@ -69,7 +69,18 @@ class MainActivity : AppCompatActivity() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 binding.bottomSheetLayout.motionLayout.progress = slideOffset
 
-                binding.bottomSheetLayout.songNameTv.alpha = min(1f - 2f * slideOffset, 1f)
+                var alpha = min(1f - 2f * slideOffset, 1f)
+                binding.bottomSheetLayout.songNameTv.alpha = alpha
+                binding.bottomSheetLayout.songAlbumTv.alpha = alpha
+                binding.bottomSheetLayout.playBtn.alpha = alpha
+
+                alpha = 2f * (slideOffset - 0.5f)
+                binding.bottomSheetLayout.expandedTrackTv.alpha = alpha
+                binding.bottomSheetLayout.expandedAlbumTv.alpha = alpha
+                binding.bottomSheetLayout.expandedArtistTv.alpha = alpha
+                binding.bottomSheetLayout.mediaControlView.alpha = alpha
+                binding.bottomSheetLayout.mediaProgressView.alpha = alpha
+
                 binding.bottomSheetLayout.bottomSheetArrow.rotation = slideOffset * 180
             }
 
