@@ -10,6 +10,7 @@
         <item name="android:windowActionBarOverlay">true</item>
         <item name="toolbarStyle">@style/AppTheme.Toolbar</item>
         <item name="tabStyle">@style/AppTheme.Tab</item>
+        <item name="android:windowContentTransitions">true</item>
     </style>
 
     <style name="AppTheme.Main">

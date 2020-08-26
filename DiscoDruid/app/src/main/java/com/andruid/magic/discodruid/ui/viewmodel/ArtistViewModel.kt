@@ -8,14 +8,14 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.andruid.magic.discodruid.data.PAGE_SIZE
-import com.andruid.magic.discodruid.paging.AlbumsPagingSource
+import com.andruid.magic.discodruid.paging.ArtistsPagingSource
 import kotlinx.coroutines.cancel
 
-class AlbumViewModel : ViewModel() {
-    val albumsLiveData = liveData {
+class ArtistViewModel : ViewModel() {
+    val artistLiveData = liveData {
         val config = PagingConfig(PAGE_SIZE)
         val pager = Pager(config) {
-            AlbumsPagingSource()
+            ArtistsPagingSource()
         }
 
         emitSource(

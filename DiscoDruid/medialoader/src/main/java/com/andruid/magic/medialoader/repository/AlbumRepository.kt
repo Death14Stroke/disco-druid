@@ -8,7 +8,6 @@ import com.andruid.magic.medialoader.model.Album
 import com.andruid.magic.medialoader.model.readAlbum
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.FileNotFoundException
 
 object AlbumRepository : MediaRepository<Album>() {
     override val uri: Uri
@@ -62,7 +61,7 @@ object AlbumRepository : MediaRepository<Album>() {
                 MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
                 albumId.toLong()
             )
-        } catch (e: FileNotFoundException) {
+        } catch (e: Exception) {
             e.printStackTrace()
             null
         }

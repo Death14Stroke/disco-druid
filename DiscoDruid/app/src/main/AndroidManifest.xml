@@ -25,7 +25,7 @@
         </receiver>
 
         <service
-            android:name="com.andruid.magic.discodruid.service.MusicService"
+            android:name=".service.MusicService"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
@@ -42,5 +42,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.activity.AlbumDetailsActivity"
+            android:launchMode="singleTask" />
     </application>
+
 </manifest>

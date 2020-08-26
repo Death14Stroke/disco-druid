@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
@@ -6,8 +5,8 @@
     <data>
 
         <variable
-            name="track"
-            type="com.andruid.magic.medialoader.model.Track" />
+            name="artist"
+            type="com.andruid.magic.medialoader.model.Artist" />
     </data>
 
     <com.google.android.material.circularreveal.cardview.CircularRevealCardView
@@ -22,45 +21,49 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="4dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/thumbnailIV"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:contentDescription="@string/app_name"
+                android:scaleType="fitXY"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/RoundedImageView"
+                tools:src="@tools:sample/avatars" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/titleTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                android:maxEms="15"
-                android:text="@{track.title}"
+                android:layout_marginStart="4dp"
+                android:maxEms="12"
+                android:padding="4dp"
+                android:text="@{artist.artist}"
                 android:textAppearance="?attr/textAppearanceListItem"
                 android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/artistTV"
+                app:layout_constraintStart_toEndOf="@id/thumbnailIV"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="Song Name" />
+                tools:text="Alan Walker" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/artistTV"
                 style="@style/SubtitleStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                android:maxEms="15"
-                android:text="@{track.artist}"
+                android:layout_marginStart="4dp"
+                android:maxEms="12"
+                android:padding="5dp"
+                app:artistStats="@{artist}"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="@id/thumbnailIV"
                 app:layout_constraintTop_toBottomOf="@id/titleTV"
-                tools:text="Artist Name" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/durationTV"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                android:textAppearance="?attr/textAppearanceOverline"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:timeMillis="@{track.duration}"
-                tools:text="03:30" />
+                tools:text="5 albums | 3 tracks" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.circularreveal.cardview.CircularRevealCardView>
 </layout>

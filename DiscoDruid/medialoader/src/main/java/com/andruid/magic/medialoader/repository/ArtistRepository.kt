@@ -43,8 +43,11 @@ object ArtistRepository : MediaRepository<Artist>() {
             )
 
             query?.use { cursor ->
-                while (cursor.moveToNext())
-                    artists.add(cursor.readArtist())
+                while (cursor.moveToNext()) {
+                    var artist = cursor.readArtist()
+                    getAlbumIdForArtist(artist)?.let { artist = artist.copy(albumId = it) }
+                    artists.add(artist)
+                }
             }
 
             artists.toList()
@@ -53,5 +56,19 @@ object ArtistRepository : MediaRepository<Artist>() {
 
     override suspend fun getAllContent(limit: Int, offset: Int): List<Artist> {
         return fetchUtil(baseSelection, null, limit, offset)
+    }
+
+    private fun getAlbumIdForArtist(artist: Artist): String? {
+        val uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI
+        val projection = arrayOf(MediaStore.Audio.Albums._ID)
+        val selection = "${MediaStore.Audio.Albums.ARTIST} = ?"
+
+        val query = contentResolver.query(uri, projection, selection, arrayOf(artist.artist), null)
+        return query?.use { cursor ->
+            if (cursor.moveToFirst())
+                cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums._ID))
+            else
+                null
+        }
     }
 }
