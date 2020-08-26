@@ -5,7 +5,6 @@ import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.ContentUris
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
@@ -43,10 +42,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.io.FileNotFoundException
 import java.util.*
 import kotlin.coroutines.CoroutineContext
-import kotlin.reflect.typeOf
 
 class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventListener {
     companion object {
@@ -164,7 +161,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
     private fun prepareTracks(mode: String) {
         if (mode == MODE_ALL) {
             launch {
-                val tracks = TrackRepository.getTracks(10, 0)
+                val tracks = TrackRepository.getAllContent(PAGE_SIZE, 0)
                 addTracksToQueue(tracks)
             }
         }
@@ -172,7 +169,10 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
 
     private fun addTracksToQueue(tracks: List<Track>) {
         tracks.forEach { track ->
-            val uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, track.audioId)
+            val uri = ContentUris.withAppendedId(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                track.audioId
+            )
             try {
                 val dataSpec = DataSpec(uri)
                 val dataSource = ContentDataSource(this)

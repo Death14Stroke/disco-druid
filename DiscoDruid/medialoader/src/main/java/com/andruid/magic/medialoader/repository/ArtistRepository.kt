@@ -1,35 +1,36 @@
 package com.andruid.magic.medialoader.repository
 
-import android.app.Application
-import android.content.ContentResolver
+import android.net.Uri
 import android.provider.MediaStore
-import androidx.annotation.RequiresPermission
 import androidx.core.content.ContentResolverCompat
 import com.andruid.magic.medialoader.model.Artist
 import com.andruid.magic.medialoader.model.readArtist
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-object ArtistRepository {
-    private val projection = arrayOf(
-        MediaStore.Audio.Artists._ID,
-        MediaStore.Audio.Artists.ARTIST,
-        MediaStore.Audio.Artists.NUMBER_OF_ALBUMS,
-        MediaStore.Audio.Artists.NUMBER_OF_TRACKS
-    )
+object ArtistRepository : MediaRepository<Artist>() {
+    override val uri: Uri
+        get() = MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI
+    override val projection: Array<String>
+        get() = arrayOf(
+            MediaStore.Audio.Artists._ID,
+            MediaStore.Audio.Artists.ARTIST,
+            MediaStore.Audio.Artists.NUMBER_OF_ALBUMS,
+            MediaStore.Audio.Artists.NUMBER_OF_TRACKS
+        )
+    override val baseSelection: String?
+        get() = null
 
-    private lateinit var contentResolver: ContentResolver
+    override fun getSortOrder(limit: Int, offset: Int) =
+        "${MediaStore.Audio.Artists.ARTIST} ASC LIMIT $limit OFFSET $offset"
 
-    fun init(application: Application) {
-        contentResolver = application.contentResolver
-    }
-
-    @RequiresPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-    suspend fun getArtists(limit: Int, offset: Int): List<Artist> {
+    override suspend fun fetchUtil(
+        selection: String?,
+        selectionArgs: Array<String>?,
+        limit: Int,
+        offset: Int
+    ): List<Artist> {
         val artists = mutableListOf<Artist>()
-
-        val uri = MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI
-
         return withContext(Dispatchers.IO) {
             val query = ContentResolverCompat.query(
                 contentResolver,
@@ -50,6 +51,7 @@ object ArtistRepository {
         }
     }
 
-    private fun getSortOrder(limit: Int, offset: Int) =
-        "${MediaStore.Audio.Artists.ARTIST} ASC LIMIT $limit OFFSET $offset"
+    override suspend fun getAllContent(limit: Int, offset: Int): List<Artist> {
+        return fetchUtil(baseSelection, null, limit, offset)
+    }
 }

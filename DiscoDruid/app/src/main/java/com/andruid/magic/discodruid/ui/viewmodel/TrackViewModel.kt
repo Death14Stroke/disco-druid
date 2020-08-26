@@ -11,11 +11,11 @@ import com.andruid.magic.discodruid.data.PAGE_SIZE
 import com.andruid.magic.discodruid.paging.TracksPagingSource
 import kotlinx.coroutines.cancel
 
-class TrackViewModel : ViewModel() {
+class TrackViewModel(private val albumId: String? = null) : ViewModel() {
     val tracksLiveData = liveData {
         val config = PagingConfig(PAGE_SIZE)
         val pager = Pager(config) {
-            TracksPagingSource()
+            TracksPagingSource(albumId)
         }
 
         emitSource(

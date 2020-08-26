@@ -6,10 +6,10 @@ import com.andruid.magic.medialoader.repository.AlbumRepository
 
 class AlbumsPagingSource : PagingSource<Int, Album>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Album> {
-        val page = params.key ?: 1
+        val page = params.key ?: 0
         val pageSize = params.loadSize
 
-        val result = AlbumRepository.getAlbums(pageSize, page * pageSize)
+        val result = AlbumRepository.getAllContent(pageSize, page * pageSize)
         return LoadResult.Page(
             data = result,
             prevKey = null,

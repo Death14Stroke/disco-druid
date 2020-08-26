@@ -16,12 +16,15 @@ private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Album>() {
         oldItem == newItem
 }
 
-class AlbumsAdapter(private val context: Context, private val scope: CoroutineScope) :
+class AlbumsAdapter(private val context: Context, private val scope: CoroutineScope, private val onAlbumClicked: (album: Album) -> Unit) :
     PagingDataAdapter<Album, AlbumViewHolder>(DIFF_CALLBACK) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         AlbumViewHolder.from(parent)
 
     override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
-        getItem(position)?.let { album -> holder.bind(context, scope, album) }
+        getItem(position)?.let { album ->
+            holder.bind(context, scope, album)
+            holder.itemView.setOnClickListener { onAlbumClicked.invoke(album) }
+        }
     }
 }

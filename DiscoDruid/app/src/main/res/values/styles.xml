@@ -46,4 +46,13 @@
     <style name="MediaButtonStyle" parent="Widget.AppCompat.Button.Borderless">
         <item name="tint">?android:textColorPrimary</item>
     </style>
+
+    <style name="AppTheme.Main.FullScreenDialog" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:actionModeBackground">?attr/actionModeBackground</item>
+    </style>
 </resources>

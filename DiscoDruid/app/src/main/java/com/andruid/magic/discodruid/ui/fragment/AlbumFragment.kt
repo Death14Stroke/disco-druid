@@ -9,15 +9,19 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
 import com.andruid.magic.discodruid.databinding.FragmentAlbumBinding
+import com.andruid.magic.discodruid.event.EventObserver
 import com.andruid.magic.discodruid.ui.adapter.AlbumsAdapter
 import com.andruid.magic.discodruid.ui.viewmodel.AlbumViewModel
+import com.andruid.magic.medialoader.model.Album
 
 class AlbumFragment : Fragment() {
     companion object {
         fun newInstance() = AlbumFragment()
     }
 
-    private val albumsAdapter by lazy { AlbumsAdapter(requireContext(), lifecycleScope) }
+    private val albumsAdapter by lazy {
+        AlbumsAdapter(requireContext(), lifecycleScope) { albumViewModel.sendOpenAlbumDetailsEvent(it) }
+    }
     private val albumViewModel by viewModels<AlbumViewModel>()
 
     private lateinit var binding: FragmentAlbumBinding
@@ -40,6 +44,10 @@ class AlbumFragment : Fragment() {
         albumViewModel.albumsLiveData.observe(viewLifecycleOwner, { pagingData ->
             albumsAdapter.submitData(lifecycle, pagingData)
         })
+
+        albumViewModel.clickEvent.observe(viewLifecycleOwner, EventObserver { album ->
+            launchDetailsDialog(album)
+        })
     }
 
     private fun initRecyclerView() {
@@ -47,5 +55,11 @@ class AlbumFragment : Fragment() {
             adapter = albumsAdapter
             itemAnimator = DefaultItemAnimator()
         }
+    }
+
+    private fun launchDetailsDialog(album: Album) {
+        val dialogFragment = AlbumDetailsFragment.newInstance(album)
+
+        dialogFragment.show(childFragmentManager, "Album details")
     }
 }

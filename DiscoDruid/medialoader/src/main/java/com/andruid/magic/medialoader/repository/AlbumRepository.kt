@@ -1,7 +1,5 @@
 package com.andruid.magic.medialoader.repository
 
-import android.app.Application
-import android.content.ContentResolver
 import android.content.ContentUris
 import android.net.Uri
 import android.provider.MediaStore
@@ -12,32 +10,36 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.FileNotFoundException
 
-object AlbumRepository {
-    private val projection = arrayOf(
-        MediaStore.Audio.Albums._ID,
-        MediaStore.Audio.Albums.ALBUM,
-        MediaStore.Audio.Albums.ARTIST,
-        MediaStore.Audio.Albums.NUMBER_OF_SONGS
-    )
+object AlbumRepository : MediaRepository<Album>() {
+    override val uri: Uri
+        get() = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI
+    override val projection: Array<String>
+        get() = arrayOf(
+            MediaStore.Audio.Albums._ID,
+            MediaStore.Audio.Albums.ALBUM,
+            MediaStore.Audio.Albums.ARTIST,
+            MediaStore.Audio.Albums.NUMBER_OF_SONGS
+        )
+    override val baseSelection: String?
+        get() = null
 
-    private lateinit var contentResolver: ContentResolver
+    override fun getSortOrder(limit: Int, offset: Int) =
+        "${MediaStore.Audio.Albums.ALBUM} ASC LIMIT $limit OFFSET $offset"
 
-    fun init(application: Application) {
-        contentResolver = application.contentResolver
-    }
-
-    //@RequiresPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-    suspend fun getAlbums(limit: Int, offset: Int): List<Album> {
+    override suspend fun fetchUtil(
+        selection: String?,
+        selectionArgs: Array<String>?,
+        limit: Int,
+        offset: Int
+    ): List<Album> {
         val albums = mutableListOf<Album>()
-        val uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI
-
         return withContext(Dispatchers.IO) {
             val query = ContentResolverCompat.query(
                 contentResolver,
                 uri,
                 projection,
-                null,
-                null,
+                selection,
+                selectionArgs,
                 getSortOrder(limit, offset),
                 null
             )
@@ -50,7 +52,10 @@ object AlbumRepository {
         }
     }
 
-    //@RequiresPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+    override suspend fun getAllContent(limit: Int, offset: Int): List<Album> {
+        return fetchUtil(baseSelection, null, limit, offset)
+    }
+
     fun getAlbumArtUri(albumId: String): Uri? {
         return try {
             ContentUris.withAppendedId(
@@ -62,7 +67,4 @@ object AlbumRepository {
             null
         }
     }
-
-    private fun getSortOrder(limit: Int, offset: Int) =
-        "${MediaStore.Audio.Albums.ALBUM} ASC LIMIT $limit OFFSET $offset"
 }
