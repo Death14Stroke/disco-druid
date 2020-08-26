@@ -1,9 +1,11 @@
 package com.andruid.magic.discodruid.util
 
 import android.content.Context
+import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import androidx.core.os.bundleOf
+import com.andruid.magic.discodruid.data.EXTRA_TRACK
 import com.andruid.magic.medialoader.model.Track
 import com.andruid.magic.medialoader.repository.AlbumRepository
 
@@ -40,3 +42,19 @@ fun Track.buildMediaMetaData(context: Context): MediaMetadataCompat {
 
     return builder.build()
 }
+
+fun Track.toMediaItem(): MediaBrowserCompat.MediaItem {
+    val extras = bundleOf(EXTRA_TRACK to this)
+    val mediaDescriptionCompat = MediaDescriptionCompat.Builder()
+        .setMediaId(path)
+        .setTitle(title)
+        .setExtras(extras)
+        .build()
+    return MediaBrowserCompat.MediaItem(
+        mediaDescriptionCompat,
+        MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
+    )
+}
+
+fun MediaBrowserCompat.MediaItem.toTrack(): Track? =
+    description.extras?.getParcelable(EXTRA_TRACK)

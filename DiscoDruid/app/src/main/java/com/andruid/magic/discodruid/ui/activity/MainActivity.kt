@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.andruid.magic.discodruid.R
 import com.andruid.magic.discodruid.data.ACTION_PREPARE_QUEUE
 import com.andruid.magic.discodruid.data.EXTRA_TRACK_MODE
-import com.andruid.magic.discodruid.data.MODE_ALL
+import com.andruid.magic.discodruid.data.MODE_ALL_TRACKS
 import com.andruid.magic.discodruid.databinding.ActivityMainBinding
 import com.andruid.magic.discodruid.service.MusicService
 import com.andruid.magic.discodruid.ui.adapter.POSITION_ALBUMS
@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         binding.bottomSheetLayout.thumbnailImage.setOnClickListener {
             val intent = Intent(this, MusicService::class.java)
                 .setAction(ACTION_PREPARE_QUEUE)
-                .putExtra(EXTRA_TRACK_MODE, MODE_ALL)
+                .putExtra(EXTRA_TRACK_MODE, MODE_ALL_TRACKS)
             startService(intent)
         }
     }

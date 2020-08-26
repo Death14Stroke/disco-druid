@@ -10,13 +10,7 @@ class ArtistsPagingSource(mediaBrowserCompat: MediaBrowserCompat) :
     override val loadType: String
         get() = LOAD_ARTIST
 
-    override val onMediaItem = { page: Int, children: MutableList<MediaBrowserCompat.MediaItem> ->
-        val result = children.mapNotNull { mediaItem -> mediaItem.toArtist() }
-        LoadResult.Page(
-            data = result,
-            prevKey = null,
-            nextKey = if (result.isNotEmpty()) page + 1 else null
-        )
+    override val mediaItemConverter = { mediaItem: MediaBrowserCompat.MediaItem ->
+        mediaItem.toArtist()
     }
-
 }

@@ -10,12 +10,7 @@ class AlbumsPagingSource(mediaBrowserCompat: MediaBrowserCompat) :
     override val loadType: String
         get() = LOAD_ALBUM
 
-    override val onMediaItem = { page: Int, children: MutableList<MediaBrowserCompat.MediaItem> ->
-        val result = children.mapNotNull { mediaItem -> mediaItem.toAlbum() }
-        LoadResult.Page(
-            data = result,
-            prevKey = null,
-            nextKey = if (result.isNotEmpty()) page + 1 else null
-        )
+    override val mediaItemConverter = { mediaItem: MediaBrowserCompat.MediaItem ->
+        mediaItem.toAlbum()
     }
 }

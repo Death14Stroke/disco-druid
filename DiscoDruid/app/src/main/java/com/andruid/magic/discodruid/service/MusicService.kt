@@ -122,7 +122,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_PREPARE_QUEUE) {
-            val mode = intent.getStringExtra(EXTRA_TRACK_MODE) ?: MODE_ALL
+            val mode = intent.getStringExtra(EXTRA_TRACK_MODE) ?: MODE_ALL_TRACKS
             prepareTracks(mode)
         } else
             MediaButtonReceiver.handleIntent(mediaSessionCompat, intent)
@@ -166,27 +166,59 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
     }
 
     override fun onLoadChildren(
-        parentId: String, result: Result<MutableList<MediaItem>>, options: Bundle
+        parentId: String,
+        result: Result<MutableList<MediaItem>>,
+        options: Bundle
     ) {
         result.detach()
 
-        if (parentId.contains(LOAD_ALBUM)) {
-            val page = options.getInt(MediaBrowserCompat.EXTRA_PAGE)
-            val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
+        when {
+            parentId.contains(LOAD_ALBUM) -> {
+                val page = options.getInt(MediaBrowserCompat.EXTRA_PAGE)
+                val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
 
-            launch {
-                val albums = AlbumRepository.getAllContent(pageSize, page * pageSize)
-                val mediaItems = albums.map { album -> album.toMediaItem() }
-                result.sendResult(mediaItems.toMutableList())
+                launch {
+                    val albums = AlbumRepository.getAllContent(pageSize, page * pageSize)
+                    val mediaItems = albums.map { album -> album.toMediaItem() }
+                    result.sendResult(mediaItems.toMutableList())
+                }
             }
-        } else if (parentId.contains(LOAD_ARTIST)) {
-            val page = options.getInt(MediaBrowserCompat.EXTRA_PAGE)
-            val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
+            parentId.contains(LOAD_ARTIST) -> {
+                val page = options.getInt(MediaBrowserCompat.EXTRA_PAGE)
+                val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
 
-            launch {
-                val artists = ArtistRepository.getAllContent(pageSize, page * pageSize)
-                val mediaItems = artists.map { artist -> artist.toMediaItem() }
-                result.sendResult(mediaItems.toMutableList())
+                launch {
+                    val artists = ArtistRepository.getAllContent(pageSize, page * pageSize)
+                    val mediaItems = artists.map { artist -> artist.toMediaItem() }
+                    result.sendResult(mediaItems.toMutableList())
+                }
+            }
+            parentId.contains(LOAD_TRACK) -> {
+                val page = options.getInt(MediaBrowserCompat.EXTRA_PAGE)
+                val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
+
+                when (options.getString(EXTRA_TRACK_MODE)) {
+                    MODE_ALBUM_TRACKS -> {
+                        val albumId = options.getString(EXTRA_ALBUM_ID)!!
+                        launch {
+                            val tracks =
+                                TrackRepository.getTracksForAlbum(
+                                    albumId,
+                                    pageSize,
+                                    page * pageSize
+                                )
+                            val mediaItems = tracks.map { track -> track.toMediaItem() }
+                            result.sendResult(mediaItems.toMutableList())
+                        }
+                    }
+                    else -> {
+                        launch {
+                            val tracks = TrackRepository.getAllContent(pageSize, page * pageSize)
+                            val mediaItems = tracks.map { track -> track.toMediaItem() }
+                            result.sendResult(mediaItems.toMutableList())
+                        }
+                    }
+                }
             }
         }
     }
@@ -196,7 +228,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
     }
 
     private fun prepareTracks(mode: String) {
-        if (mode == MODE_ALL) {
+        if (mode == MODE_ALL_TRACKS) {
             launch {
                 val tracks = TrackRepository.getAllContent(PAGE_SIZE, 0)
                 addTracksToQueue(tracks)

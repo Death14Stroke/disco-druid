@@ -9,16 +9,19 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 abstract class MediaPagingSource<T : Any>(
-    private val mediaBrowserCompat: MediaBrowserCompat
+    private val mediaBrowserCompat: MediaBrowserCompat,
+    private val options: Bundle? = null
 ) : PagingSource<Int, T>() {
     abstract val loadType: String
-    abstract val onMediaItem: (page: Int, children: MutableList<MediaBrowserCompat.MediaItem>) -> LoadResult.Page<Int, T>
+    abstract val mediaItemConverter: (mediaItem: MediaBrowserCompat.MediaItem) -> T?
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, T> {
         val page = params.key ?: 0
         val pageSize = params.loadSize
         val parentId = getParentId(page)
         val extras = getExtrasForPage(page, pageSize)
+        options?.let { extras.putAll(it) }
+
         lateinit var result: Continuation<LoadResult<Int, T>>
 
         mediaBrowserCompat.subscribe(
@@ -30,7 +33,12 @@ abstract class MediaPagingSource<T : Any>(
                     children: MutableList<MediaBrowserCompat.MediaItem>,
                     options: Bundle
                 ) {
-                    val loadResult = onMediaItem.invoke(page, children)
+                    val data = children.mapNotNull { mediaItemConverter.invoke(it) }
+                    val loadResult = LoadResult.Page(
+                        data = data,
+                        prevKey = null,
+                        nextKey = if (data.isNotEmpty()) page + 1 else null
+                    )
                     result.resume(loadResult)
                 }
             })

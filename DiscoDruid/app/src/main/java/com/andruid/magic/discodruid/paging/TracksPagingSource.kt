@@ -1,22 +1,19 @@
 package com.andruid.magic.discodruid.paging
 
-import androidx.paging.PagingSource
+import android.os.Bundle
+import android.support.v4.media.MediaBrowserCompat
+import androidx.core.os.bundleOf
+import com.andruid.magic.discodruid.data.LOAD_TRACK
+import com.andruid.magic.discodruid.util.toTrack
 import com.andruid.magic.medialoader.model.Track
-import com.andruid.magic.medialoader.repository.TrackRepository
 
-class TracksPagingSource(private val albumId: String?) : PagingSource<Int, Track>() {
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Track> {
-        val page = params.key ?: 0
-        val pageSize = params.loadSize
+class TracksPagingSource(
+    mediaBrowserCompat: MediaBrowserCompat, options: Bundle?
+) : MediaPagingSource<Track>(mediaBrowserCompat, options) {
+    override val loadType: String
+        get() = LOAD_TRACK
 
-        val result = if (albumId != null)
-            TrackRepository.getTracksForAlbum(albumId, pageSize, page * pageSize)
-        else
-            TrackRepository.getAllContent(pageSize, page * pageSize)
-        return LoadResult.Page(
-            data = result,
-            prevKey = null,
-            nextKey = if (result.isNotEmpty()) page + 1 else null
-        )
+    override val mediaItemConverter = { mediaItem: MediaBrowserCompat.MediaItem ->
+        mediaItem.toTrack()
     }
 }

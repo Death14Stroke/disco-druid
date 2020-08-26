@@ -1,5 +1,7 @@
 package com.andruid.magic.discodruid.ui.viewmodel
 
+import android.os.Bundle
+import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
@@ -11,11 +13,14 @@ import com.andruid.magic.discodruid.data.PAGE_SIZE
 import com.andruid.magic.discodruid.paging.TracksPagingSource
 import kotlinx.coroutines.cancel
 
-class TrackViewModel(private val albumId: String? = null) : ViewModel() {
+class TrackViewModel(
+    private val mediaBrowserCompat: MediaBrowserCompat,
+    private val options: Bundle? = null
+) : ViewModel() {
     val tracksLiveData = liveData {
         val config = PagingConfig(PAGE_SIZE)
         val pager = Pager(config) {
-            TracksPagingSource(albumId)
+            TracksPagingSource(mediaBrowserCompat, options)
         }
 
         emitSource(
