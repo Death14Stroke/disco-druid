@@ -7,7 +7,6 @@ import androidx.core.os.bundleOf
 import com.andruid.magic.medialoader.model.Track
 import com.andruid.magic.medialoader.repository.AlbumRepository
 
-
 fun Track.buildMediaDescription(context: Context): MediaDescriptionCompat {
     val bitmap = context.getAlbumArtBitmap(albumId)
     val extras = bundleOf(

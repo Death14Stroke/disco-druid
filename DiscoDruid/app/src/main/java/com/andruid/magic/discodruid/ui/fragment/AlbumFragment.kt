@@ -1,7 +1,9 @@
 package com.andruid.magic.discodruid.ui.fragment
 
+import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.media.MediaBrowserCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,9 +15,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
 import com.andruid.magic.discodruid.data.EXTRA_ALBUM
 import com.andruid.magic.discodruid.databinding.FragmentAlbumBinding
+import com.andruid.magic.discodruid.service.MusicService
 import com.andruid.magic.discodruid.ui.activity.AlbumDetailsActivity
 import com.andruid.magic.discodruid.ui.adapter.AlbumsAdapter
 import com.andruid.magic.discodruid.ui.viewmodel.AlbumViewModel
+import com.andruid.magic.discodruid.ui.viewmodel.BaseViewModelFactory
 import com.andruid.magic.medialoader.model.Album
 
 class AlbumFragment : Fragment() {
@@ -28,9 +32,32 @@ class AlbumFragment : Fragment() {
             launchDetailsDialog(view, album)
         }
     }
-    private val albumViewModel by viewModels<AlbumViewModel>()
+    private val albumViewModel by viewModels<AlbumViewModel> {
+        BaseViewModelFactory { AlbumViewModel(mediaBrowserCompat) }
+    }
+    private val mediaBrowserCompat: MediaBrowserCompat by lazy {
+        MediaBrowserCompat(
+            requireContext(),
+            ComponentName(requireActivity(), MusicService::class.java),
+            object : MediaBrowserCompat.ConnectionCallback() {
+                override fun onConnected() {
+                    super.onConnected()
+
+                    albumViewModel.albumsLiveData.observe(viewLifecycleOwner, { pagingData ->
+                        albumsAdapter.submitData(lifecycle, pagingData)
+                    })
+                }
+            },
+            null
+        )
+    }
 
     private lateinit var binding: FragmentAlbumBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mediaBrowserCompat.connect()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,12 +71,9 @@ class AlbumFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        albumViewModel.albumsLiveData.observe(viewLifecycleOwner, { pagingData ->
-            albumsAdapter.submitData(lifecycle, pagingData)
-        })
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaBrowserCompat.disconnect()
     }
 
     private fun initRecyclerView() {

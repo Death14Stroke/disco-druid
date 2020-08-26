@@ -1,29 +1,34 @@
 package com.andruid.magic.discodruid.service
 
-import android.app.NotificationManager
+import android.app.Notification
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.ContentUris
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.provider.MediaStore
+import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-import androidx.core.content.getSystemService
 import androidx.core.os.bundleOf
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
 import com.andruid.magic.discodruid.R
 import com.andruid.magic.discodruid.data.*
+import com.andruid.magic.discodruid.ui.activity.MainActivity
 import com.andruid.magic.discodruid.util.buildMediaDescription
 import com.andruid.magic.discodruid.util.buildMediaMetaData
-import com.andruid.magic.discodruid.util.buildNotification
+import com.andruid.magic.discodruid.util.getAlbumArtBitmap
+import com.andruid.magic.discodruid.util.toMediaItem
 import com.andruid.magic.medialoader.model.Track
+import com.andruid.magic.medialoader.repository.AlbumRepository
+import com.andruid.magic.medialoader.repository.ArtistRepository
 import com.andruid.magic.medialoader.repository.TrackRepository
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
@@ -33,11 +38,10 @@ import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.upstream.ContentDataSource
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DataSpec
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -48,10 +52,10 @@ import kotlin.coroutines.CoroutineContext
 class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventListener {
     companion object {
         private const val MEDIA_NOTI_ID = 1
+        private const val MUSIC_CHANNEL_ID = "music_playback_channel"
         private const val MEDIA_SERVICE = "MusicService"
 
         private const val MSG_STOP_SERVICE = 0
-        private const val MSG_SHOW_NOTI = 1
     }
 
     private val job = Job()
@@ -72,30 +76,52 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
         SimpleExoPlayer.Builder(this)
             .build()
     }
-    private val dataSourceFactory by lazy {
-        DefaultDataSourceFactory(
-            applicationContext,
-            Util.getUserAgent(this, getString(R.string.app_name))
-        )
-    }
     private val mediaSessionConnector by lazy { MediaSessionConnector(mediaSessionCompat) }
     private val mediaSessionCallback = MediaSessionCallback()
     private val concatenatingMediaSource by lazy { ConcatenatingMediaSource() }
     private val mediaHandler by lazy { Handler(MediaHandlerCallback()) }
+    private val playerNotificationManager by lazy {
+        PlayerNotificationManager.createWithNotificationChannel(this,
+            MUSIC_CHANNEL_ID,
+            R.string.media_channel_name,
+            0,
+            MEDIA_NOTI_ID,
+            DescriptionAdapter(),
+            object : PlayerNotificationManager.NotificationListener {
+                override fun onNotificationPosted(
+                    notificationId: Int,
+                    notification: Notification,
+                    ongoing: Boolean
+                ) {
+                    super.onNotificationPosted(notificationId, notification, ongoing)
+                    if (!ongoing) {
+                        stopForeground(false)
+                    } else {
+                        startForeground(notificationId, notification)
+                    }
+                }
+
+                override fun onNotificationCancelled(
+                    notificationId: Int,
+                    dismissedByUser: Boolean
+                ) {
+                    super.onNotificationCancelled(notificationId, dismissedByUser)
+                    stopSelf()
+                }
+            })
+    }
 
     override fun onCreate() {
         super.onCreate()
 
-        Log.d("serviceLog", "onCreate")
-
         job.start()
         initExoPlayer()
         initMediaSession()
+        initPlayerNotification()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_PREPARE_QUEUE) {
-            Log.d("serviceLog", "onStartCommand prepare queue")
             val mode = intent.getStringExtra(EXTRA_TRACK_MODE) ?: MODE_ALL
             prepareTracks(mode)
         } else
@@ -116,18 +142,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
         mediaSessionCompat.release()
         mediaSessionConnector.setPlayer(null)
         exoPlayer.release()
-    }
-
-    override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-        super.onPlayerStateChanged(playWhenReady, playbackState)
-
-        val track = (exoPlayer.currentTag as Track?) ?: return
-        val extras = bundleOf(EXTRA_PLAY to playWhenReady, EXTRA_TRACK to track)
-
-        Log.d("serviceLog", "showing noti $playWhenReady")
-
-        val message = mediaHandler.obtainMessage(MSG_SHOW_NOTI, extras)
-        mediaHandler.sendMessage(message)
+        playerNotificationManager.setPlayer(null)
     }
 
     override fun onPositionDiscontinuity(reason: Int) {
@@ -138,10 +153,6 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
         ) {
             val track = (exoPlayer.currentTag as Track?) ?: return
             setCurrentTrack(track)
-
-            val extras = bundleOf(EXTRA_PLAY to false, EXTRA_TRACK to track)
-            val message = mediaHandler.obtainMessage(MSG_SHOW_NOTI, extras)
-            mediaHandler.sendMessage(message)
         }
     }
 
@@ -152,6 +163,32 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
     ): BrowserRoot {
         val extras = bundleOf(BrowserRoot.EXTRA_OFFLINE to true)
         return BrowserRoot(getString(R.string.app_name), extras)
+    }
+
+    override fun onLoadChildren(
+        parentId: String, result: Result<MutableList<MediaItem>>, options: Bundle
+    ) {
+        result.detach()
+
+        if (parentId.contains(LOAD_ALBUM)) {
+            val page = options.getInt(MediaBrowserCompat.EXTRA_PAGE)
+            val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
+
+            launch {
+                val albums = AlbumRepository.getAllContent(pageSize, page * pageSize)
+                val mediaItems = albums.map { album -> album.toMediaItem() }
+                result.sendResult(mediaItems.toMutableList())
+            }
+        } else if (parentId.contains(LOAD_ARTIST)) {
+            val page = options.getInt(MediaBrowserCompat.EXTRA_PAGE)
+            val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
+
+            launch {
+                val artists = ArtistRepository.getAllContent(pageSize, page * pageSize)
+                val mediaItems = artists.map { artist -> artist.toMediaItem() }
+                result.sendResult(mediaItems.toMutableList())
+            }
+        }
     }
 
     override fun onLoadChildren(parentId: String, result: Result<MutableList<MediaItem>>) {
@@ -183,6 +220,8 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
                 val mediaSource = ProgressiveMediaSource.Factory(factory)
                     .setTag(track)
                     .createMediaSource(uri)
+
+                playerNotificationManager.setPlayer(exoPlayer)
 
                 concatenatingMediaSource.addMediaSource(mediaSource)
             } catch (e: Exception) {
@@ -237,6 +276,14 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
                 }
             })
             setPlayer(exoPlayer)
+        }
+    }
+
+    private fun initPlayerNotification() {
+        playerNotificationManager.apply {
+            setMediaSessionToken(mediaSessionCompat.sessionToken)
+            setUseChronometer(true)
+            setSmallIcon(R.drawable.logo_round)
         }
     }
 
@@ -326,47 +373,33 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
                     stopForeground(true)
                     stopSelf()
                 }
-
-                MSG_SHOW_NOTI -> {
-                    Log.d("serviceLog", "received show noti message = ${msg.obj ?: "null"}")
-
-                    Log.d("serviceLog", "in launch coroutine = ${msg.obj ?: "null"}")
-                    if (msg.obj !is Bundle)
-                        return false
-
-                    Log.d("serviceLog", "data type is bundle")
-
-                    val extras = msg.obj as Bundle
-                    val playing = extras.getBoolean(EXTRA_PLAY)
-                    val icon = if (playing)
-                        android.R.drawable.ic_media_pause
-                    else
-                        android.R.drawable.ic_media_play
-                    val track = extras.getParcelable<Track>(EXTRA_TRACK)!!
-
-                    launch {
-
-                        Log.d("serviceLog", "before builder noti = $playing")
-
-                        val builder =
-                            buildNotification(icon, track, mediaSessionCompat.sessionToken)
-
-                        Log.d("serviceLog", "builder noti = $playing")
-
-                        if (playing)
-                            startForeground(MEDIA_NOTI_ID, builder.build())
-                        else {
-                            getSystemService<NotificationManager>()?.notify(
-                                MEDIA_NOTI_ID,
-                                builder.build()
-                            )
-                            stopForeground(false)
-                        }
-                    }
-                }
             }
 
             return true
+        }
+    }
+
+    private inner class DescriptionAdapter : PlayerNotificationManager.MediaDescriptionAdapter {
+        override fun getCurrentContentTitle(player: Player) =
+            (player.currentTag as Track?)?.title ?: "No title"
+
+        override fun createCurrentContentIntent(player: Player): PendingIntent? {
+            val intent = Intent(this@MusicService, MainActivity::class.java)
+            return PendingIntent.getActivity(
+                this@MusicService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT
+            )
+        }
+
+        override fun getCurrentContentText(player: Player) =
+            (player.currentTag as Track?)?.album ?: "No album"
+
+        override fun getCurrentLargeIcon(
+            player: Player,
+            callback: PlayerNotificationManager.BitmapCallback
+        ): Bitmap? {
+            val track = (player.currentTag as Track?) ?: return null
+            callback.onBitmap(this@MusicService.getAlbumArtBitmap(track.albumId))
+            return null
         }
     }
 }
