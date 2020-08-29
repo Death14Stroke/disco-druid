@@ -24,7 +24,8 @@ fun Cursor.readTrack(): Track {
     val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
     val trackId = getLong(getColumnIndex(MediaStore.Audio.Media._ID))
 
-    Log.d("trackLog", "trackId = $trackId")
+    Log.d("trackLog", "track= ${getString(getColumnIndex(MediaStore.Audio.Media.TITLE))}," +
+            " ${getLong(getColumnIndex(MediaStore.Audio.Media.DURATION)) / 1000}")
 
     return Track(
         audioId = trackId,

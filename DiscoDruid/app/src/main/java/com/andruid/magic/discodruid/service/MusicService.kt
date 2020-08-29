@@ -145,14 +145,24 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
         playerNotificationManager.setPlayer(null)
     }
 
+    override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+        super.onPlayerStateChanged(playWhenReady, playbackState)
+        Log.d("playerLog", "player state changed")
+        mediaSessionCompat.isActive = playWhenReady
+        (exoPlayer.currentTag as Track?)?.let {
+            setCurrentTrack(it)
+        }
+    }
+
     override fun onPositionDiscontinuity(reason: Int) {
         super.onPositionDiscontinuity(reason)
 
         if (reason == Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT ||
             reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION || reason == Player.DISCONTINUITY_REASON_INTERNAL
         ) {
-            val track = (exoPlayer.currentTag as Track?) ?: return
-            setCurrentTrack(track)
+            (exoPlayer.currentTag as Track?)?.let {
+                setCurrentTrack(it)
+            }
         }
     }
 
@@ -374,7 +384,6 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
             exoPlayer.playWhenReady = true
             mediaSessionCompat.isActive = true
 
-            (exoPlayer.currentTag as Track?)?.let { setCurrentTrack(it) }
             setMediaPlaybackState(PlaybackStateCompat.STATE_PLAYING, exoPlayer.currentWindowIndex)
         }
 

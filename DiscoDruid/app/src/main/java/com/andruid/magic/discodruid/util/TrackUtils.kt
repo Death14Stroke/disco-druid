@@ -27,20 +27,20 @@ fun Track.buildMediaDescription(context: Context): MediaDescriptionCompat {
 
 fun Track.buildMediaMetaData(context: Context): MediaMetadataCompat {
     val bitmap = context.getAlbumArtBitmap(albumId)
-    val builder = MediaMetadataCompat.Builder()
-
-    builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap)
-        .putString(
-            MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
-            AlbumRepository.getAlbumArtUri(albumId)?.path
-        )
+    return MediaMetadataCompat.Builder()
+        .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, albumId)
         .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, audioId)
         .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration)
         .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, album)
         .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
         .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
-
-    return builder.build()
+        .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, path)
+        .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap)
+        .putString(
+            MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
+            AlbumRepository.getAlbumArtUri(albumId)?.path
+        )
+        .build()
 }
 
 fun Track.toMediaItem(): MediaBrowserCompat.MediaItem {
@@ -58,3 +58,15 @@ fun Track.toMediaItem(): MediaBrowserCompat.MediaItem {
 
 fun MediaBrowserCompat.MediaItem.toTrack(): Track? =
     description.extras?.getParcelable(EXTRA_TRACK)
+
+fun MediaMetadataCompat.toTrack(): Track {
+    return Track(
+        audioId = getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER),
+        title = getString(MediaMetadataCompat.METADATA_KEY_TITLE) ?: "Loading",
+        album = getString(MediaMetadataCompat.METADATA_KEY_ALBUM) ?: "Loading",
+        artist = getString(MediaMetadataCompat.METADATA_KEY_ARTIST) ?: "Loading",
+        albumId = getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI) ?: "-1",
+        duration = getLong(MediaMetadataCompat.METADATA_KEY_DURATION),
+        path = getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI) ?: ""
+    )
+}

@@ -6,9 +6,12 @@ import com.andruid.magic.discodruid.R
 import com.andruid.magic.medialoader.model.Artist
 import java.util.*
 
+fun Long.toTimeString() =
+    String.format(Locale.getDefault(), "%02d:%02d", this / 60, this % 60)
+
 @BindingAdapter("timeMillis")
 fun TextView.formatTime(sec: Long) {
-    val timeStr = String.format(Locale.getDefault(), "%02d:%02d", sec / 60, sec % 60)
+    val timeStr = sec.toTimeString()
     text = timeStr
 }
 
