@@ -6,8 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSurface"
+    android:clickable="true"
     android:elevation="4dp"
     android:fitsSystemWindows="true"
+    android:focusable="true"
     app:behavior_hideable="false"
     app:behavior_peekHeight="110dp"
     app:layoutDescription="@xml/scene"
@@ -28,7 +30,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Bol do na Zara (Mr-Jatt.com)"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@id/thumbnail_image"
@@ -40,17 +41,16 @@
         style="@style/SubtitleStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Once Upon a time in Mumbai"
         app:layout_constraintBottom_toBottomOf="@id/thumbnail_image"
         app:layout_constraintStart_toStartOf="@id/song_name_tv"
         tools:text="Once Upon a time in Mumbai" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/play_btn"
-        style="?borderlessButtonStyle"
+        style="@style/ExoMediaButton.Play"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_media_play"
+        android:tint="?android:textColorPrimary"
         app:layout_constraintBottom_toBottomOf="@id/thumbnail_image"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/thumbnail_image" />
@@ -68,54 +68,51 @@
         android:id="@+id/expanded_track_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:text="Song name extended"
+        android:padding="4dp"
         android:textAppearance="?attr/textAppearanceSubtitle1"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/thumbnail_image"
         app:layout_constraintBottom_toTopOf="@id/expanded_album_tv"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintTop_toBottomOf="@id/thumbnail_image"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Song name extended" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/expanded_album_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="5dp"
-        android:text="Album name extended"
         android:textAppearance="?attr/textAppearanceBody1"
         android:textStyle="italic"
         app:layout_constraintBottom_toTopOf="@id/expanded_artist_tv"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/expanded_track_tv" />
+        app:layout_constraintTop_toBottomOf="@id/expanded_track_tv"
+        tools:text="Album name extended" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/expanded_artist_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:text="Artist name extended"
+        android:padding="4dp"
         android:textAppearance="?attr/textAppearanceBody1"
         android:textStyle="italic"
+        app:layout_constraintBottom_toTopOf="@id/player_control_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/expanded_album_tv"
-        app:layout_constraintBottom_toTopOf="@id/mediaProgressView"/>
+        tools:text="Artist name extended" />
 
-    <com.andruid.magic.discodruid.ui.custom.MediaProgressView
-        android:id="@+id/mediaProgressView"
+    <com.google.android.exoplayer2.ui.PlayerControlView
+        android:id="@+id/player_control_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        app:controller_layout_id="@layout/layout_media_controls"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/expanded_artist_tv"
-        app:layout_constraintBottom_toTopOf="@id/mediaControlView"/>
-
-    <com.andruid.magic.discodruid.ui.custom.MediaControlView
-        android:id="@+id/mediaControlView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/mediaProgressView"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:repeat_toggle_modes="one|all"
+        app:show_shuffle_button="true"
+        app:show_timeout="-1" />
 </androidx.constraintlayout.motion.widget.MotionLayout>

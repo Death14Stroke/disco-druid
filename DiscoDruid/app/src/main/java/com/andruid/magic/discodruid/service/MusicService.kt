@@ -6,9 +6,7 @@ import android.content.ComponentName
 import android.content.ContentUris
 import android.content.Intent
 import android.graphics.Bitmap
-import android.os.Bundle
-import android.os.Handler
-import android.os.Message
+import android.os.*
 import android.provider.MediaStore
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
@@ -62,6 +60,11 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
+    val exoPlayer by lazy {
+        SimpleExoPlayer.Builder(this)
+            .build()
+    }
+
     private val mediaSessionCompat by lazy {
         val mediaButtonIntent = Intent(Intent.ACTION_MEDIA_BUTTON).setClass(
             this,
@@ -72,12 +75,9 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
 
         MediaSessionCompat(applicationContext, MEDIA_SERVICE, mediaButtonReceiver, pendingIntent)
     }
-    private val exoPlayer by lazy {
-        SimpleExoPlayer.Builder(this)
-            .build()
-    }
     private val mediaSessionConnector by lazy { MediaSessionConnector(mediaSessionCompat) }
     private val mediaSessionCallback = MediaSessionCallback()
+    private val serviceBinder = ServiceBinder()
     private val concatenatingMediaSource by lazy { ConcatenatingMediaSource() }
     private val mediaHandler by lazy { Handler(MediaHandlerCallback()) }
     private val playerNotificationManager by lazy {
@@ -143,6 +143,12 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
         mediaSessionConnector.setPlayer(null)
         exoPlayer.release()
         playerNotificationManager.setPlayer(null)
+    }
+
+    override fun onBind(intent: Intent?): IBinder? {
+        if (intent?.action == ACTION_GET_INSTANCE)
+            return serviceBinder
+        return super.onBind(intent)
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
@@ -358,6 +364,11 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
             playbackStateBuilder.setState(state, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 0f)
 
         mediaSessionCompat.setPlaybackState(playbackStateBuilder.build())
+    }
+
+    inner class ServiceBinder : Binder() {
+        val service: MusicService
+            get() = this@MusicService
     }
 
     private inner class MediaSessionCallback : MediaSessionCompat.Callback() {

@@ -1,61 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp">
 
-    <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/shuffle_btn"
-        style="@style/MediaButtonStyle"
-        android:layout_width="wrap_content"
+    <com.google.android.exoplayer2.ui.DefaultTimeBar
+        android:id="@+id/exo_progress"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/exo_controls_shuffle_on"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/prev_btn"
+        app:layout_constraintBottom_toTopOf="@id/exo_position"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/prev_btn"
-        style="@style/MediaButtonStyle"
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/exo_position"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="16dp"
+        tools:text="00:00"
+        android:textAppearance="?textAppearanceOverline"
+        app:layout_constraintBottom_toTopOf="@id/exo_shuffle"
+        app:layout_constraintStart_toStartOf="@id/exo_progress"
+        app:layout_constraintTop_toBottomOf="@id/exo_progress" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/exo_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        tools:text="03:30"
+        android:textAppearance="?textAppearanceOverline"
+        app:layout_constraintBottom_toBottomOf="@id/exo_position"
+        app:layout_constraintEnd_toEndOf="@id/exo_progress"
+        app:layout_constraintTop_toTopOf="@id/exo_position" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/exo_shuffle"
+        style="@style/ExoMediaButton"
+        android:src="@drawable/exo_controls_shuffle_on"
+        android:tint="?android:textColorPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/exo_prev"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/exo_duration" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/exo_prev"
+        style="@style/ExoMediaButton.Previous"
         android:src="@drawable/exo_controls_previous"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/play_btn"
-        app:layout_constraintStart_toEndOf="@id/shuffle_btn"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:tint="?android:textColorPrimary"
+        app:layout_constraintBottom_toBottomOf="@id/exo_shuffle"
+        app:layout_constraintEnd_toStartOf="@id/play_pause_container"
+        app:layout_constraintStart_toEndOf="@id/exo_shuffle"
+        app:layout_constraintTop_toTopOf="@id/exo_shuffle" />
 
-    <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/play_btn"
-        style="@style/MediaButtonStyle"
+    <FrameLayout
+        android:id="@+id/play_pause_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/exo_controls_play"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/next_btn"
-        app:layout_constraintStart_toEndOf="@id/prev_btn"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toBottomOf="@id/exo_shuffle"
+        app:layout_constraintEnd_toStartOf="@id/exo_next"
+        app:layout_constraintStart_toEndOf="@id/exo_prev"
+        app:layout_constraintTop_toTopOf="@id/exo_shuffle">
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/exo_play"
+            style="@style/ExoMediaButton.Play"
+            android:tint="?android:textColorPrimary" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/exo_pause"
+            style="@style/ExoMediaButton.Pause"
+            android:tint="?android:textColorPrimary"
+            app:layout_constraintBottom_toBottomOf="@id/exo_shuffle"
+            app:layout_constraintEnd_toStartOf="@id/exo_next"
+            app:layout_constraintStart_toEndOf="@id/exo_prev"
+            app:layout_constraintTop_toTopOf="@id/exo_shuffle" />
+    </FrameLayout>
 
     <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/next_btn"
-        style="@style/MediaButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/exo_controls_next"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/repeat_btn"
-        app:layout_constraintStart_toEndOf="@id/play_btn"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:id="@+id/exo_next"
+        style="@style/ExoMediaButton.Next"
+        android:tint="?android:textColorPrimary"
+        app:layout_constraintBottom_toBottomOf="@id/exo_shuffle"
+        app:layout_constraintEnd_toStartOf="@id/exo_repeat_toggle"
+        app:layout_constraintStart_toEndOf="@id/play_pause_container"
+        app:layout_constraintTop_toTopOf="@id/exo_shuffle" />
 
     <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/repeat_btn"
-        style="@style/MediaButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/exo_repeat_toggle"
+        style="@style/ExoMediaButton"
         android:src="@drawable/exo_controls_repeat_all"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:tint="?android:textColorPrimary"
+        app:layout_constraintBottom_toBottomOf="@id/exo_shuffle"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/next_btn"
-        app:layout_constraintTop_toTopOf="parent" />
-</merge>
+        app:layout_constraintStart_toEndOf="@id/exo_next"
+        app:layout_constraintTop_toTopOf="@id/exo_shuffle" />
+</androidx.constraintlayout.widget.ConstraintLayout>
