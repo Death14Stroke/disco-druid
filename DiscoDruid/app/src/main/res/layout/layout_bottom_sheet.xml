@@ -11,37 +11,46 @@
     android:fitsSystemWindows="true"
     android:focusable="true"
     app:behavior_hideable="false"
-    app:behavior_peekHeight="110dp"
+    app:behavior_peekHeight="120dp"
     app:layoutDescription="@xml/scene"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/bottom_sheet_arrow"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_marginTop="8dp"
-        android:src="@android:drawable/arrow_up_float"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="4dp"
+        android:src="@drawable/arrow_up"
+        android:tint="?android:textColorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/song_name_tv"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:textAppearance="?attr/textAppearanceListItem"
         android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@id/thumbnail_image"
-        app:layout_constraintTop_toTopOf="@id/thumbnail_image"
+        app:layout_constraintEnd_toStartOf="@id/play_btn"
+        app:layout_constraintStart_toEndOf="@id/track_detail_viewpager"
+        app:layout_constraintTop_toTopOf="@id/track_detail_viewpager"
         tools:text="Bol do na Zara (Mr-Jatt.com)" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/song_album_tv"
         style="@style/SubtitleStyle"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@id/thumbnail_image"
+        android:layout_marginEnd="16dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintBottom_toBottomOf="@id/track_detail_viewpager"
+        app:layout_constraintEnd_toStartOf="@id/play_btn"
         app:layout_constraintStart_toStartOf="@id/song_name_tv"
         tools:text="Once Upon a time in Mumbai" />
 
@@ -50,19 +59,17 @@
         style="@style/ExoMediaButton.Play"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
         android:tint="?android:textColorPrimary"
-        app:layout_constraintBottom_toBottomOf="@id/thumbnail_image"
+        app:layout_constraintBottom_toBottomOf="@id/track_detail_viewpager"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/thumbnail_image" />
+        app:layout_constraintTop_toTopOf="@id/track_detail_viewpager" />
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/thumbnail_image"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/track_detail_viewpager"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_margin="16dp"
-        android:src="@mipmap/ic_launcher"
-        app:shapeAppearanceOverlay="@style/RoundedImageView"
-        tools:src="@tools:sample/avatars" />
+        android:layout_margin="16dp" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/expanded_track_tv"
@@ -74,7 +81,7 @@
         app:layout_constraintBottom_toTopOf="@id/expanded_album_tv"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/thumbnail_image"
+        app:layout_constraintTop_toBottomOf="@id/track_detail_viewpager"
         app:layout_constraintVertical_chainStyle="packed"
         tools:text="Song name extended" />
 

@@ -1,7 +1,6 @@
 package com.andruid.magic.discodruid.ui.adapter
 
 import android.content.Context
-import android.view.View
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -20,14 +19,15 @@ private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Album>() {
 class AlbumsAdapter(
     private val context: Context,
     private val scope: CoroutineScope,
-    private val onAlbumClicked: (view: View, album: Album) -> Unit
 ) : PagingDataAdapter<Album, AlbumViewHolder>(DIFF_CALLBACK) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         AlbumViewHolder.from(parent)
 
     override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
         getItem(position)?.let { album ->
-            holder.bind(context, scope, album, onAlbumClicked)
+            holder.bind(context, scope, album)
         }
     }
+
+    fun getItemAtPosition(position: Int) = getItem(position)
 }

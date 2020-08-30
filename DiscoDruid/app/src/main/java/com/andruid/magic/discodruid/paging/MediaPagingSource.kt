@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import androidx.core.os.bundleOf
 import androidx.paging.PagingSource
+import com.andruid.magic.discodruid.data.PAGE_SIZE
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -37,7 +38,7 @@ abstract class MediaPagingSource<T : Any>(
                     val loadResult = LoadResult.Page(
                         data = data,
                         prevKey = null,
-                        nextKey = if (data.isNotEmpty()) page + 1 else null
+                        nextKey = if (data.size < PAGE_SIZE) null else page + pageSize / PAGE_SIZE
                     )
                     result.resume(loadResult)
                 }

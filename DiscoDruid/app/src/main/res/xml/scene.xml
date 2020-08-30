@@ -3,7 +3,7 @@
     xmlns:motion="http://schemas.android.com/apk/res-auto">
     <ConstraintSet android:id="@+id/start">
         <Constraint
-            android:id="@id/thumbnail_image"
+            android:id="@id/track_detail_viewpager"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="16dp"
@@ -13,7 +13,7 @@
     </ConstraintSet>
     <ConstraintSet android:id="@+id/end">
         <Constraint
-            android:id="@id/thumbnail_image"
+            android:id="@id/track_detail_viewpager"
             android:layout_width="250dp"
             android:layout_height="250dp"
             android:layout_marginTop="32dp"

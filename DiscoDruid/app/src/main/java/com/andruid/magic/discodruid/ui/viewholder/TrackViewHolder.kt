@@ -30,7 +30,11 @@ class TrackViewHolder(private val binding: LayoutTrackBinding) :
         }
     }
 
-    fun bind(context: Context, scope: CoroutineScope, track: Track) {
+    fun bind(
+        context: Context,
+        scope: CoroutineScope,
+        track: Track,
+    ) {
         binding.track = track
 
         scope.launch {

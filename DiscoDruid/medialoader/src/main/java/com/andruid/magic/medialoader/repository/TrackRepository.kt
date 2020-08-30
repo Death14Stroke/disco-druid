@@ -37,6 +37,10 @@ object TrackRepository : MediaRepository<Track>() {
         offset: Int
     ): List<Track> {
         val tracks = mutableListOf<Track>()
+        val sortOrder = if (limit == Int.MAX_VALUE)
+            "${MediaStore.Audio.Media.TITLE} ASC"
+        else
+            getSortOrder(limit, offset)
         return withContext(Dispatchers.IO) {
             val query = ContentResolverCompat.query(
                 contentResolver,
@@ -44,7 +48,7 @@ object TrackRepository : MediaRepository<Track>() {
                 projection,
                 selection,
                 selectionArgs,
-                getSortOrder(limit, offset),
+                sortOrder,
                 null
             )
 
@@ -57,7 +61,7 @@ object TrackRepository : MediaRepository<Track>() {
         }
     }
 
-    override suspend fun getAllContent(limit: Int, offset: Int): List<Track> {
+    override suspend fun getAllPagedContent(limit: Int, offset: Int): List<Track> {
         return fetchUtil(baseSelection, null, limit, offset)
     }
 

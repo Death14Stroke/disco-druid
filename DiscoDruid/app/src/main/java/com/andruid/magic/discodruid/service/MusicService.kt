@@ -111,6 +111,9 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
             })
     }
 
+    private var mode: Int = MODE_ALL_TRACKS
+    private val tracksQueue = mutableListOf<Track>()
+
     override fun onCreate() {
         super.onCreate()
 
@@ -122,7 +125,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_PREPARE_QUEUE) {
-            val mode = intent.getStringExtra(EXTRA_TRACK_MODE) ?: MODE_ALL_TRACKS
+            val mode = intent.getIntExtra(EXTRA_TRACK_MODE, MODE_ALL_TRACKS)
             prepareTracks(mode)
         } else
             MediaButtonReceiver.handleIntent(mediaSessionCompat, intent)
@@ -194,7 +197,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
                 val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
 
                 launch {
-                    val albums = AlbumRepository.getAllContent(pageSize, page * pageSize)
+                    val albums = AlbumRepository.getAllPagedContent(pageSize, page * pageSize)
                     val mediaItems = albums.map { album -> album.toMediaItem() }
                     result.sendResult(mediaItems.toMutableList())
                 }
@@ -204,7 +207,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
                 val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
 
                 launch {
-                    val artists = ArtistRepository.getAllContent(pageSize, page * pageSize)
+                    val artists = ArtistRepository.getAllPagedContent(pageSize, page * pageSize)
                     val mediaItems = artists.map { artist -> artist.toMediaItem() }
                     result.sendResult(mediaItems.toMutableList())
                 }
@@ -213,7 +216,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
                 val page = options.getInt(MediaBrowserCompat.EXTRA_PAGE)
                 val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
 
-                when (options.getString(EXTRA_TRACK_MODE)) {
+                when (options.getInt(EXTRA_TRACK_MODE, MODE_ALL_TRACKS)) {
                     MODE_ALBUM_TRACKS -> {
                         val albumId = options.getString(EXTRA_ALBUM_ID)!!
                         launch {
@@ -228,13 +231,19 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
                         }
                     }
                     else -> {
+                        Log.d("browserLog", "all tracks: page = $page, pageSize = $pageSize")
                         launch {
-                            val tracks = TrackRepository.getAllContent(pageSize, page * pageSize)
+                            val tracks =
+                                TrackRepository.getAllPagedContent(pageSize, page * pageSize)
                             val mediaItems = tracks.map { track -> track.toMediaItem() }
                             result.sendResult(mediaItems.toMutableList())
                         }
                     }
                 }
+            }
+            parentId == MB_PLAY_QUEUE -> {
+                val mediaItems = tracksQueue.map { track -> track.toMediaItem() }
+                result.sendResult(mediaItems.toMutableList())
             }
         }
     }
@@ -243,43 +252,49 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
         result.sendResult(ArrayList())
     }
 
-    private fun prepareTracks(mode: String) {
+    private fun prepareTracks(mode: Int) {
         if (mode == MODE_ALL_TRACKS) {
             launch {
-                val tracks = TrackRepository.getAllContent(PAGE_SIZE, 0)
+                val tracks = TrackRepository.getAllPagedContent(Int.MAX_VALUE, 0)
                 addTracksToQueue(tracks)
             }
         }
     }
 
     private fun addTracksToQueue(tracks: List<Track>) {
-        tracks.forEach { track ->
-            val uri = ContentUris.withAppendedId(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                track.audioId
-            )
-            try {
-                val dataSpec = DataSpec(uri)
-                val dataSource = ContentDataSource(this)
-                dataSource.open(dataSpec)
+        tracks.chunked(PAGE_SIZE) { pagedTracks ->
+            tracksQueue.addAll(pagedTracks)
+            notifyChildrenChanged(MB_PLAY_QUEUE)
 
-                val factory = DataSource.Factory { dataSource }
+            val mediaSources = pagedTracks.mapNotNull { track ->
+                val uri = ContentUris.withAppendedId(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    track.audioId
+                )
+                try {
+                    val dataSpec = DataSpec(uri)
+                    val dataSource = ContentDataSource(this@MusicService)
+                    dataSource.open(dataSpec)
 
-                val mediaSource = ProgressiveMediaSource.Factory(factory)
-                    .setTag(track)
-                    .createMediaSource(uri)
+                    val factory = DataSource.Factory { dataSource }
 
-                playerNotificationManager.setPlayer(exoPlayer)
-
-                concatenatingMediaSource.addMediaSource(mediaSource)
-            } catch (e: Exception) {
-                Log.e("serviceLog", "not found ${uri.path}")
-                e.printStackTrace()
+                    ProgressiveMediaSource.Factory(factory)
+                        .setTag(track)
+                        .createMediaSource(uri)
+                } catch (e: Exception) {
+                    Log.e("serviceLog", "not found ${uri.path}")
+                    e.printStackTrace()
+                    null
+                }
             }
+
+            concatenatingMediaSource.addMediaSources(mediaSources)
+
+            exoPlayer.prepare(concatenatingMediaSource, false, false)
+            exoPlayer.playWhenReady = true
         }
 
-        exoPlayer.prepare(concatenatingMediaSource, false, false)
-        exoPlayer.playWhenReady = true
+        playerNotificationManager.setPlayer(exoPlayer)
     }
 
     private fun setCurrentTrack(track: Track) {
@@ -414,6 +429,11 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
             super.onSkipToPrevious()
             if (exoPlayer.hasPrevious())
                 exoPlayer.previous()
+        }
+
+        override fun onSkipToQueueItem(id: Long) {
+            super.onSkipToQueueItem(id)
+            exoPlayer.seekTo(id.toInt(), 0)
         }
     }
 

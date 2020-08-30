@@ -15,7 +15,7 @@ abstract class MediaRepository<out T : Any> {
         contentResolver = application.contentResolver
     }
 
-    abstract suspend fun getAllContent(limit: Int, offset: Int): List<T>
+    abstract suspend fun getAllPagedContent(limit: Int = Int.MAX_VALUE, offset: Int = 0): List<T>
 
     protected abstract suspend fun fetchUtil(
         selection: String?,

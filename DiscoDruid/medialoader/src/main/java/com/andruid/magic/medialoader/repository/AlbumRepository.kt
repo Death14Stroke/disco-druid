@@ -51,7 +51,7 @@ object AlbumRepository : MediaRepository<Album>() {
         }
     }
 
-    override suspend fun getAllContent(limit: Int, offset: Int): List<Album> {
+    override suspend fun getAllPagedContent(limit: Int, offset: Int): List<Album> {
         return fetchUtil(baseSelection, null, limit, offset)
     }
 

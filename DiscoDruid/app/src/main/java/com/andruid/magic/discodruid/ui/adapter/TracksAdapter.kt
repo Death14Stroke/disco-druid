@@ -42,4 +42,6 @@ class TracksAdapter(
     }
 
     override fun getItemViewType(position: Int) = viewType
+
+    fun getItemAtPosition(position: Int) = getItem(position)
 }

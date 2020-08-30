@@ -6,11 +6,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.andruid.magic.discodruid.R
 import com.andruid.magic.discodruid.databinding.LayoutAlbumTrackBinding
-import com.andruid.magic.discodruid.util.getAlbumArtBitmap
 import com.andruid.magic.medialoader.model.Track
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class AlbumTrackViewHolder(private val binding: LayoutAlbumTrackBinding) :
     RecyclerView.ViewHolder(binding.root) {

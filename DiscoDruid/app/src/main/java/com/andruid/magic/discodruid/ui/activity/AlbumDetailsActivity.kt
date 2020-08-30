@@ -1,18 +1,22 @@
 package com.andruid.magic.discodruid.ui.activity
 
 import android.content.ComponentName
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.DefaultItemAnimator
 import com.andruid.magic.discodruid.data.*
 import com.andruid.magic.discodruid.databinding.ActivityAlbumDetailsBinding
 import com.andruid.magic.discodruid.service.MusicService
 import com.andruid.magic.discodruid.ui.adapter.TracksAdapter
+import com.andruid.magic.discodruid.ui.custom.ItemClickListener
 import com.andruid.magic.discodruid.ui.viewmodel.BaseViewModelFactory
 import com.andruid.magic.discodruid.ui.viewmodel.TrackViewModel
 import com.andruid.magic.discodruid.util.getAlbumArtBitmap
@@ -92,6 +96,15 @@ class AlbumDetailsActivity : AppCompatActivity() {
         binding.recyclerView.apply {
             adapter = tracksAdapter
             itemAnimator = DefaultItemAnimator()
+            addOnItemTouchListener(object : ItemClickListener(this@AlbumDetailsActivity, this) {
+                override fun onClick(view: View, position: Int) {
+                    super.onClick(view, position)
+                    val intent = Intent(ACTION_SELECT_TRACK)
+                        .putExtra(EXTRA_TRACK, tracksAdapter.getItemAtPosition(position))
+                    LocalBroadcastManager.getInstance(this@AlbumDetailsActivity)
+                        .sendBroadcast(intent)
+                }
+            })
         }
     }
 }

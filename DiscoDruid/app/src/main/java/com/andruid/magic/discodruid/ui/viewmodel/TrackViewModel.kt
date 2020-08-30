@@ -18,7 +18,7 @@ class TrackViewModel(
     private val options: Bundle? = null
 ) : ViewModel() {
     val tracksLiveData = liveData {
-        val config = PagingConfig(PAGE_SIZE)
+        val config = PagingConfig(pageSize = PAGE_SIZE, enablePlaceholders = false)
         val pager = Pager(config) {
             TracksPagingSource(mediaBrowserCompat, options)
         }
