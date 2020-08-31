@@ -19,6 +19,7 @@ import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.andruid.magic.discodruid.R
 import com.andruid.magic.discodruid.data.*
 import com.andruid.magic.discodruid.databinding.ActivityMainBinding
@@ -61,6 +62,13 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == ACTION_SELECT_TRACK) {
                 val track = intent.extras?.getParcelable<Track>(EXTRA_TRACK) ?: return
+                val albumId = intent.extras?.getString(EXTRA_ALBUM_ID) ?: ""
+                val extras = bundleOf(
+                    EXTRA_TRACK_MODE to MODE_ALBUM_TRACKS,
+                    EXTRA_ALBUM_ID to albumId,
+                    EXTRA_TRACK to track
+                )
+                mediaBrowserCompat.sendCustomAction(CMD_PREPARE_QUEUE, extras, null)
             }
         }
     }
@@ -105,11 +113,8 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
 
     override fun onTrackClicked(track: Track, position: Int) {
         Log.d("clickLog", "track clicked in activity $position = ${track.title}")
-        val intent = Intent(this, MusicService::class.java)
-            .setAction(ACTION_PREPARE_QUEUE)
-            .putExtra(EXTRA_TRACK_MODE, MODE_ALL_TRACKS)
-        startService(intent)
-        //mediaControllerCompat.transportControls.skipToQueueItem(position.toLong())
+        val extras = bundleOf(EXTRA_TRACK_MODE to MODE_ALL_TRACKS, EXTRA_TRACK to track)
+        mediaBrowserCompat.sendCustomAction(CMD_PREPARE_QUEUE, extras, null)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
@@ -117,11 +122,14 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
         val intent = Intent(this, MusicService::class.java)
             .setAction(ACTION_GET_INSTANCE)
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(trackSelectReceiver, IntentFilter(ACTION_SELECT_TRACK))
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     private fun unbindService() {
         unbindService(serviceConnection)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(trackSelectReceiver)
     }
 
     @SuppressLint("SwitchIntDef")

@@ -65,7 +65,7 @@ object TrackRepository : MediaRepository<Track>() {
         return fetchUtil(baseSelection, null, limit, offset)
     }
 
-    suspend fun getTracksForAlbum(albumId: String, limit: Int, offset: Int): List<Track> {
+    suspend fun getTracksForAlbum(albumId: String, limit: Int = Int.MAX_VALUE, offset: Int = 0): List<Track> {
         val selection = "$baseSelection AND ${MediaStore.Audio.Media.ALBUM_ID} = ?"
         return fetchUtil(selection, arrayOf(albumId), limit, offset)
     }
