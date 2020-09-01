@@ -9,14 +9,20 @@ const val EXTRA_TRACK = "track"
 const val EXTRA_TRACK_MODE = "track_mode"
 const val EXTRA_ALBUM = "album"
 const val EXTRA_ALBUM_ID = "album_id"
+const val EXTRA_ALBUM_MODE = "album_mode"
 const val EXTRA_ARTIST = "artist"
+const val EXTRA_ARTIST_ID = "artist_id"
 const val EXTRA_QUEUE = "queue"
 
 const val MODE_ALL_TRACKS = 0
 const val MODE_ALBUM_TRACKS = 1
+const val MODE_ALL_ALBUMS = 0
+const val MODE_ARTIST_ALBUMS = 1
 
 const val VIEW_TYPE_ALL_TRACKS = 0
 const val VIEW_TYPE_ALBUM_TRACKS = 1
+const val VIEW_TYPE_ALL_ALBUMS = 0
+const val VIEW_TYPE_ARTIST_ALBUMS = 1
 
 const val MB_LOAD_ALBUM = "load_album"
 const val MB_LOAD_ARTIST = "load_artist"

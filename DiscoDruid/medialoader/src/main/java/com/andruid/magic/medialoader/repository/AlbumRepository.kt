@@ -1,5 +1,6 @@
 package com.andruid.magic.medialoader.repository
 
+import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.net.Uri
 import android.provider.MediaStore
@@ -65,5 +66,17 @@ object AlbumRepository : MediaRepository<Album>() {
             e.printStackTrace()
             null
         }
+    }
+
+    @SuppressLint("InlinedApi")
+    suspend fun getAlbumsForArtist(
+        artist: String,
+        artistId: String,
+        limit: Int,
+        offset: Int
+    ): List<Album> {
+        val selection =
+            "${MediaStore.Audio.Albums.ARTIST} = ? OR ${MediaStore.Audio.Albums.ARTIST_ID} = ?"
+        return fetchUtil(selection, arrayOf(artist, artistId), limit, offset)
     }
 }

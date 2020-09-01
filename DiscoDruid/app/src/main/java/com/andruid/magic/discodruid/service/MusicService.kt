@@ -46,7 +46,6 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.toCollection
 import java.util.*
 import kotlin.coroutines.CoroutineContext
-import kotlin.math.min
 
 class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventListener {
     companion object {
@@ -191,10 +190,26 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
                 val page = options.getInt(MediaBrowserCompat.EXTRA_PAGE)
                 val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
 
-                launch {
-                    val albums = AlbumRepository.getAllPagedContent(pageSize, page * pageSize)
-                    val mediaItems = albums.map { album -> album.toMediaItem() }
-                    result.sendResult(mediaItems.toMutableList())
+                when (options.getInt(EXTRA_ALBUM_MODE, MODE_ALL_ALBUMS)) {
+                    MODE_ARTIST_ALBUMS -> {
+                        val artist = options.getString(EXTRA_ARTIST)!!
+                        val artistId = options.getString(EXTRA_ARTIST_ID)!!
+                        launch {
+                            val albums =
+                                AlbumRepository.getAlbumsForArtist(artist, artistId, pageSize, page * pageSize)
+                            val mediaItems = albums.map { album -> album.toMediaItem() }
+                            result.sendResult(mediaItems.toMutableList())
+                        }
+                    }
+                    else -> {
+                        Log.d("browserLog", "all tracks: page = $page, pageSize = $pageSize")
+                        launch {
+                            val albums =
+                                AlbumRepository.getAllPagedContent(pageSize, page * pageSize)
+                            val mediaItems = albums.map { album -> album.toMediaItem() }
+                            result.sendResult(mediaItems.toMutableList())
+                        }
+                    }
                 }
             }
             parentId.contains(MB_LOAD_ARTIST) -> {
@@ -284,8 +299,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
             mediaSessionCallback.onSkipToQueueItem(queuePos.toLong())
             concatenatingMediaSource.removeMediaSourceRange(0, queuePos)
             concatenatingMediaSource.removeMediaSourceRange(1, concatenatingMediaSource.size)
-        }
-        else if (selectedTrack != null) {
+        } else if (selectedTrack != null) {
             concatenatingMediaSource.clear(Handler()) {
                 runBlocking {
                     concatenatingMediaSource.addMediaSource(buildMediaSource(selectedTrack))

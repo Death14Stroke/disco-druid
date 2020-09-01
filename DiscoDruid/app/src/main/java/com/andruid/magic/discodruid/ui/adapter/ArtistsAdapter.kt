@@ -26,4 +26,6 @@ class ArtistsAdapter(
     override fun onBindViewHolder(holder: ArtistViewHolder, position: Int) {
         getItem(position)?.let { artist -> holder.bind(context, scope, artist) }
     }
+
+    fun getItemAtPosition(position: Int) = getItem(position)
 }

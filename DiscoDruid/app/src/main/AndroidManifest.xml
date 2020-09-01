@@ -13,6 +13,7 @@
         android:roundIcon="@drawable/logo_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Main">
+        <activity android:name=".ui.activity.ArtistDetailActivity"></activity>
 
         <meta-data
             android:name="com.google.android.gms.car.application"
@@ -42,7 +43,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.activity.AlbumDetailsActivity"
             android:launchMode="singleTask" />

@@ -78,7 +78,6 @@ class AlbumDetailsActivity : AppCompatActivity() {
             it.setDisplayHomeAsUpEnabled(true)
             it.title = album.album
         }
-
         binding.toolBar.setNavigationOnClickListener { onBackPressed() }
 
         postponeEnterTransition()
