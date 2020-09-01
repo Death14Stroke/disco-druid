@@ -12,4 +12,7 @@
 
     <color name="white">#FFFFFF</color>
     <color name="boulder">#757575</color>
+    
+    <color name="brown_coffee_10">#49302E</color>
+    <color name="brown_coffee_12">#4D3533</color>
 </resources>

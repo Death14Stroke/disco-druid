@@ -9,6 +9,8 @@ import androidx.core.os.bundleOf
 import com.andruid.magic.discodruid.data.EXTRA_TRACK
 import com.andruid.magic.medialoader.model.Track
 import com.andruid.magic.medialoader.repository.AlbumRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 fun Track.buildMediaDescription(context: Context): MediaDescriptionCompat {
     val bitmap = context.getAlbumArtBitmap(albumId)
@@ -30,8 +32,8 @@ fun Track.buildMediaDescription(context: Context): MediaDescriptionCompat {
         .build()
 }
 
-fun Track.buildMediaMetaData(context: Context): MediaMetadataCompat {
-    val bitmap = context.getAlbumArtBitmap(albumId)
+suspend fun Track.buildMediaMetaData(context: Context): MediaMetadataCompat {
+    val bitmap = withContext(Dispatchers.IO) { context.getAlbumArtBitmap(albumId) }
     return MediaMetadataCompat.Builder()
         .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, albumId)
         .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, audioId)

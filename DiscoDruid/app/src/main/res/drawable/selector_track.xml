@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/brown_coffee_10">
+    <item>
+        <selector>
+            <item
+                android:drawable="@drawable/card_focused"
+                android:state_activated="true" />
+            <item android:state_activated="false">
+                <shape
+                    android:shape="rectangle"
+                    android:tint="?attr/colorSurface" />
+            </item>
+        </selector>
+    </item>
+</ripple>

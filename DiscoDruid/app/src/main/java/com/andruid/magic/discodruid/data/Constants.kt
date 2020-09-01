@@ -18,12 +18,10 @@ const val MODE_ALBUM_TRACKS = 1
 const val VIEW_TYPE_ALL_TRACKS = 0
 const val VIEW_TYPE_ALBUM_TRACKS = 1
 
-const val LOAD_ALBUM = "load_album"
-const val LOAD_ARTIST = "load_artist"
-const val LOAD_TRACK = "load_track"
-
+const val MB_LOAD_ALBUM = "load_album"
+const val MB_LOAD_ARTIST = "load_artist"
+const val MB_LOAD_TRACK = "load_track"
 const val MB_PLAY_QUEUE = "play_queue"
+const val MB_CURRENT_TRACK = "current_track"
 
 const val CMD_PREPARE_QUEUE = "com.andruid.magic.discodruid.PREPARE_QUEUE"
-
-const val RESULT_SUCCESS = 0

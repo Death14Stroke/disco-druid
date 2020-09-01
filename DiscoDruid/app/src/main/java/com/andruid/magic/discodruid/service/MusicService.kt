@@ -153,7 +153,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
         super.onPlayerStateChanged(playWhenReady, playbackState)
         Log.d("playerLog", "player state changed")
         (exoPlayer.currentTag as Track?)?.let {
-            setCurrentTrack(it)
+            launch { setCurrentTrack(it) }
         }
     }
 
@@ -164,7 +164,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
             reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION || reason == Player.DISCONTINUITY_REASON_INTERNAL
         ) {
             (exoPlayer.currentTag as Track?)?.let {
-                setCurrentTrack(it)
+                launch { setCurrentTrack(it) }
             }
         }
     }
@@ -186,7 +186,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
         result.detach()
 
         when {
-            parentId.contains(LOAD_ALBUM) -> {
+            parentId.contains(MB_LOAD_ALBUM) -> {
                 val page = options.getInt(MediaBrowserCompat.EXTRA_PAGE)
                 val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
 
@@ -196,7 +196,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
                     result.sendResult(mediaItems.toMutableList())
                 }
             }
-            parentId.contains(LOAD_ARTIST) -> {
+            parentId.contains(MB_LOAD_ARTIST) -> {
                 val page = options.getInt(MediaBrowserCompat.EXTRA_PAGE)
                 val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
 
@@ -206,7 +206,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
                     result.sendResult(mediaItems.toMutableList())
                 }
             }
-            parentId.contains(LOAD_TRACK) -> {
+            parentId.contains(MB_LOAD_TRACK) -> {
                 val page = options.getInt(MediaBrowserCompat.EXTRA_PAGE)
                 val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
 
@@ -238,6 +238,11 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
             parentId == MB_PLAY_QUEUE -> {
                 val mediaItems = tracksQueue.map { track -> track.toMediaItem() }
                 result.sendResult(mediaItems.toMutableList())
+            }
+            parentId == MB_CURRENT_TRACK -> {
+                val mediaItem = (exoPlayer.currentTag as Track?)?.toMediaItem() ?: return
+                Log.d("currentLog", "sending current track ${(exoPlayer.currentTag as Track?)?.title}")
+                result.sendResult(mutableListOf(mediaItem))
             }
         }
     }
@@ -328,8 +333,9 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
         }
     }
 
-    private fun setCurrentTrack(track: Track) {
+    private suspend fun setCurrentTrack(track: Track) {
         mediaSessionCompat.setMetadata(track.buildMediaMetaData(this))
+        notifyChildrenChanged(MB_CURRENT_TRACK)
     }
 
     private fun initExoPlayer() {

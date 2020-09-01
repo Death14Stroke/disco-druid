@@ -19,7 +19,9 @@ import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.viewpager2.widget.ViewPager2
 import com.andruid.magic.discodruid.R
 import com.andruid.magic.discodruid.data.*
 import com.andruid.magic.discodruid.databinding.ActivityMainBinding
@@ -72,7 +74,7 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
             }
         }
     }
-    private val trackDetailAdapter by lazy { TrackDetailAdapter() }
+    private val trackDetailAdapter by lazy { TrackDetailAdapter(this, lifecycleScope) }
     private val mediaControllerCallback = MediaControllerCallback()
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
@@ -87,6 +89,9 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
     }
 
     private var service: MusicService? = null
+    private var currentTrack: Track? = null
+    private var isUserScroll = false
+    private var prevState = ViewPager2.SCROLL_STATE_IDLE
 
     private lateinit var mediaControllerCompat: MediaControllerCompat
     private lateinit var binding: ActivityMainBinding
@@ -122,6 +127,7 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
         val intent = Intent(this, MusicService::class.java)
             .setAction(ACTION_GET_INSTANCE)
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+        startService(intent)
         LocalBroadcastManager.getInstance(this)
             .registerReceiver(trackSelectReceiver, IntentFilter(ACTION_SELECT_TRACK))
     }
@@ -171,6 +177,27 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
             adapter = trackDetailAdapter
             offscreenPageLimit = 1
             setPageTransformer(DepthPageTransformer())
+            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    Log.d("stateLog", "page selected $position, is user scroll = $isUserScroll")
+                    if (isUserScroll) {
+                        mediaControllerCompat.transportControls.skipToQueueItem(position.toLong())
+                        isUserScroll = false
+                    }
+                }
+
+                override fun onPageScrollStateChanged(state: Int) {
+                    super.onPageScrollStateChanged(state)
+                    Log.d("stateLog", "state = $state")
+                    if (prevState == ViewPager2.SCROLL_STATE_DRAGGING && state == ViewPager2.SCROLL_STATE_SETTLING)
+                        isUserScroll = true
+                    else if (prevState == ViewPager2.SCROLL_STATE_SETTLING && state == ViewPager2.SCROLL_STATE_IDLE)
+                        isUserScroll = false
+
+                    prevState = state
+                }
+            })
         }
     }
 
@@ -226,6 +253,15 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
             expandedAlbumTv.text = track.album
             expandedArtistTv.text = track.artist
         }
+
+        currentTrack = track
+        val pos = trackDetailAdapter.currentList.indexOfFirst { t -> t.audioId == track.audioId }
+        Log.d(
+            "updateLog",
+            "current position = $pos for ${track.title}, size = ${trackDetailAdapter.currentList.size}"
+        )
+        if (pos != -1)
+            binding.bottomSheetLayout.trackDetailViewpager.setCurrentItem(pos, false)
     }
 
     private inner class MBConnectionCallback : MediaBrowserCompat.ConnectionCallback() {
@@ -257,7 +293,12 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
             if (parentId == MB_PLAY_QUEUE) {
                 val tracks = children.map { mediaItem -> mediaItem.toTrack() }
                 Log.d("queueLog", "queueLoaded")
-                trackDetailAdapter.submitList(tracks)
+                trackDetailAdapter.submitList(tracks) {
+                    val pos =
+                        trackDetailAdapter.currentList.indexOfFirst { track -> track.audioId == currentTrack?.audioId }
+                    if (pos != -1)
+                        binding.bottomSheetLayout.trackDetailViewpager.setCurrentItem(pos, false)
+                }
             }
         }
     }
@@ -269,6 +310,7 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
             if (track.title == "Loading" || track.artist == "Loading" || track.album == "Loading")
                 return
 
+            Log.d("updateLog", "onMetadataChanged")
             updateUI(track)
         }
 

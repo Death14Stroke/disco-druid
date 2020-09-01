@@ -12,7 +12,6 @@
     <com.google.android.material.circularreveal.cardview.CircularRevealCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
         app:cardCornerRadius="8dp"
@@ -20,8 +19,10 @@
         app:cardUseCompatPadding="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/root_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/selector_track"
             android:padding="4dp">
 
             <com.google.android.material.imageview.ShapeableImageView

@@ -34,6 +34,7 @@ class TrackViewHolder(private val binding: LayoutTrackBinding) :
         context: Context,
         scope: CoroutineScope,
         track: Track,
+        activated: Boolean
     ) {
         binding.track = track
 
@@ -41,6 +42,8 @@ class TrackViewHolder(private val binding: LayoutTrackBinding) :
             val bitmap = withContext(Dispatchers.IO) { context.getAlbumArtBitmap(track.albumId) }
             binding.thumbnailIV.setImageBitmap(bitmap)
         }
+
+        binding.rootLayout.isActivated = activated
 
         binding.executePendingBindings()
     }

@@ -8,16 +8,19 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
+import com.andruid.magic.discodruid.data.MB_CURRENT_TRACK
 import com.andruid.magic.discodruid.databinding.FragmentTrackBinding
 import com.andruid.magic.discodruid.service.MusicService
 import com.andruid.magic.discodruid.ui.adapter.TracksAdapter
 import com.andruid.magic.discodruid.ui.custom.ItemClickListener
 import com.andruid.magic.discodruid.ui.viewmodel.BaseViewModelFactory
 import com.andruid.magic.discodruid.ui.viewmodel.TrackViewModel
+import com.andruid.magic.discodruid.util.toTrack
 import com.andruid.magic.medialoader.model.Track
 
 class TrackFragment : Fragment() {
@@ -26,11 +29,14 @@ class TrackFragment : Fragment() {
     }
 
     private val tracksViewModel by viewModels<TrackViewModel> {
-        BaseViewModelFactory { TrackViewModel(mediaBrowserCompat) }
+        BaseViewModelFactory {
+            TrackViewModel(
+                mediaBrowserCompat
+            )
+        }
     }
-    private val tracksAdapter by lazy {
-        TracksAdapter(requireContext(), lifecycleScope)
-    }
+    private val tracksAdapter by lazy { TracksAdapter(requireContext(), lifecycleScope) }
+    private val mbSubscriptionCallback = MBSubscriptionCallback()
     private val mediaBrowserCompat: MediaBrowserCompat by lazy {
         MediaBrowserCompat(
             requireContext(),
@@ -42,6 +48,13 @@ class TrackFragment : Fragment() {
                     tracksViewModel.tracksLiveData.observe(viewLifecycleOwner, { tracks ->
                         tracksAdapter.submitData(lifecycle, tracks)
                     })
+
+                    mediaBrowserCompat.subscribe(MB_CURRENT_TRACK, bundleOf(), mbSubscriptionCallback)
+                }
+
+                override fun onConnectionSuspended() {
+                    super.onConnectionSuspended()
+                    mediaBrowserCompat.unsubscribe(MB_CURRENT_TRACK, mbSubscriptionCallback)
                 }
             },
             null
@@ -90,12 +103,15 @@ class TrackFragment : Fragment() {
         binding.recyclerView.apply {
             adapter = tracksAdapter
             itemAnimator = DefaultItemAnimator()
-            addOnItemTouchListener(object: ItemClickListener(requireContext(), this) {
+            addOnItemTouchListener(object : ItemClickListener(requireContext(), this) {
                 override fun onClick(view: View, position: Int) {
                     super.onClick(view, position)
                     Log.d("clickLog", "track clicked")
                     tracksAdapter.getItemAtPosition(position)?.let { track ->
                         mListener?.onTrackClicked(track, position)
+
+                        tracksAdapter.currentTrack = track
+                        tracksAdapter.notifyItemChanged(position)
                     }
                 }
             })
@@ -104,5 +120,24 @@ class TrackFragment : Fragment() {
 
     interface ITracksListener {
         fun onTrackClicked(track: Track, position: Int)
+    }
+
+    private inner class MBSubscriptionCallback : MediaBrowserCompat.SubscriptionCallback() {
+        override fun onChildrenLoaded(
+            parentId: String,
+            children: MutableList<MediaBrowserCompat.MediaItem>,
+            options: Bundle
+        ) {
+            super.onChildrenLoaded(parentId, children, options)
+            if (parentId == MB_CURRENT_TRACK) {
+                val track = children.map { mediaItem -> mediaItem.toTrack() }[0]
+                Log.d("currentLog", "received ${track?.title ?: "null"}")
+                tracksAdapter.currentTrack = track
+                val position =
+                    tracksAdapter.snapshot().indexOfFirst { t -> track?.audioId == t?.audioId }
+                if (position != -1)
+                    tracksAdapter.notifyItemChanged(position)
+            }
+        }
     }
 }

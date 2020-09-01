@@ -1,11 +1,13 @@
 package com.andruid.magic.discodruid.ui.adapter
 
+import android.content.Context
 import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.andruid.magic.discodruid.ui.viewholder.TrackDetailViewHolder
 import com.andruid.magic.medialoader.model.Track
+import kotlinx.coroutines.CoroutineScope
 
 private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Track>() {
     override fun areItemsTheSame(oldItem: Track, newItem: Track) =
@@ -15,13 +17,17 @@ private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Track>() {
         oldItem == newItem
 }
 
-class TrackDetailAdapter : ListAdapter<Track, TrackDetailViewHolder>(DIFF_CALLBACK) {
+class TrackDetailAdapter(
+    private val context: Context,
+    private val scope: CoroutineScope
+) : ListAdapter<Track, TrackDetailViewHolder>(DIFF_CALLBACK) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         TrackDetailViewHolder.from(parent)
 
     override fun onBindViewHolder(holder: TrackDetailViewHolder, position: Int) {
         getItem(position)?.let { track ->
             Log.d("queueLog", "binding ${track.title}")
-            holder.bind(track) }
+            holder.bind(context, scope, track)
+        }
     }
 }

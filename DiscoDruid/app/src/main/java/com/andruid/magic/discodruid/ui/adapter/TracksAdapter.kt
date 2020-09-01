@@ -25,6 +25,13 @@ class TracksAdapter(
     private val scope: CoroutineScope? = null,
     private val viewType: Int = VIEW_TYPE_ALL_TRACKS
 ) : PagingDataAdapter<Track, RecyclerView.ViewHolder>(DIFF_CALLBACK) {
+    var currentTrack: Track? = null
+        set(value) {
+            prevPosition?.let { notifyItemChanged(it) }
+            field = value
+        }
+    private var prevPosition: Int? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             VIEW_TYPE_ALBUM_TRACKS -> AlbumTrackViewHolder.from(parent)
@@ -34,9 +41,13 @@ class TracksAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         getItem(position)?.let { track ->
-            if (holder is TrackViewHolder)
-                holder.bind(context!!, scope!!, track)
-            else if (holder is AlbumTrackViewHolder)
+            if (holder is TrackViewHolder) {
+                val activated = currentTrack?.audioId == track.audioId
+                if (activated)
+                    prevPosition = position
+
+                holder.bind(context!!, scope!!, track, activated)
+            } else if (holder is AlbumTrackViewHolder)
                 holder.bind(track)
         }
     }
