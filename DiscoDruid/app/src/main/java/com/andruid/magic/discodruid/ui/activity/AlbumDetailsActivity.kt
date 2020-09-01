@@ -20,6 +20,7 @@ import com.andruid.magic.discodruid.ui.custom.ItemClickListener
 import com.andruid.magic.discodruid.ui.viewmodel.BaseViewModelFactory
 import com.andruid.magic.discodruid.ui.viewmodel.TrackViewModel
 import com.andruid.magic.discodruid.util.getAlbumArtBitmap
+import com.andruid.magic.discodruid.util.toTrack
 import com.andruid.magic.medialoader.model.Album
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,6 +36,7 @@ class AlbumDetailsActivity : AppCompatActivity() {
         BaseViewModelFactory { TrackViewModel(mediaBrowserCompat, options) }
     }
     private val tracksAdapter = TracksAdapter(viewType = VIEW_TYPE_ALBUM_TRACKS)
+    private val mbSubscriptionCallback = MBSubscriptionCallback()
     private val mediaBrowserCompat: MediaBrowserCompat by lazy {
         MediaBrowserCompat(
             this,
@@ -51,6 +53,13 @@ class AlbumDetailsActivity : AppCompatActivity() {
                     })
 
                     lifecycleScope.launch { initViews() }
+
+                    mediaBrowserCompat.subscribe(MB_CURRENT_TRACK, bundleOf(), mbSubscriptionCallback)
+                }
+
+                override fun onConnectionSuspended() {
+                    super.onConnectionSuspended()
+                    mediaBrowserCompat.unsubscribe(MB_CURRENT_TRACK, mbSubscriptionCallback)
                 }
             },
             null
@@ -106,6 +115,25 @@ class AlbumDetailsActivity : AppCompatActivity() {
                         .sendBroadcast(intent)
                 }
             })
+        }
+    }
+
+    private inner class MBSubscriptionCallback : MediaBrowserCompat.SubscriptionCallback() {
+        override fun onChildrenLoaded(
+            parentId: String,
+            children: MutableList<MediaBrowserCompat.MediaItem>,
+            options: Bundle
+        ) {
+            super.onChildrenLoaded(parentId, children, options)
+            if (parentId == MB_CURRENT_TRACK) {
+                val track = children.map { mediaItem -> mediaItem.toTrack() }[0]
+                Log.d("currentLog", "received ${track?.title ?: "null"}")
+                tracksAdapter.currentTrack = track
+                val position =
+                    tracksAdapter.snapshot().indexOfFirst { t -> track?.audioId == t?.audioId }
+                if (position != -1)
+                    tracksAdapter.notifyItemChanged(position)
+            }
         }
     }
 }

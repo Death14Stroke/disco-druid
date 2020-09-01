@@ -46,6 +46,7 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.toCollection
 import java.util.*
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.min
 
 class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventListener {
     companion object {
@@ -241,7 +242,10 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
             }
             parentId == MB_CURRENT_TRACK -> {
                 val mediaItem = (exoPlayer.currentTag as Track?)?.toMediaItem() ?: return
-                Log.d("currentLog", "sending current track ${(exoPlayer.currentTag as Track?)?.title}")
+                Log.d(
+                    "currentLog",
+                    "sending current track ${(exoPlayer.currentTag as Track?)?.title}"
+                )
                 result.sendResult(mutableListOf(mediaItem))
             }
         }
@@ -274,19 +278,24 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
     }
 
     private suspend fun addTracksToQueue(tracks: List<Track>, selectedTrack: Track? = null) {
-        val pos = tracksQueue.indexOf(selectedTrack)
-        if (pos != -1) {
-            mediaSessionCallback.onSkipToQueueItem(pos.toLong())
-            exoPlayer.playWhenReady = true
-
-            updateRestOfQueue(tracks, pos)
-        } else if (selectedTrack != null) {
-            tracksQueue.add(selectedTrack)
-            concatenatingMediaSource.addMediaSource(buildMediaSource(selectedTrack))
-            exoPlayer.playWhenReady = true
-
-            updateRestOfQueue(tracks, tracks.indexOf(selectedTrack))
+        Log.d("tracksLog", "tracks = $tracks")
+        val queuePos = tracksQueue.indexOfFirst { track -> track.audioId == selectedTrack?.audioId }
+        if (queuePos != -1) {
+            mediaSessionCallback.onSkipToQueueItem(queuePos.toLong())
+            concatenatingMediaSource.removeMediaSourceRange(0, queuePos)
+            concatenatingMediaSource.removeMediaSourceRange(1, concatenatingMediaSource.size)
         }
+        else if (selectedTrack != null) {
+            concatenatingMediaSource.clear(Handler()) {
+                runBlocking {
+                    concatenatingMediaSource.addMediaSource(buildMediaSource(selectedTrack))
+                }
+                exoPlayer.playWhenReady = true
+            }
+        }
+
+        tracksQueue.clear()
+        updateRestOfQueue(tracks, tracks.indexOf(selectedTrack))
 
         playerNotificationManager.setPlayer(exoPlayer)
     }
@@ -302,9 +311,10 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
         tracks.subList(pos + 1, tracks.size).asFlow()
             .mapNotNull { track -> buildMediaSource(track) }
             .toCollection(afterMediaSources)
-        concatenatingMediaSource.addMediaSources(pos + 1, afterMediaSources.toList())
+        concatenatingMediaSource.addMediaSources(afterMediaSources.toList())
 
-        tracksQueue.clear()
+        Log.d("tracksLog", "new queue size = ${concatenatingMediaSource.size}")
+
         tracksQueue.addAll(tracks)
 
         notifyChildrenChanged(MB_PLAY_QUEUE)

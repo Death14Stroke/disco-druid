@@ -128,14 +128,22 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
             .setAction(ACTION_GET_INSTANCE)
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
         startService(intent)
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    private fun registerBroadCast() {
         LocalBroadcastManager.getInstance(this)
             .registerReceiver(trackSelectReceiver, IntentFilter(ACTION_SELECT_TRACK))
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    private fun unregisterBroadCast() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(trackSelectReceiver)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     private fun unbindService() {
         unbindService(serviceConnection)
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(trackSelectReceiver)
     }
 
     @SuppressLint("SwitchIntDef")

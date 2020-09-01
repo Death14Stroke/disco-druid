@@ -41,14 +41,14 @@ class TracksAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         getItem(position)?.let { track ->
-            if (holder is TrackViewHolder) {
-                val activated = currentTrack?.audioId == track.audioId
-                if (activated)
-                    prevPosition = position
+            val activated = currentTrack?.audioId == track.audioId
+            if (activated)
+                prevPosition = position
 
+            if (holder is TrackViewHolder) {
                 holder.bind(context!!, scope!!, track, activated)
             } else if (holder is AlbumTrackViewHolder)
-                holder.bind(track)
+                holder.bind(track, activated)
         }
     }
 

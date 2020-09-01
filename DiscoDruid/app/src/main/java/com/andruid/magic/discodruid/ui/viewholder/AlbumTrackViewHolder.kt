@@ -24,8 +24,9 @@ class AlbumTrackViewHolder(private val binding: LayoutAlbumTrackBinding) :
         }
     }
 
-    fun bind(track: Track) {
+    fun bind(track: Track, activated: Boolean) {
         binding.track = track
+        binding.rootLayout.isActivated = activated
         binding.executePendingBindings()
     }
 }
