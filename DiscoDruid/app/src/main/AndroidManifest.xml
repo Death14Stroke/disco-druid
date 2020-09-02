@@ -13,7 +13,7 @@
         android:roundIcon="@drawable/logo_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Main">
-        <activity android:name=".ui.activity.ArtistDetailActivity"></activity>
+        <activity android:name=".ui.activity.ArtistDetailsActivity"></activity>
 
         <meta-data
             android:name="com.google.android.gms.car.application"

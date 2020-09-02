@@ -279,6 +279,11 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
                             val albumId = extras?.getString(EXTRA_ALBUM_ID) ?: return@launch
                             TrackRepository.getTracksForAlbum(albumId)
                         }
+                        MODE_ARTIST_TRACKS -> {
+                            val artistId = extras?.getString(EXTRA_ARTIST_ID) ?: return@launch
+                            val artist = extras.getString(EXTRA_ARTIST) ?: return@launch
+                            TrackRepository.getTracksForArtist(artistId, artist)
+                        }
                         else -> TrackRepository.getAllPagedContent()
                     }
 

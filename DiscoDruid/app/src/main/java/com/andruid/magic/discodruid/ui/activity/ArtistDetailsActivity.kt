@@ -1,25 +1,29 @@
 package com.andruid.magic.discodruid.ui.activity
 
 import android.content.ComponentName
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.DefaultItemAnimator
 import com.andruid.magic.discodruid.data.*
 import com.andruid.magic.discodruid.data.model.UiModel
 import com.andruid.magic.discodruid.databinding.ActivityArtistDetailBinding
 import com.andruid.magic.discodruid.service.MusicService
 import com.andruid.magic.discodruid.ui.adapter.ArtistTracksAdapter
+import com.andruid.magic.discodruid.ui.custom.ItemClickListener
 import com.andruid.magic.discodruid.ui.viewmodel.ArtistTracksViewModel
 import com.andruid.magic.discodruid.ui.viewmodel.BaseViewModelFactory
 import com.andruid.magic.discodruid.util.toTrack
 import com.andruid.magic.medialoader.model.Artist
 
-class ArtistDetailActivity : AppCompatActivity() {
+class ArtistDetailsActivity : AppCompatActivity() {
     private val artist by lazy { intent.extras!!.getParcelable<Artist>(EXTRA_ARTIST)!! }
     private val trackViewModel by viewModels<ArtistTracksViewModel> {
         val options = bundleOf(
@@ -40,7 +44,7 @@ class ArtistDetailActivity : AppCompatActivity() {
                     super.onConnected()
                     Log.d("blinkLog", "mediaBrowser connected")
 
-                    trackViewModel.tracksLiveData.observe(this@ArtistDetailActivity, {
+                    trackViewModel.tracksLiveData.observe(this@ArtistDetailsActivity, {
                         artistTracksAdapter.submitData(lifecycle, it)
                     })
 
@@ -83,6 +87,18 @@ class ArtistDetailActivity : AppCompatActivity() {
         binding.recyclerView.apply {
             adapter = artistTracksAdapter
             itemAnimator = DefaultItemAnimator()
+            addOnItemTouchListener(object : ItemClickListener(this@ArtistDetailsActivity, this) {
+                override fun onClick(view: View, position: Int) {
+                    super.onClick(view, position)
+                    val intent = Intent(ACTION_SELECT_TRACK)
+                        .putExtra(EXTRA_TRACK_MODE, MODE_ARTIST_TRACKS)
+                        .putExtra(EXTRA_ARTIST_ID, artist.artistId)
+                        .putExtra(EXTRA_ARTIST, artist.artist)
+                        .putExtra(EXTRA_TRACK, artistTracksAdapter.getItemAtPosition(position))
+                    LocalBroadcastManager.getInstance(this@ArtistDetailsActivity)
+                        .sendBroadcast(intent)
+                }
+            })
         }
     }
 

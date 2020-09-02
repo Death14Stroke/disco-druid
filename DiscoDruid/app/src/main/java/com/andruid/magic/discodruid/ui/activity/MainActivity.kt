@@ -63,13 +63,26 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
     private val trackSelectReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == ACTION_SELECT_TRACK) {
+                val mode = intent.extras?.getInt(EXTRA_TRACK_MODE) ?: MODE_ALBUM_TRACKS
                 val track = intent.extras?.getParcelable<Track>(EXTRA_TRACK) ?: return
-                val albumId = intent.extras?.getString(EXTRA_ALBUM_ID) ?: ""
+
                 val extras = bundleOf(
-                    EXTRA_TRACK_MODE to MODE_ALBUM_TRACKS,
-                    EXTRA_ALBUM_ID to albumId,
+                    EXTRA_TRACK_MODE to mode,
                     EXTRA_TRACK to track
                 )
+
+                when (mode) {
+                    MODE_ALBUM_TRACKS -> {
+                        val albumId = intent.extras?.getString(EXTRA_ALBUM_ID) ?: return
+                        extras.putString(EXTRA_ALBUM_ID, albumId)
+                    }
+                    MODE_ARTIST_TRACKS -> {
+                        val artistId = intent.extras?.getString(EXTRA_ARTIST_ID) ?: return
+                        val artist = intent.extras?.getString(EXTRA_ARTIST) ?: return
+                        extras.putString(EXTRA_ARTIST_ID, artistId)
+                        extras.putString(EXTRA_ARTIST, artist)
+                    }
+                }
                 mediaBrowserCompat.sendCustomAction(CMD_PREPARE_QUEUE, extras, null)
             }
         }

@@ -108,6 +108,7 @@ class AlbumDetailsActivity : AppCompatActivity() {
                 override fun onClick(view: View, position: Int) {
                     super.onClick(view, position)
                     val intent = Intent(ACTION_SELECT_TRACK)
+                        .putExtra(EXTRA_TRACK_MODE, MODE_ALBUM_TRACKS)
                         .putExtra(EXTRA_ALBUM_ID, album.albumId)
                         .putExtra(EXTRA_TRACK, tracksAdapter.getItemAtPosition(position))
                     LocalBroadcastManager.getInstance(this@AlbumDetailsActivity)

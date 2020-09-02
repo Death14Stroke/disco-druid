@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import com.andruid.magic.discodruid.data.EXTRA_ARTIST
 import com.andruid.magic.discodruid.databinding.FragmentArtistBinding
 import com.andruid.magic.discodruid.service.MusicService
-import com.andruid.magic.discodruid.ui.activity.ArtistDetailActivity
+import com.andruid.magic.discodruid.ui.activity.ArtistDetailsActivity
 import com.andruid.magic.discodruid.ui.adapter.ArtistsAdapter
 import com.andruid.magic.discodruid.ui.custom.ItemClickListener
 import com.andruid.magic.discodruid.ui.viewmodel.ArtistViewModel
@@ -79,7 +79,7 @@ class ArtistFragment : Fragment() {
                     super.onClick(view, position)
 
                     artistsAdapter.getItemAtPosition(position)?.let { artist ->
-                        val intent = Intent(requireContext(), ArtistDetailActivity::class.java)
+                        val intent = Intent(requireContext(), ArtistDetailsActivity::class.java)
                             .putExtra(EXTRA_ARTIST, artist)
                         startActivity(intent)
                     }

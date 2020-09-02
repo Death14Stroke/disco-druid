@@ -66,4 +66,8 @@ class ArtistTracksAdapter(
             else -> VIEW_TYPE_ARTIST_TRACK
         }
     }
+
+    fun getItemAtPosition(position: Int): Track? {
+        return (getItem(position) as UiModel.TrackModel?)?.track
+    }
 }
