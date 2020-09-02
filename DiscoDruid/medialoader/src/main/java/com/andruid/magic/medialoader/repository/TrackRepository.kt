@@ -17,6 +17,7 @@ object TrackRepository : MediaRepository<Track>() {
         get() = arrayOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.ARTIST_ID,
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.ALBUM_ID,
@@ -27,8 +28,10 @@ object TrackRepository : MediaRepository<Track>() {
                 " AND ${MediaStore.Audio.Media.IS_ALARM} == 0 AND ${MediaStore.Audio.Media.IS_NOTIFICATION} == 0" +
                 " AND ${MediaStore.Audio.Media.IS_PODCAST} == 0 AND ${MediaStore.Audio.Media.IS_RINGTONE} == 0"
 
+    private var baseSortOrder: String = "${MediaStore.Audio.Media.TITLE} ASC"
+
     override fun getSortOrder(limit: Int, offset: Int) =
-        "${MediaStore.Audio.Media.TITLE} ASC LIMIT $offset, $limit"
+        "$baseSortOrder LIMIT $offset, $limit"
 
     override suspend fun fetchUtil(
         selection: String?,
@@ -62,11 +65,29 @@ object TrackRepository : MediaRepository<Track>() {
     }
 
     override suspend fun getAllPagedContent(limit: Int, offset: Int): List<Track> {
+        baseSortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
         return fetchUtil(baseSelection, null, limit, offset)
     }
 
-    suspend fun getTracksForAlbum(albumId: String, limit: Int = Int.MAX_VALUE, offset: Int = 0): List<Track> {
+    suspend fun getTracksForAlbum(
+        albumId: String,
+        limit: Int = Int.MAX_VALUE,
+        offset: Int = 0
+    ): List<Track> {
         val selection = "$baseSelection AND ${MediaStore.Audio.Media.ALBUM_ID} = ?"
+        baseSortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
         return fetchUtil(selection, arrayOf(albumId), limit, offset)
+    }
+
+    suspend fun getTracksForArtist(
+        artistId: String,
+        artist: String,
+        limit: Int = Int.MAX_VALUE,
+        offset: Int = 0
+    ): List<Track> {
+        val selection =
+            "$baseSelection AND ${MediaStore.Audio.Media.ARTIST_ID} = ? AND ${MediaStore.Audio.Media.ARTIST} = ?"
+        baseSortOrder = "${MediaStore.Audio.Media.ALBUM}, ${MediaStore.Audio.Media.TITLE} ASC"
+        return fetchUtil(selection, arrayOf(artistId, artist), limit, offset)
     }
 }

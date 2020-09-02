@@ -4,7 +4,6 @@ import android.content.Context
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.os.bundleOf
 import com.andruid.magic.discodruid.data.EXTRA_TRACK
 import com.andruid.magic.medialoader.model.Track
@@ -72,17 +71,12 @@ fun MediaMetadataCompat.toTrack(): Track {
         title = getString(MediaMetadataCompat.METADATA_KEY_TITLE) ?: "Loading",
         album = getString(MediaMetadataCompat.METADATA_KEY_ALBUM) ?: "Loading",
         artist = getString(MediaMetadataCompat.METADATA_KEY_ARTIST) ?: "Loading",
+        artistId = getString(MediaMetadataCompat.METADATA_KEY_ARTIST) ?: "Loading",
         albumId = getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI) ?: "-1",
         duration = getLong(MediaMetadataCompat.METADATA_KEY_DURATION),
         path = getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI) ?: ""
     )
 }
-
-fun Track.toQueueItem(context: Context) =
-    MediaSessionCompat.QueueItem(buildMediaDescription(context), audioId)
-
-fun MediaSessionCompat.QueueItem.toTrack(): Track =
-    description.toTrack()
 
 fun MediaDescriptionCompat.toTrack(): Track {
     return Track(
@@ -90,6 +84,7 @@ fun MediaDescriptionCompat.toTrack(): Track {
         title = title.toString(),
         album = description.toString(),
         artist = extras?.getString(MediaMetadataCompat.METADATA_KEY_ARTIST) ?: "Loading",
+        artistId = extras?.getString(MediaMetadataCompat.METADATA_KEY_ARTIST) ?: "Loading",
         albumId = extras?.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI) ?: "-1",
         duration = extras?.getLong(MediaMetadataCompat.METADATA_KEY_DURATION) ?: 0,
         path = extras?.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI) ?: ""

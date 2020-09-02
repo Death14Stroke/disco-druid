@@ -7,7 +7,7 @@
 
         <variable
             name="album"
-            type="com.andruid.magic.medialoader.model.Album" />
+            type="com.andruid.magic.medialoader.model.ArtistAlbum" />
     </data>
 
     <com.google.android.material.circularreveal.cardview.CircularRevealCardView

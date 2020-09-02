@@ -12,6 +12,7 @@ import kotlinx.android.parcel.Parcelize
 data class Track(
     val path: String,
     val title: String,
+    val artistId: String,
     val artist: String = "Unknown",
     val album: String = "Unknown",
     val albumId: String,
@@ -30,6 +31,7 @@ fun Cursor.readTrack(): Track {
     return Track(
         audioId = trackId,
         artist = getString(getColumnIndex(MediaStore.Audio.Media.ARTIST)),
+        artistId = getString(getColumnIndex(MediaStore.Audio.Media.ARTIST_ID)),
         title = getString(getColumnIndex(MediaStore.Audio.Media.TITLE)),
         path = Uri.withAppendedPath(uri, "$trackId").path!!,
         duration = getLong(getColumnIndex(MediaStore.Audio.Media.DURATION)) / 1000,

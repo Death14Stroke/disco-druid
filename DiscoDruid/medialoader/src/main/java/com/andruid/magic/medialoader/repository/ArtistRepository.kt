@@ -1,10 +1,13 @@
 package com.andruid.magic.medialoader.repository
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.core.content.ContentResolverCompat
 import com.andruid.magic.medialoader.model.Artist
+import com.andruid.magic.medialoader.model.ArtistAlbum
 import com.andruid.magic.medialoader.model.readArtist
+import com.andruid.magic.medialoader.model.readArtistAlbum
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -58,17 +61,41 @@ object ArtistRepository : MediaRepository<Artist>() {
         return fetchUtil(baseSelection, null, limit, offset)
     }
 
-    private fun getAlbumIdForArtist(artist: Artist): String? {
+    private suspend fun getAlbumIdForArtist(artist: Artist): String? {
         val uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI
         val projection = arrayOf(MediaStore.Audio.Albums._ID)
         val selection = "${MediaStore.Audio.Albums.ARTIST} = ?"
 
-        val query = contentResolver.query(uri, projection, selection, arrayOf(artist.artist), null)
-        return query?.use { cursor ->
-            if (cursor.moveToFirst())
-                cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums._ID))
-            else
-                null
+        return withContext(Dispatchers.IO) {
+            val query = contentResolver.query(uri, projection, selection, arrayOf(artist.artist), null)
+            query?.use { cursor ->
+                if (cursor.moveToFirst())
+                    cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums._ID))
+                else
+                    null
+            }
+        }
+    }
+
+    @SuppressLint("InlinedApi")
+    suspend fun getAlbumForArtist(artistId: String, album: String): ArtistAlbum? {
+        val uri = MediaStore.Audio.Artists.Albums.getContentUri("external", artistId.toLong())
+        val projection = arrayOf(
+            MediaStore.Audio.Artists.Albums.ALBUM,
+            MediaStore.Audio.Artists.Albums.ARTIST_ID,
+            MediaStore.Audio.Artists.Albums.ARTIST,
+            MediaStore.Audio.Artists.Albums.NUMBER_OF_SONGS_FOR_ARTIST
+        )
+        val selection = "${MediaStore.Audio.Artists.Albums.ALBUM} = ?"
+
+        return withContext(Dispatchers.IO) {
+            val query = contentResolver.query(uri, projection, selection, arrayOf(album), null)
+            query?.use { cursor ->
+                if (cursor.moveToFirst())
+                    cursor.readArtistAlbum()
+                else
+                    null
+            }
         }
     }
 }

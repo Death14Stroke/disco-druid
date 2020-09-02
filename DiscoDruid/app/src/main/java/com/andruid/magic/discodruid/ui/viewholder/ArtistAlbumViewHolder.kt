@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.andruid.magic.discodruid.R
 import com.andruid.magic.discodruid.databinding.LayoutArtistAlbumBinding
 import com.andruid.magic.discodruid.util.getAlbumArtBitmap
-import com.andruid.magic.medialoader.model.Album
+import com.andruid.magic.medialoader.model.ArtistAlbum
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,7 +29,7 @@ class ArtistAlbumViewHolder(private val binding: LayoutArtistAlbumBinding) :
         }
     }
 
-    fun bind(context: Context, scope: CoroutineScope, album: Album) {
+    fun bind(context: Context, scope: CoroutineScope, album: ArtistAlbum) {
         binding.album = album
 
         scope.launch {
