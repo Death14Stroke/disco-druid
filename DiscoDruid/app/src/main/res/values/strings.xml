@@ -10,4 +10,6 @@
     <string name="artist_stats">%1$d albums | %2$d tracks</string>
     <string name="tracks_count">%1$d tracks</string>
     <string name="media_channel_name">Music Playback</string>
+    <string name="created_on">Created on %1$s</string>
+    <string name="tab_playlists">Playlists</string>
 </resources>

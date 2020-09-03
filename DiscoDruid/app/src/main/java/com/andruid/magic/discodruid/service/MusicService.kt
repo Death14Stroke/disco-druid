@@ -27,6 +27,7 @@ import com.andruid.magic.discodruid.util.toMediaItem
 import com.andruid.magic.medialoader.model.Track
 import com.andruid.magic.medialoader.repository.AlbumRepository
 import com.andruid.magic.medialoader.repository.ArtistRepository
+import com.andruid.magic.medialoader.repository.PlaylistRepository
 import com.andruid.magic.medialoader.repository.TrackRepository
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
@@ -205,6 +206,17 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
                 launch {
                     val artists = ArtistRepository.getAllPagedContent(pageSize, page * pageSize)
                     val mediaItems = artists.map { artist -> artist.toMediaItem() }
+                    result.sendResult(mediaItems.toMutableList())
+                }
+            }
+            parentId.contains(MB_LOAD_PLAYLIST) -> {
+                val page = options.getInt(MediaBrowserCompat.EXTRA_PAGE)
+                val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
+
+                launch {
+                    val playlists = PlaylistRepository.getAllPagedContent(pageSize, page * pageSize)
+                    val mediaItems = playlists.map { playlist -> playlist.toMediaItem() }
+                    Log.d("playlistLog", "service load playlist size = ${mediaItems.size}")
                     result.sendResult(mediaItems.toMutableList())
                 }
             }

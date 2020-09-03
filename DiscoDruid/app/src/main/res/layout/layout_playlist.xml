@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="playlist"
+            type="com.andruid.magic.medialoader.model.Playlist" />
+    </data>
+
+    <com.google.android.material.circularreveal.cardview.CircularRevealCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        app:cardUseCompatPadding="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="5dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/thumbnailIV"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_marginTop="24dp"
+                android:scaleType="fitXY"
+                app:layout_constraintBottom_toTopOf="@id/playlist_name_TV"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/RoundedImageView"
+                tools:src="@tools:sample/avatars" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/badge"
+                android:gravity="center"
+                android:text="@{String.valueOf(playlist.songsCount)}"
+                android:textAppearance="?attr/counterTextAppearance"
+                android:textColor="@color/pastel_pink"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/thumbnailIV"
+                app:layout_constraintEnd_toEndOf="@id/thumbnailIV"
+                app:layout_constraintStart_toEndOf="@id/thumbnailIV"
+                app:layout_constraintTop_toTopOf="@id/thumbnailIV"
+                tools:text="56" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/playlist_name_TV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:gravity="center_vertical"
+                android:text="@{playlist.name}"
+                android:textAppearance="?attr/textAppearanceListItem"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/thumbnailIV"
+                tools:text="Playlist" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/playlist_created_TV"
+                style="@style/SubtitleStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:gravity="center_vertical"
+                app:createdOn="@{playlist.dateCreated}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/playlist_name_TV"
+                tools:text="Created on 25 Dec, 2018" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.circularreveal.cardview.CircularRevealCardView>
+</layout>

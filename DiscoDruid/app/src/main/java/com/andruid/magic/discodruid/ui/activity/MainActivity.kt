@@ -26,10 +26,7 @@ import com.andruid.magic.discodruid.R
 import com.andruid.magic.discodruid.data.*
 import com.andruid.magic.discodruid.databinding.ActivityMainBinding
 import com.andruid.magic.discodruid.service.MusicService
-import com.andruid.magic.discodruid.ui.adapter.POSITION_ALBUMS
-import com.andruid.magic.discodruid.ui.adapter.POSITION_TRACKS
-import com.andruid.magic.discodruid.ui.adapter.TabsAdapter
-import com.andruid.magic.discodruid.ui.adapter.TrackDetailAdapter
+import com.andruid.magic.discodruid.ui.adapter.*
 import com.andruid.magic.discodruid.ui.custom.DepthPageTransformer
 import com.andruid.magic.discodruid.ui.fragment.TrackFragment
 import com.andruid.magic.discodruid.util.toTrack
@@ -188,7 +185,8 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
             tab.text = when (position) {
                 POSITION_TRACKS -> getString(R.string.tab_tracks)
                 POSITION_ALBUMS -> getString(R.string.tab_albums)
-                else -> getString(R.string.tab_artists)
+                POSITION_ARTISTS -> getString(R.string.tab_artists)
+                else -> getString(R.string.tab_playlists)
             }
         }.attach()
     }
