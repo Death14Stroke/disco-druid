@@ -5,8 +5,8 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.andruid.magic.discodruid.R
+import com.andruid.magic.discodruid.data.model.TrackViewRepresentation
 import com.andruid.magic.discodruid.databinding.LayoutArtistTrackBinding
-import com.andruid.magic.medialoader.model.Track
 
 class ArtistTrackViewHolder(private val binding: LayoutArtistTrackBinding) :
     RecyclerView.ViewHolder(binding.root) {
@@ -23,8 +23,8 @@ class ArtistTrackViewHolder(private val binding: LayoutArtistTrackBinding) :
         }
     }
 
-    fun bind(track: Track, activated: Boolean) {
-        binding.track = track
+    fun bind(viewRepresentation: TrackViewRepresentation, activated: Boolean) {
+        binding.viewRep = viewRepresentation
         binding.rootLayout.isActivated = activated
         binding.executePendingBindings()
     }

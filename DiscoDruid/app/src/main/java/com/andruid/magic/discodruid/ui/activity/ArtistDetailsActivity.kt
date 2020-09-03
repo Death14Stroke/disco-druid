@@ -114,7 +114,7 @@ class ArtistDetailsActivity : AppCompatActivity() {
                 artistTracksAdapter.currentTrack = track
                 val position =
                     artistTracksAdapter.snapshot().indexOfFirst { uiModel ->
-                        uiModel is UiModel.TrackModel && uiModel.track.audioId == track?.audioId
+                        uiModel is UiModel.TrackModel && uiModel.viewRepresentation.track.audioId == track?.audioId
                     }
                 if (position != -1)
                     artistTracksAdapter.notifyItemChanged(position)

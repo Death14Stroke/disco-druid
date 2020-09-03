@@ -11,8 +11,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.paging.map
 import androidx.recyclerview.widget.DefaultItemAnimator
 import com.andruid.magic.discodruid.data.*
+import com.andruid.magic.discodruid.data.model.TrackViewRepresentation
 import com.andruid.magic.discodruid.databinding.ActivityAlbumDetailsBinding
 import com.andruid.magic.discodruid.service.MusicService
 import com.andruid.magic.discodruid.ui.adapter.TracksAdapter
@@ -51,7 +53,9 @@ class AlbumDetailsActivity : AppCompatActivity() {
 
                     trackViewModel.tracksLiveData.observe(this@AlbumDetailsActivity, {
                         Log.d("blinkLog", "livedata observer")
-                        tracksAdapter.submitData(lifecycle, it)
+                        tracksAdapter.submitData(
+                            lifecycle,
+                            it.map { track -> TrackViewRepresentation.fromTrack(track) })
                     })
 
                     lifecycleScope.launch { initViews() }
@@ -113,7 +117,10 @@ class AlbumDetailsActivity : AppCompatActivity() {
                     val intent = Intent(ACTION_SELECT_TRACK)
                         .putExtra(EXTRA_TRACK_MODE, MODE_ALBUM_TRACKS)
                         .putExtra(EXTRA_ALBUM_ID, album.albumId)
-                        .putExtra(EXTRA_TRACK, tracksAdapter.getItemAtPosition(position))
+                        .putExtra(
+                            EXTRA_TRACK,
+                            tracksAdapter.getItemAtPosition(position)?.track ?: return
+                        )
                     LocalBroadcastManager.getInstance(this@AlbumDetailsActivity)
                         .sendBroadcast(intent)
                 }
@@ -133,7 +140,8 @@ class AlbumDetailsActivity : AppCompatActivity() {
                 Log.d("currentLog", "received ${track?.title ?: "null"}")
                 tracksAdapter.currentTrack = track
                 val position =
-                    tracksAdapter.snapshot().indexOfFirst { t -> track?.audioId == t?.audioId }
+                    tracksAdapter.snapshot()
+                        .indexOfFirst { t -> track?.audioId == t?.track?.audioId }
                 if (position != -1)
                     tracksAdapter.notifyItemChanged(position)
             }

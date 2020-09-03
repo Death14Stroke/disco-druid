@@ -32,6 +32,12 @@ class ArtistAlbumViewHolder(private val binding: LayoutArtistAlbumBinding) :
     fun bind(context: Context, scope: CoroutineScope, album: ArtistAlbum) {
         binding.album = album
 
+        binding.trackCountTV.text = context.resources.getQuantityString(
+            R.plurals.tracks_count,
+            album.songsCount,
+            album.songsCount
+        )
+
         scope.launch {
             val bitmap = withContext(Dispatchers.IO) { context.getAlbumArtBitmap(album.albumId) }
             binding.thumbnailIV.setImageBitmap(bitmap)

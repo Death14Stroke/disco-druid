@@ -4,12 +4,17 @@
     <string name="tab_tracks">Tracks</string>
     <string name="tab_albums">Albums</string>
     <string name="tab_artists">Artists</string>
+    <string name="tab_playlists">Playlists</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <plurals name="tracks_count">
+        <item quantity="one">%d track</item>
+        <item quantity="other">%d tracks</item>
+    </plurals>
+    <plurals name="albums_count">
+        <item quantity="one">%d album</item>
+        <item quantity="other">%d albums</item>
+    </plurals>
     <string name="artist_stats">%1$d albums | %2$d tracks</string>
-    <string name="tracks_count">%1$d tracks</string>
     <string name="media_channel_name">Music Playback</string>
     <string name="created_on">Created on %1$s</string>
-    <string name="tab_playlists">Playlists</string>
 </resources>

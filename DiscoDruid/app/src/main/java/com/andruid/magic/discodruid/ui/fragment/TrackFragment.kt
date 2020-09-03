@@ -10,9 +10,11 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.map
 import androidx.recyclerview.widget.DefaultItemAnimator
 import com.andruid.magic.discodruid.R
 import com.andruid.magic.discodruid.data.MB_CURRENT_TRACK
+import com.andruid.magic.discodruid.data.model.TrackViewRepresentation
 import com.andruid.magic.discodruid.databinding.FragmentTrackBinding
 import com.andruid.magic.discodruid.service.MusicService
 import com.andruid.magic.discodruid.ui.adapter.TracksAdapter
@@ -43,7 +45,9 @@ class TrackFragment : Fragment(R.layout.fragment_track) {
                     super.onConnected()
 
                     tracksViewModel.tracksLiveData.observe(viewLifecycleOwner, { tracks ->
-                        tracksAdapter.submitData(lifecycle, tracks)
+                        tracksAdapter.submitData(
+                            lifecycle,
+                            tracks.map { track -> TrackViewRepresentation.fromTrack(track) })
                     })
 
                     mediaBrowserCompat.subscribe(
@@ -100,7 +104,8 @@ class TrackFragment : Fragment(R.layout.fragment_track) {
                 override fun onClick(view: View, position: Int) {
                     super.onClick(view, position)
                     Log.d("clickLog", "track clicked")
-                    tracksAdapter.getItemAtPosition(position)?.let { track ->
+                    tracksAdapter.getItemAtPosition(position)?.let { viewRep ->
+                        val track = viewRep.track
                         mListener?.onTrackClicked(track, position)
 
                         tracksAdapter.currentTrack = track
@@ -127,7 +132,8 @@ class TrackFragment : Fragment(R.layout.fragment_track) {
                 Log.d("currentLog", "received ${track?.title ?: "null"}")
                 tracksAdapter.currentTrack = track
                 val position =
-                    tracksAdapter.snapshot().indexOfFirst { t -> track?.audioId == t?.audioId }
+                    tracksAdapter.snapshot()
+                        .indexOfFirst { t -> track?.audioId == t?.track?.audioId }
                 if (position != -1)
                     tracksAdapter.notifyItemChanged(position)
             }

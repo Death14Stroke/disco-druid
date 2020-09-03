@@ -8,6 +8,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
 import com.andruid.magic.discodruid.data.PAGE_SIZE
+import com.andruid.magic.discodruid.data.model.TrackViewRepresentation
 import com.andruid.magic.discodruid.data.model.UiModel
 import com.andruid.magic.discodruid.paging.TracksPagingSource
 import com.andruid.magic.medialoader.repository.ArtistRepository
@@ -25,13 +26,18 @@ class ArtistTracksViewModel(
         }
 
         val flow = pager.flow.map { pagingData ->
-            pagingData.map { track -> UiModel.TrackModel(track) }
+            pagingData.map { track -> UiModel.TrackModel(TrackViewRepresentation.fromTrack(track)) }
                 .insertSeparators { before, after ->
+                    val beforeTrack = before?.viewRepresentation?.track
+                    val afterTrack = after?.viewRepresentation?.track
                     when {
-                        after == null -> null
-                        before == null || after.track.albumId != before.track.albumId -> {
-                            ArtistRepository.getAlbumForArtist(after.track.artistId, after.track.album)?.let { album ->
-                                UiModel.AlbumSeparatorModel(album.copy(albumId = after.track.albumId))
+                        afterTrack == null -> null
+                        beforeTrack == null || afterTrack.albumId != beforeTrack.albumId -> {
+                            ArtistRepository.getAlbumForArtist(
+                                afterTrack.artistId,
+                                afterTrack.album
+                            )?.let { album ->
+                                UiModel.AlbumSeparatorModel(album.copy(albumId = afterTrack.albumId))
                             }
                         }
                         else -> null

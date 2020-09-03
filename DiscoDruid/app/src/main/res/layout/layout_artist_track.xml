@@ -6,8 +6,8 @@
     <data>
 
         <variable
-            name="track"
-            type="com.andruid.magic.medialoader.model.Track" />
+            name="viewRep"
+            type="com.andruid.magic.discodruid.data.model.TrackViewRepresentation" />
     </data>
 
     <com.google.android.material.circularreveal.cardview.CircularRevealCardView
@@ -20,12 +20,12 @@
         app:cardUseCompatPadding="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/root_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/root_layout"
+            android:background="@drawable/selector_track"
             android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:background="@drawable/selector_track">
+            android:paddingBottom="8dp">
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/titleTV"
@@ -33,12 +33,12 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
                 android:maxEms="15"
-                android:text="@{track.title}"
+                android:text="@{viewRep.track.title}"
                 android:textAppearance="?attr/textAppearanceListItem"
                 android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
                 tools:text="Song Name" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -46,11 +46,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
+                android:text="@{viewRep.timeString}"
                 android:textAppearance="?attr/textAppearanceOverline"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:timeMillis="@{track.duration}"
                 tools:text="03:30" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.circularreveal.cardview.CircularRevealCardView>

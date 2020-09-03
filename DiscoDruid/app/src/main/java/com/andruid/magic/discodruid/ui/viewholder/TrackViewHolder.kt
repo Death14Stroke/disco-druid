@@ -6,9 +6,9 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.andruid.magic.discodruid.R
+import com.andruid.magic.discodruid.data.model.TrackViewRepresentation
 import com.andruid.magic.discodruid.databinding.LayoutTrackBinding
 import com.andruid.magic.discodruid.util.getAlbumArtBitmap
-import com.andruid.magic.medialoader.model.Track
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,12 +33,13 @@ class TrackViewHolder(private val binding: LayoutTrackBinding) :
     fun bind(
         context: Context,
         scope: CoroutineScope,
-        track: Track,
+        viewRepresentation: TrackViewRepresentation,
         activated: Boolean
     ) {
-        binding.track = track
+        binding.viewRep = viewRepresentation
 
         scope.launch {
+            val track = viewRepresentation.track
             val bitmap = withContext(Dispatchers.IO) { context.getAlbumArtBitmap(track.albumId) }
             binding.thumbnailIV.setImageBitmap(bitmap)
         }

@@ -5,8 +5,8 @@
     <data>
 
         <variable
-            name="artist"
-            type="com.andruid.magic.medialoader.model.Artist" />
+            name="viewRep"
+            type="com.andruid.magic.discodruid.data.model.ArtistViewRepresentation" />
     </data>
 
     <com.google.android.material.circularreveal.cardview.CircularRevealCardView
@@ -43,7 +43,7 @@
                 android:layout_marginStart="4dp"
                 android:maxEms="12"
                 android:padding="4dp"
-                android:text="@{artist.artist}"
+                android:text="@{viewRep.artist.artist}"
                 android:textAppearance="?attr/textAppearanceListItem"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@id/artistTV"
@@ -59,7 +59,7 @@
                 android:layout_marginStart="4dp"
                 android:maxEms="12"
                 android:padding="5dp"
-                app:artistStats="@{artist}"
+                android:text="@{viewRep.stats}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/thumbnailIV"
                 app:layout_constraintTop_toBottomOf="@id/titleTV"

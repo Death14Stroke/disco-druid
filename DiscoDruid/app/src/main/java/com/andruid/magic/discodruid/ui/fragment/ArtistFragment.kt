@@ -8,9 +8,11 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.map
 import androidx.recyclerview.widget.DefaultItemAnimator
 import com.andruid.magic.discodruid.R
 import com.andruid.magic.discodruid.data.EXTRA_ARTIST
+import com.andruid.magic.discodruid.data.model.ArtistViewRepresentation
 import com.andruid.magic.discodruid.databinding.FragmentArtistBinding
 import com.andruid.magic.discodruid.service.MusicService
 import com.andruid.magic.discodruid.ui.activity.ArtistDetailsActivity
@@ -41,7 +43,14 @@ class ArtistFragment : Fragment(R.layout.fragment_artist) {
                     super.onConnected()
 
                     artistViewModel.artistLiveData.observe(viewLifecycleOwner, { pagingData ->
-                        artistsAdapter.submitData(lifecycle, pagingData)
+                        artistsAdapter.submitData(
+                            lifecycle,
+                            pagingData.map { artist ->
+                                ArtistViewRepresentation.fromArtist(
+                                    requireContext(),
+                                    artist
+                                )
+                            })
                     })
                 }
             },
@@ -72,7 +81,7 @@ class ArtistFragment : Fragment(R.layout.fragment_artist) {
                 override fun onClick(view: View, position: Int) {
                     super.onClick(view, position)
 
-                    artistsAdapter.getItemAtPosition(position)?.let { artist ->
+                    artistsAdapter.getItemAtPosition(position)?.artist?.let { artist ->
                         val intent = Intent(requireContext(), ArtistDetailsActivity::class.java)
                             .putExtra(EXTRA_ARTIST, artist)
                         startActivity(intent)

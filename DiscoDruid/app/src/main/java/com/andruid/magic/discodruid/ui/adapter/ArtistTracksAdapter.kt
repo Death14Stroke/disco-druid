@@ -16,8 +16,10 @@ import kotlinx.coroutines.CoroutineScope
 private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<UiModel>() {
     override fun areItemsTheSame(oldItem: UiModel, newItem: UiModel): Boolean {
         return when {
-            oldItem is UiModel.TrackModel && newItem is UiModel.TrackModel -> oldItem.track.audioId == newItem.track.audioId
-            oldItem is UiModel.AlbumSeparatorModel && newItem is UiModel.AlbumSeparatorModel -> oldItem.album.albumId == newItem.album.albumId
+            oldItem is UiModel.TrackModel && newItem is UiModel.TrackModel ->
+                oldItem.viewRepresentation.track.audioId == newItem.viewRepresentation.track.audioId
+            oldItem is UiModel.AlbumSeparatorModel && newItem is UiModel.AlbumSeparatorModel ->
+                oldItem.album.albumId == newItem.album.albumId
             else -> false
         }
     }
@@ -48,10 +50,11 @@ class ArtistTracksAdapter(
         if (holder is ArtistTrackViewHolder) {
             val trackModel = getItem(position)
             if (trackModel is UiModel.TrackModel) {
-                val activated = currentTrack?.audioId == trackModel.track.audioId
+                val track = trackModel.viewRepresentation.track
+                val activated = currentTrack?.audioId == track.audioId
                 if (activated)
                     prevPosition = position
-                holder.bind(trackModel.track, activated)
+                holder.bind(trackModel.viewRepresentation, activated)
             }
         } else if (holder is ArtistAlbumViewHolder) {
             val albumModel = getItem(position)
@@ -68,6 +71,11 @@ class ArtistTracksAdapter(
     }
 
     fun getItemAtPosition(position: Int): Track? {
-        return (getItem(position) as UiModel.TrackModel?)?.track
+        return try {
+            (getItem(position) as UiModel.TrackModel?)?.viewRepresentation?.track
+        } catch (e: ClassCastException) {
+            e.printStackTrace()
+            null
+        }
     }
 }
