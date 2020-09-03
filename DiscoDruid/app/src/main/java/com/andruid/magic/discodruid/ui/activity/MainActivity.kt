@@ -29,6 +29,7 @@ import com.andruid.magic.discodruid.service.MusicService
 import com.andruid.magic.discodruid.ui.adapter.*
 import com.andruid.magic.discodruid.ui.custom.DepthPageTransformer
 import com.andruid.magic.discodruid.ui.fragment.TrackFragment
+import com.andruid.magic.discodruid.ui.viewbinding.viewBinding
 import com.andruid.magic.discodruid.util.toTrack
 import com.andruid.magic.medialoader.model.Track
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -36,6 +37,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import kotlin.math.min
 
 class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITracksListener {
+    private val binding by viewBinding(ActivityMainBinding::inflate)
     private val askStoragePermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
             if (result) {
@@ -104,11 +106,9 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
     private var prevState = ViewPager2.SCROLL_STATE_IDLE
 
     private lateinit var mediaControllerCompat: MediaControllerCompat
-    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolBar)
 

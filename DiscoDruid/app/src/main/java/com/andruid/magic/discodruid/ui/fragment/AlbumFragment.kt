@@ -4,9 +4,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.util.Pair
@@ -21,15 +19,17 @@ import com.andruid.magic.discodruid.service.MusicService
 import com.andruid.magic.discodruid.ui.activity.AlbumDetailsActivity
 import com.andruid.magic.discodruid.ui.adapter.AlbumsAdapter
 import com.andruid.magic.discodruid.ui.custom.ItemClickListener
+import com.andruid.magic.discodruid.ui.viewbinding.viewBinding
 import com.andruid.magic.discodruid.ui.viewmodel.AlbumViewModel
 import com.andruid.magic.discodruid.ui.viewmodel.BaseViewModelFactory
 import com.andruid.magic.medialoader.model.Album
 
-class AlbumFragment : Fragment() {
+class AlbumFragment : Fragment(R.layout.fragment_album) {
     companion object {
         fun newInstance() = AlbumFragment()
     }
 
+    private val binding by viewBinding(FragmentAlbumBinding::bind)
     private val albumsAdapter by lazy {
         AlbumsAdapter(requireContext(), lifecycleScope)
     }
@@ -53,23 +53,14 @@ class AlbumFragment : Fragment() {
         )
     }
 
-    private lateinit var binding: FragmentAlbumBinding
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mediaBrowserCompat.connect()
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentAlbumBinding.inflate(inflater, container, false)
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         initRecyclerView()
-
-        return binding.root
     }
 
     override fun onDestroy() {

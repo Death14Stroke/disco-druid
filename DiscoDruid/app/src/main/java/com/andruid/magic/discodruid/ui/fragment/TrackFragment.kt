@@ -5,35 +5,32 @@ import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
+import com.andruid.magic.discodruid.R
 import com.andruid.magic.discodruid.data.MB_CURRENT_TRACK
 import com.andruid.magic.discodruid.databinding.FragmentTrackBinding
 import com.andruid.magic.discodruid.service.MusicService
 import com.andruid.magic.discodruid.ui.adapter.TracksAdapter
 import com.andruid.magic.discodruid.ui.custom.ItemClickListener
+import com.andruid.magic.discodruid.ui.viewbinding.viewBinding
 import com.andruid.magic.discodruid.ui.viewmodel.BaseViewModelFactory
 import com.andruid.magic.discodruid.ui.viewmodel.TrackViewModel
 import com.andruid.magic.discodruid.util.toTrack
 import com.andruid.magic.medialoader.model.Track
 
-class TrackFragment : Fragment() {
+class TrackFragment : Fragment(R.layout.fragment_track) {
     companion object {
         fun newInstance() = TrackFragment()
     }
 
+    private val binding by viewBinding(FragmentTrackBinding::bind)
     private val tracksViewModel by viewModels<TrackViewModel> {
-        BaseViewModelFactory {
-            TrackViewModel(
-                mediaBrowserCompat
-            )
-        }
+        BaseViewModelFactory { TrackViewModel(mediaBrowserCompat) }
     }
     private val tracksAdapter by lazy { TracksAdapter(requireContext(), lifecycleScope) }
     private val mbSubscriptionCallback = MBSubscriptionCallback()
@@ -49,7 +46,11 @@ class TrackFragment : Fragment() {
                         tracksAdapter.submitData(lifecycle, tracks)
                     })
 
-                    mediaBrowserCompat.subscribe(MB_CURRENT_TRACK, bundleOf(), mbSubscriptionCallback)
+                    mediaBrowserCompat.subscribe(
+                        MB_CURRENT_TRACK,
+                        bundleOf(),
+                        mbSubscriptionCallback
+                    )
                 }
 
                 override fun onConnectionSuspended() {
@@ -62,23 +63,15 @@ class TrackFragment : Fragment() {
     }
 
     private var mListener: ITracksListener? = null
-    private lateinit var binding: FragmentTrackBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mediaBrowserCompat.connect()
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentTrackBinding.inflate(inflater, container, false)
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         initRecyclerView()
-
-        return binding.root
     }
 
     override fun onDestroy() {

@@ -18,12 +18,14 @@ import com.andruid.magic.discodruid.databinding.ActivityArtistDetailBinding
 import com.andruid.magic.discodruid.service.MusicService
 import com.andruid.magic.discodruid.ui.adapter.ArtistTracksAdapter
 import com.andruid.magic.discodruid.ui.custom.ItemClickListener
+import com.andruid.magic.discodruid.ui.viewbinding.viewBinding
 import com.andruid.magic.discodruid.ui.viewmodel.ArtistTracksViewModel
 import com.andruid.magic.discodruid.ui.viewmodel.BaseViewModelFactory
 import com.andruid.magic.discodruid.util.toTrack
 import com.andruid.magic.medialoader.model.Artist
 
 class ArtistDetailsActivity : AppCompatActivity() {
+    private val binding by viewBinding(ActivityArtistDetailBinding::inflate)
     private val artist by lazy { intent.extras!!.getParcelable<Artist>(EXTRA_ARTIST)!! }
     private val trackViewModel by viewModels<ArtistTracksViewModel> {
         val options = bundleOf(
@@ -59,11 +61,8 @@ class ArtistDetailsActivity : AppCompatActivity() {
         )
     }
 
-    private lateinit var binding: ActivityArtistDetailBinding
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityArtistDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolBar)

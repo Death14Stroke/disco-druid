@@ -17,6 +17,7 @@ import com.andruid.magic.discodruid.databinding.ActivityAlbumDetailsBinding
 import com.andruid.magic.discodruid.service.MusicService
 import com.andruid.magic.discodruid.ui.adapter.TracksAdapter
 import com.andruid.magic.discodruid.ui.custom.ItemClickListener
+import com.andruid.magic.discodruid.ui.viewbinding.viewBinding
 import com.andruid.magic.discodruid.ui.viewmodel.BaseViewModelFactory
 import com.andruid.magic.discodruid.ui.viewmodel.TrackViewModel
 import com.andruid.magic.discodruid.util.getAlbumArtBitmap
@@ -27,6 +28,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class AlbumDetailsActivity : AppCompatActivity() {
+    private val binding by viewBinding(ActivityAlbumDetailsBinding::inflate)
     private val album by lazy { intent.extras!!.getParcelable<Album>(EXTRA_ALBUM)!! }
     private val trackViewModel by viewModels<TrackViewModel> {
         val options = bundleOf(
@@ -54,7 +56,11 @@ class AlbumDetailsActivity : AppCompatActivity() {
 
                     lifecycleScope.launch { initViews() }
 
-                    mediaBrowserCompat.subscribe(MB_CURRENT_TRACK, bundleOf(), mbSubscriptionCallback)
+                    mediaBrowserCompat.subscribe(
+                        MB_CURRENT_TRACK,
+                        bundleOf(),
+                        mbSubscriptionCallback
+                    )
                 }
 
                 override fun onConnectionSuspended() {
@@ -66,11 +72,8 @@ class AlbumDetailsActivity : AppCompatActivity() {
         )
     }
 
-    private lateinit var binding: ActivityAlbumDetailsBinding
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAlbumDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolBar)
