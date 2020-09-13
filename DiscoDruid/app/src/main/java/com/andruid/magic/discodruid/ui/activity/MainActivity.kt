@@ -149,8 +149,8 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
     private fun bindService() {
         val intent = Intent(this, MusicService::class.java)
             .setAction(ACTION_GET_INSTANCE)
-        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
         startService(intent)
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)

@@ -2,7 +2,7 @@
 buildscript {
     ext {
         kotlin_version = "1.4.0"
-        paging_version = "3.0.0-alpha05"
+        paging_version = "3.0.0-alpha06"
         exoplayer_version = '2.11.8'
         
         coroutines_version = '1.3.7'

@@ -18,4 +18,5 @@
     <string name="media_channel_name">Music Playback</string>
     <string name="created_on">Created on %1$s</string>
     <string name="view_queue">Queue</string>
+    <string name="remove_item">Remove</string>
 </resources>

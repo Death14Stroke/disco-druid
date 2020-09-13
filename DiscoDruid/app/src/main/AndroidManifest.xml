@@ -13,7 +13,7 @@
         android:roundIcon="@drawable/logo_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Main">
-        <activity android:name=".ui.activity.QueueActivity"></activity>
+        <activity android:name=".ui.activity.QueueActivity" />
         <activity android:name=".ui.activity.ArtistDetailsActivity" />
 
         <meta-data
