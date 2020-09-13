@@ -16,6 +16,7 @@ const val EXTRA_PLAYLIST = "playlist"
 const val MODE_ALL_TRACKS = 0
 const val MODE_ALBUM_TRACKS = 1
 const val MODE_ARTIST_TRACKS = 2
+const val MODE_QUEUE_TRACKS = 3
 
 const val VIEW_TYPE_ALL_TRACKS = 0
 const val VIEW_TYPE_ALBUM_TRACKS = 1

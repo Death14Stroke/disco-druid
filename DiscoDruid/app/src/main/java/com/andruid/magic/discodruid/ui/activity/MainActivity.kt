@@ -11,6 +11,8 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import android.view.KeyEvent
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
@@ -124,6 +126,17 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
         super.onDestroy()
         if (mediaBrowserCompat.isConnected)
             mediaBrowserCompat.disconnect()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_home, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.open_queue_item)
+            startActivity(Intent(this, QueueActivity::class.java))
+        return true
     }
 
     override fun onTrackClicked(track: Track, position: Int) {
@@ -311,7 +324,6 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
             super.onChildrenLoaded(parentId, children, options)
             if (parentId == MB_PLAY_QUEUE) {
                 val tracks = children.map { mediaItem -> mediaItem.toTrack() }
-                Log.d("queueLog", "queueLoaded")
                 trackDetailAdapter.submitList(tracks) {
                     val pos =
                         trackDetailAdapter.currentList.indexOfFirst { track -> track.audioId == currentTrack?.audioId }

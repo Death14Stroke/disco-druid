@@ -1,7 +1,6 @@
 package com.andruid.magic.discodruid.ui.adapter
 
 import android.content.Context
-import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -26,7 +25,6 @@ class TrackDetailAdapter(
 
     override fun onBindViewHolder(holder: TrackDetailViewHolder, position: Int) {
         getItem(position)?.let { track ->
-            Log.d("queueLog", "binding ${track.title}")
             holder.bind(context, scope, track)
         }
     }

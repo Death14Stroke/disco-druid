@@ -104,8 +104,7 @@ class TrackFragment : Fragment(R.layout.fragment_track) {
                 override fun onClick(view: View, position: Int) {
                     super.onClick(view, position)
                     Log.d("clickLog", "track clicked")
-                    tracksAdapter.getItemAtPosition(position)?.let { viewRep ->
-                        val track = viewRep.track
+                    tracksAdapter.getItemAtPosition(position)?.let { track ->
                         mListener?.onTrackClicked(track, position)
 
                         tracksAdapter.currentTrack = track

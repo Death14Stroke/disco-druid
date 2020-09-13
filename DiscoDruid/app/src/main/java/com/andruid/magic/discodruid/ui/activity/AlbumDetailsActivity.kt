@@ -119,7 +119,7 @@ class AlbumDetailsActivity : AppCompatActivity() {
                         .putExtra(EXTRA_ALBUM_ID, album.albumId)
                         .putExtra(
                             EXTRA_TRACK,
-                            tracksAdapter.getItemAtPosition(position)?.track ?: return
+                            tracksAdapter.getItemAtPosition(position) ?: return
                         )
                     LocalBroadcastManager.getInstance(this@AlbumDetailsActivity)
                         .sendBroadcast(intent)
