@@ -43,6 +43,7 @@ import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DataSpec
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.toCollection
 import java.util.*
@@ -118,6 +119,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
     override fun onCreate() {
         super.onCreate()
 
+        Log.d("tracksLog", "onCreate service")
         job.start()
         initExoPlayer()
         initMediaSession()
@@ -135,13 +137,29 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
     }
 
     override fun onDestroy() {
-        super.onDestroy()
-
-        job.cancel()
         mediaSessionCompat.release()
         mediaSessionConnector.setPlayer(null)
         exoPlayer.release()
         playerNotificationManager.setPlayer(null)
+
+        launch {
+            PlaylistRepository.clearPlaylist(
+                PlaylistRepository.getPlaylistId(
+                    PLAYLIST_MY_QUEUE
+                )
+            )
+            PlaylistRepository.createPlaylist(PLAYLIST_MY_QUEUE)
+            PlaylistRepository.addTracksToPlaylist(
+                PlaylistRepository.getPlaylistId(
+                    PLAYLIST_MY_QUEUE
+                ),
+                *tracksQueue.map { track -> track.audioId }.toLongArray()
+            )
+
+            job.cancel()
+
+            super.onDestroy()
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -294,7 +312,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
 
     override fun onCustomAction(action: String, extras: Bundle?, result: Result<Bundle>) {
         super.onCustomAction(action, extras, result)
-        Log.d("mediaLog", "onCustomAction $action")
+        Log.d("tracksLog", "onCustomAction $action")
         when (action) {
             CMD_PREPARE_QUEUE -> {
                 mode = extras?.getInt(EXTRA_TRACK_MODE) ?: MODE_ALL_TRACKS
@@ -309,24 +327,18 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
                             val artist = extras.getString(EXTRA_ARTIST) ?: return@launch
                             TrackRepository.getTracksForArtist(artistId, artist)
                         }
+                        MODE_PLAYLIST_TRACKS -> {
+                            val playlistId = extras?.getLong(EXTRA_PLAYLIST_ID) ?: return@launch
+                            TrackRepository.getTracksForPlaylist(playlistId)
+                        }
                         else -> TrackRepository.getAllPagedContent()
                     }
 
+                    if (tracks.isEmpty())
+                        return@launch
+
                     val selectedTrack = extras?.getParcelable<Track>(EXTRA_TRACK)
                     addTracksToQueue(tracks, selectedTrack)
-
-                    PlaylistRepository.clearPlaylist(
-                        PlaylistRepository.getPlaylistId(
-                            PLAYLIST_MY_QUEUE
-                        )
-                    )
-                    PlaylistRepository.createPlaylist(PLAYLIST_MY_QUEUE)
-                    PlaylistRepository.addTracksToPlaylist(
-                        PlaylistRepository.getPlaylistId(
-                            PLAYLIST_MY_QUEUE
-                        ),
-                        *tracks.map { track -> track.audioId }.toLongArray()
-                    )
                 }
             }
         }
@@ -337,8 +349,11 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
     }
 
     private suspend fun addTracksToQueue(tracks: List<Track>, selectedTrack: Track? = null) {
-        Log.d("tracksLog", "tracks = $tracks")
         val queuePos = tracksQueue.indexOfFirst { track -> track.audioId == selectedTrack?.audioId }
+        Log.d(
+            "tracksLog",
+            "tracks = ${tracks.size} queuePos = $queuePos, selectedTrack = ${selectedTrack?.title}"
+        )
         if (queuePos != -1) {
             mediaSessionCallback.onSkipToQueueItem(queuePos.toLong())
             concatenatingMediaSource.removeMediaSourceRange(0, queuePos)
@@ -360,18 +375,22 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
 
     private suspend fun updateRestOfQueue(tracks: List<Track>, pos: Int) {
         val beforeMediaSources = mutableListOf<ProgressiveMediaSource>()
-        tracks.subList(0, pos).asFlow()
-            .mapNotNull { track -> buildMediaSource(track) }
-            .toCollection(beforeMediaSources)
-        concatenatingMediaSource.addMediaSources(0, beforeMediaSources.toList())
+        if (pos in tracks.indices) {
+            tracks.subList(0, pos).asFlow()
+                .mapNotNull { track -> buildMediaSource(track) }
+                .flowOn(Dispatchers.Default)
+                .toCollection(beforeMediaSources)
+            concatenatingMediaSource.addMediaSources(0, beforeMediaSources.toList())
+        }
 
         val afterMediaSources = mutableListOf<ProgressiveMediaSource>()
         tracks.subList(pos + 1, tracks.size).asFlow()
             .mapNotNull { track -> buildMediaSource(track) }
+            .flowOn(Dispatchers.Default)
             .toCollection(afterMediaSources)
         concatenatingMediaSource.addMediaSources(afterMediaSources.toList())
 
-        Log.d("tracksLog", "new queue size = ${concatenatingMediaSource.size}")
+        Log.d("tracksLog", "pos = $pos, new queue size = ${concatenatingMediaSource.size}")
 
         tracksQueue.addAll(tracks)
 

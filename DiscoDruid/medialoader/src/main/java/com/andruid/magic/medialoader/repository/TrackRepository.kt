@@ -8,6 +8,7 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.core.content.ContentResolverCompat
 import com.andruid.magic.medialoader.model.Track
+import com.andruid.magic.medialoader.model.readPlaylistTrack
 import com.andruid.magic.medialoader.model.readTrack
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -101,6 +102,15 @@ object TrackRepository : MediaRepository<Track>() {
         offset: Int = 0
     ): List<Track> {
         val uri = MediaStore.Audio.Playlists.Members.getContentUri("external", playlistId)
+        val projection = arrayOf(
+            MediaStore.Audio.Playlists.Members.AUDIO_ID,
+            MediaStore.Audio.Playlists.Members.ARTIST,
+            MediaStore.Audio.Playlists.Members.ARTIST_ID,
+            MediaStore.Audio.Playlists.Members.TITLE,
+            MediaStore.Audio.Playlists.Members.DURATION,
+            MediaStore.Audio.Playlists.Members.ALBUM_ID,
+            MediaStore.Audio.Playlists.Members.ALBUM
+        )
         baseSortOrder = "${MediaStore.Audio.Playlists.Members.PLAY_ORDER} ASC"
         val sortOrder = if (limit == Int.MAX_VALUE)
             baseSortOrder
@@ -112,7 +122,7 @@ object TrackRepository : MediaRepository<Track>() {
             val query = ContentResolverCompat.query(
                 contentResolver,
                 uri,
-                this@TrackRepository.projection,
+                projection,
                 null,
                 null,
                 sortOrder,
@@ -121,7 +131,7 @@ object TrackRepository : MediaRepository<Track>() {
 
             query?.use { cursor ->
                 while (cursor.moveToNext())
-                    tracks.add(cursor.readTrack())
+                    tracks.add(cursor.readPlaylistTrack())
             }
 
             tracks.toList()

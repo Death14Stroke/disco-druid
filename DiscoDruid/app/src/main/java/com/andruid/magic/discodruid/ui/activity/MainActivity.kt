@@ -34,8 +34,11 @@ import com.andruid.magic.discodruid.ui.fragment.TrackFragment
 import com.andruid.magic.discodruid.ui.viewbinding.viewBinding
 import com.andruid.magic.discodruid.util.toTrack
 import com.andruid.magic.medialoader.model.Track
+import com.andruid.magic.medialoader.repository.PlaylistRepository
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.math.min
 
 class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITracksListener {
@@ -118,7 +121,12 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
         setContentView(binding.root)
         setSupportActionBar(binding.toolBar)
 
-        askStoragePermission.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+        askStoragePermission.launch(
+            arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+        )
 
         initViewPager()
         initListeners()
@@ -311,6 +319,14 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
                 }
 
             mediaBrowserCompat.subscribe(MB_PLAY_QUEUE, bundleOf(), mbSubscriptionCallback)
+
+            lifecycleScope.launch {
+                val extras = bundleOf(
+                    EXTRA_TRACK_MODE to MODE_PLAYLIST_TRACKS,
+                    EXTRA_PLAYLIST_ID to PlaylistRepository.getPlaylistId(PLAYLIST_MY_QUEUE)
+                )
+                mediaBrowserCompat.sendCustomAction(CMD_PREPARE_QUEUE, extras, null)
+            }
         }
 
         override fun onConnectionSuspended() {
