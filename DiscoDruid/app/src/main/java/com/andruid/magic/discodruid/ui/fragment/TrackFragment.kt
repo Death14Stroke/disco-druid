@@ -1,6 +1,5 @@
 package com.andruid.magic.discodruid.ui.fragment
 
-import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
@@ -8,11 +7,9 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.map
@@ -24,7 +21,6 @@ import com.andruid.magic.discodruid.R
 import com.andruid.magic.discodruid.data.MB_CURRENT_TRACK
 import com.andruid.magic.discodruid.data.model.TrackViewRepresentation
 import com.andruid.magic.discodruid.databinding.FragmentTrackBinding
-import com.andruid.magic.discodruid.service.MusicService
 import com.andruid.magic.discodruid.ui.adapter.TracksAdapter
 import com.andruid.magic.discodruid.ui.custom.ItemClickListener
 import com.andruid.magic.discodruid.ui.selection.TrackDetailsLookup
@@ -33,11 +29,11 @@ import com.andruid.magic.discodruid.ui.viewbinding.viewBinding
 import com.andruid.magic.discodruid.ui.viewmodel.BaseViewModelFactory
 import com.andruid.magic.discodruid.ui.viewmodel.TrackViewModel
 import com.andruid.magic.discodruid.util.toTrack
+import com.andruid.magic.discodruid.util.toast
 import com.andruid.magic.medialoader.model.Track
-import com.andruid.magic.medialoader.repository.TrackRepository
 import kotlinx.coroutines.launch
 
-class TrackFragment : Fragment(R.layout.fragment_track) {
+class TrackFragment : MediaBrowserFragment(R.layout.fragment_track) {
     companion object {
         fun newInstance() = TrackFragment()
     }
@@ -59,35 +55,6 @@ class TrackFragment : Fragment(R.layout.fragment_track) {
     }
     private val tracksAdapter by lazy { TracksAdapter(requireContext(), lifecycleScope) }
     private val mbSubscriptionCallback = MBSubscriptionCallback()
-    private val mediaBrowserCompat: MediaBrowserCompat by lazy {
-        MediaBrowserCompat(
-            requireContext(),
-            ComponentName(requireActivity(), MusicService::class.java),
-            object : MediaBrowserCompat.ConnectionCallback() {
-                override fun onConnected() {
-                    super.onConnected()
-
-                    tracksViewModel.tracksLiveData.observe(viewLifecycleOwner, { tracks ->
-                        tracksAdapter.submitData(
-                            lifecycle,
-                            tracks.map { track -> TrackViewRepresentation.fromTrack(track) })
-                    })
-
-                    mediaBrowserCompat.subscribe(
-                        MB_CURRENT_TRACK,
-                        bundleOf(),
-                        mbSubscriptionCallback
-                    )
-                }
-
-                override fun onConnectionSuspended() {
-                    super.onConnectionSuspended()
-                    mediaBrowserCompat.unsubscribe(MB_CURRENT_TRACK, mbSubscriptionCallback)
-                }
-            },
-            null
-        )
-    }
     private val actionModeCallback = object : ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
             actionMode = mode
@@ -105,10 +72,13 @@ class TrackFragment : Fragment(R.layout.fragment_track) {
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
             when (item.itemId) {
                 R.id.remove_item -> {
-                    val count = tracker.selection.size()
                     lifecycleScope.launch {
-                        TrackRepository.deleteTracks(tracker.selection.toList())
-                        Toast.makeText(requireContext(), "Deleted $count", Toast.LENGTH_SHORT).show()
+                        //TODO: uncomment this to actually delete tracks
+                        //TrackRepository.deleteTracks(tracker.selection.toList())
+
+                        val count = tracker.selection.size()
+                        requireContext().toast("Deleted $count tracks")
+                        mode.finish()
                     }
                 }
             }
@@ -120,19 +90,9 @@ class TrackFragment : Fragment(R.layout.fragment_track) {
     private var actionMode: ActionMode? = null
     private var mListener: ITracksListener? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        mediaBrowserCompat.connect()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mediaBrowserCompat.disconnect()
     }
 
     override fun onAttach(context: Context) {
@@ -148,6 +108,24 @@ class TrackFragment : Fragment(R.layout.fragment_track) {
         mListener = null
     }
 
+    override fun onMBConnected() {
+        tracksViewModel.tracksLiveData.observe(viewLifecycleOwner, { tracks ->
+            tracksAdapter.submitData(
+                lifecycle,
+                tracks.map { track -> TrackViewRepresentation.fromTrack(track) })
+        })
+
+        mediaBrowserCompat.subscribe(
+            MB_CURRENT_TRACK,
+            bundleOf(),
+            mbSubscriptionCallback
+        )
+    }
+
+    override fun onMBConnectionSuspended() {
+        mediaBrowserCompat.unsubscribe(MB_CURRENT_TRACK, mbSubscriptionCallback)
+    }
+
     private fun initRecyclerView() {
         binding.recyclerView.apply {
             adapter = tracksAdapter
@@ -155,7 +133,6 @@ class TrackFragment : Fragment(R.layout.fragment_track) {
             addOnItemTouchListener(object : ItemClickListener(requireContext(), this) {
                 override fun onClick(view: View, position: Int) {
                     super.onClick(view, position)
-                    Log.d("clickLog", "track clicked")
                     tracksAdapter.getItemAtPosition(position)?.let { track ->
                         if (actionMode != null)
                             return@let
