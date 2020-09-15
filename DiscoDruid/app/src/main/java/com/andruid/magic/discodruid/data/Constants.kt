@@ -12,11 +12,12 @@ const val EXTRA_ALBUM_ID = "album_id"
 const val EXTRA_ARTIST = "artist"
 const val EXTRA_ARTIST_ID = "artist_id"
 const val EXTRA_PLAYLIST = "playlist"
+const val EXTRA_PLAYLIST_ID = "playlist_id"
 
 const val MODE_ALL_TRACKS = 0
 const val MODE_ALBUM_TRACKS = 1
 const val MODE_ARTIST_TRACKS = 2
-const val MODE_QUEUE_TRACKS = 3
+const val MODE_PLAYLIST_TRACKS = 3
 
 const val VIEW_TYPE_ALL_TRACKS = 0
 const val VIEW_TYPE_ALBUM_TRACKS = 1

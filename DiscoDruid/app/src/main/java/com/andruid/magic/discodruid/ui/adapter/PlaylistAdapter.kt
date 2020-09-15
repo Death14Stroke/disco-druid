@@ -21,4 +21,6 @@ class PlaylistAdapter : PagingDataAdapter<Playlist, PlaylistViewHolder>(DIFF_CAL
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
         getItem(position)?.let { playlist -> holder.bind(playlist) }
     }
+
+    fun getItemAtPosition(position: Int) = getItem(position)
 }

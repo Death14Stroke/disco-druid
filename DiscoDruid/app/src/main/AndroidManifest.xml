@@ -16,6 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Main"
         tools:ignore="AllowBackup,UnusedAttribute">
+        <activity android:name=".ui.activity.PlaylistDetailsActivity"></activity>
 
         <meta-data
             android:name="com.google.android.gms.car.application"
@@ -45,17 +46,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.activity.AlbumDetailsActivity"
             android:launchMode="singleTask" />
-
         <activity
             android:name=".ui.activity.ArtistDetailsActivity"
             android:launchMode="singleTask" />
-
         <activity
             android:name=".ui.activity.QueueActivity"
             android:launchMode="singleTask" />
     </application>
+
 </manifest>

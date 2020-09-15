@@ -253,6 +253,19 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
                             result.sendResult(mediaItems.toMutableList())
                         }
                     }
+                    MODE_PLAYLIST_TRACKS -> {
+                        val playlistId = options.getLong(EXTRA_PLAYLIST_ID)
+                        launch {
+                            val tracks =
+                                TrackRepository.getTracksForPlaylist(
+                                    playlistId,
+                                    pageSize,
+                                    page * pageSize
+                                )
+                            val mediaItems = tracks.map { track -> track.toMediaItem() }
+                            result.sendResult(mediaItems.toMutableList())
+                        }
+                    }
                     else -> {
                         Log.d("browserLog", "all tracks: page = $page, pageSize = $pageSize")
                         launch {
@@ -302,10 +315,18 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
                     val selectedTrack = extras?.getParcelable<Track>(EXTRA_TRACK)
                     addTracksToQueue(tracks, selectedTrack)
 
-                    PlaylistRepository.clearPlaylist(PlaylistRepository.getPlaylistId(PLAYLIST_MY_QUEUE))
+                    PlaylistRepository.clearPlaylist(
+                        PlaylistRepository.getPlaylistId(
+                            PLAYLIST_MY_QUEUE
+                        )
+                    )
                     PlaylistRepository.createPlaylist(PLAYLIST_MY_QUEUE)
-                    PlaylistRepository.addTracksToPlaylist(PlaylistRepository.getPlaylistId(PLAYLIST_MY_QUEUE),
-                        *tracks.map { track -> track.audioId }.toLongArray())
+                    PlaylistRepository.addTracksToPlaylist(
+                        PlaylistRepository.getPlaylistId(
+                            PLAYLIST_MY_QUEUE
+                        ),
+                        *tracks.map { track -> track.audioId }.toLongArray()
+                    )
                 }
             }
         }
