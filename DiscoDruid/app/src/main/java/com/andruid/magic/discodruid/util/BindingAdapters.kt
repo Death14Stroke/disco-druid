@@ -11,8 +11,8 @@ fun Long.toTimeString() =
 
 @BindingAdapter("createdOn")
 fun TextView.showCreatedOn(ms: Long) {
-    val dateFormat = SimpleDateFormat("dd M, yyyy", Locale.getDefault())
-    val time = dateFormat.format(Date(ms))
+    val dateFormat = SimpleDateFormat.getDateInstance()
+    val time = dateFormat.format(Date(ms * 1000))
 
     text = context.getString(R.string.created_on, time)
 }

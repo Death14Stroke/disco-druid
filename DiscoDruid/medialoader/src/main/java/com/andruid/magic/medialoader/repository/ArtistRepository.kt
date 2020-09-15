@@ -67,7 +67,8 @@ object ArtistRepository : MediaRepository<Artist>() {
         val selection = "${MediaStore.Audio.Albums.ARTIST} = ?"
 
         return withContext(Dispatchers.IO) {
-            val query = contentResolver.query(uri, projection, selection, arrayOf(artist.artist), null)
+            val query =
+                contentResolver.query(uri, projection, selection, arrayOf(artist.artist), null)
             query?.use { cursor ->
                 if (cursor.moveToFirst())
                     cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums._ID))

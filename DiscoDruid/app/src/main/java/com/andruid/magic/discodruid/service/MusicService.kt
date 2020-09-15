@@ -80,7 +80,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
     private val mediaSessionCallback = MediaSessionCallback()
     private val serviceBinder = ServiceBinder()
     private val concatenatingMediaSource by lazy { ConcatenatingMediaSource() }
-    private val mediaHandler by lazy { Handler(MediaHandlerCallback()) }
+    private val mediaHandler by lazy { Handler(Looper.getMainLooper(), MediaHandlerCallback()) }
     private val playerNotificationManager by lazy {
         PlayerNotificationManager.createWithNotificationChannel(this,
             MUSIC_CHANNEL_ID,
@@ -301,6 +301,11 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
 
                     val selectedTrack = extras?.getParcelable<Track>(EXTRA_TRACK)
                     addTracksToQueue(tracks, selectedTrack)
+
+                    PlaylistRepository.clearPlaylist(PlaylistRepository.getPlaylistId(PLAYLIST_MY_QUEUE))
+                    PlaylistRepository.createPlaylist(PLAYLIST_MY_QUEUE)
+                    PlaylistRepository.addTracksToPlaylist(PlaylistRepository.getPlaylistId(PLAYLIST_MY_QUEUE),
+                        *tracks.map { track -> track.audioId }.toLongArray())
                 }
             }
         }
@@ -318,7 +323,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
             concatenatingMediaSource.removeMediaSourceRange(0, queuePos)
             concatenatingMediaSource.removeMediaSourceRange(1, concatenatingMediaSource.size)
         } else if (selectedTrack != null) {
-            concatenatingMediaSource.clear(Handler()) {
+            concatenatingMediaSource.clear(Handler(Looper.getMainLooper())) {
                 runBlocking {
                     concatenatingMediaSource.addMediaSource(buildMediaSource(selectedTrack))
                 }

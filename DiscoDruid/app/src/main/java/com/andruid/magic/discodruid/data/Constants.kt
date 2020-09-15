@@ -31,3 +31,5 @@ const val MB_PLAY_QUEUE = "play_queue"
 const val MB_CURRENT_TRACK = "current_track"
 
 const val CMD_PREPARE_QUEUE = "com.andruid.magic.discodruid.PREPARE_QUEUE"
+
+const val PLAYLIST_MY_QUEUE = "My Droid"
