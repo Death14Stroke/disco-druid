@@ -41,8 +41,12 @@ import kotlin.math.min
 class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITracksListener {
     private val binding by viewBinding(ActivityMainBinding::inflate)
     private val askStoragePermission =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
-            if (result) {
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            permissions.entries.forEach {
+                it.value
+                Log.e("DEBUG", "${it.key} = ${it.value}")
+            }
+            if (permissions.values.all { granted -> granted }) {
                 initTabs()
                 initBottomSheet()
 
@@ -114,7 +118,7 @@ class MainActivity : AppCompatActivity(), LifecycleObserver, TrackFragment.ITrac
         setContentView(binding.root)
         setSupportActionBar(binding.toolBar)
 
-        askStoragePermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+        askStoragePermission.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE))
 
         initViewPager()
         initListeners()

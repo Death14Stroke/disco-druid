@@ -3,6 +3,7 @@ package com.andruid.magic.discodruid.ui.adapter
 import android.content.Context
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.andruid.magic.discodruid.data.VIEW_TYPE_ALBUM_TRACKS
@@ -27,7 +28,9 @@ class TracksAdapter(
     private val context: Context? = null,
     private val scope: CoroutineScope? = null,
     private val viewType: Int = VIEW_TYPE_ALL_TRACKS
-) : PagingDataAdapter<TrackViewRepresentation, RecyclerView.ViewHolder>(DIFF_CALLBACK) {
+) : PagingDataAdapter<TrackViewRepresentation, RecyclerView.ViewHolder>(DIFF_CALLBACK),
+    BaseAdapter<Track, Long> {
+    var tracker: SelectionTracker<Long>? = null
     var currentTrack: Track? = null
         set(value) {
             prevPosition?.let { notifyItemChanged(it) }
@@ -45,12 +48,13 @@ class TracksAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         getItem(position)?.let { viewRepresentation ->
             val track = viewRepresentation.track
+            val selected = tracker?.isSelected(track.audioId) ?: false
             val activated = currentTrack?.audioId == track.audioId
             if (activated)
                 prevPosition = position
 
             if (holder is TrackViewHolder) {
-                holder.bind(context!!, scope!!, viewRepresentation, activated)
+                holder.bind(context!!, scope!!, viewRepresentation, selected, activated)
             } else if (holder is AlbumTrackViewHolder)
                 holder.bind(viewRepresentation, activated)
         }
@@ -58,6 +62,11 @@ class TracksAdapter(
 
     override fun getItemViewType(position: Int) = viewType
 
-    fun getItemAtPosition(position: Int) =
-        getItem(position)?.track
+    override fun getItemAtPosition(position: Int) = getItem(position)?.track
+
+    override fun getPosition(key: Long): Int {
+        return snapshot().indexOfFirst { it?.track?.audioId == key }
+    }
+
+    override fun getKey(position: Int) = getItemAtPosition(position)?.audioId
 }

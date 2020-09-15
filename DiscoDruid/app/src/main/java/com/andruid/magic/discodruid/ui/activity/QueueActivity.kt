@@ -20,8 +20,8 @@ import com.andruid.magic.discodruid.data.model.TrackViewRepresentation
 import com.andruid.magic.discodruid.databinding.ActivityQueueBinding
 import com.andruid.magic.discodruid.service.MusicService
 import com.andruid.magic.discodruid.ui.adapter.QueueTracksAdapter
-import com.andruid.magic.discodruid.ui.adapter.TrackDetailsLookup
-import com.andruid.magic.discodruid.ui.adapter.TrackKeyProvider
+import com.andruid.magic.discodruid.ui.selection.TrackDetailsLookup
+import com.andruid.magic.discodruid.ui.selection.TrackKeyProvider
 import com.andruid.magic.discodruid.ui.viewbinding.viewBinding
 import com.andruid.magic.discodruid.ui.viewmodel.BaseViewModelFactory
 import com.andruid.magic.discodruid.ui.viewmodel.QueueTracksViewModel

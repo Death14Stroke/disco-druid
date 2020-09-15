@@ -1,8 +1,11 @@
 package com.andruid.magic.medialoader.repository
 
 import android.annotation.SuppressLint
+import android.content.ContentProviderOperation
+import android.content.ContentUris
 import android.net.Uri
 import android.provider.MediaStore
+import android.util.Log
 import androidx.core.content.ContentResolverCompat
 import com.andruid.magic.medialoader.model.Track
 import com.andruid.magic.medialoader.model.readTrack
@@ -89,5 +92,24 @@ object TrackRepository : MediaRepository<Track>() {
             "$baseSelection AND ${MediaStore.Audio.Media.ARTIST_ID} = ? AND ${MediaStore.Audio.Media.ARTIST} = ?"
         baseSortOrder = "${MediaStore.Audio.Media.ALBUM}, ${MediaStore.Audio.Media.TITLE} ASC"
         return fetchUtil(selection, arrayOf(artistId, artist), limit, offset)
+    }
+
+    suspend fun deleteTracks(trackIds: List<Long>) {
+        val operations = arrayListOf<ContentProviderOperation>()
+        trackIds.mapTo(operations) { trackId ->
+            val uri = ContentUris.withAppendedId(uri, trackId)
+            ContentProviderOperation
+                .newDelete(uri)
+                .build()
+        }
+
+        try {
+            withContext(Dispatchers.IO) {
+                contentResolver.applyBatch(MediaStore.AUTHORITY, operations)
+            }
+        } catch (e: Exception) {
+            Log.d("deleteLog", "exception: ${e.message}")
+            e.printStackTrace()
+        }
     }
 }
