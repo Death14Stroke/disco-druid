@@ -94,6 +94,40 @@ object TrackRepository : MediaRepository<Track>() {
         return fetchUtil(selection, arrayOf(artistId, artist), limit, offset)
     }
 
+    @SuppressLint("InlinedApi")
+    suspend fun getTracksForPlaylist(
+        playlistId: Long,
+        limit: Int = Int.MAX_VALUE,
+        offset: Int = 0
+    ): List<Track> {
+        val uri = MediaStore.Audio.Playlists.Members.getContentUri("external", playlistId)
+        baseSortOrder = "${MediaStore.Audio.Playlists.Members.PLAY_ORDER} ASC"
+        val sortOrder = if (limit == Int.MAX_VALUE)
+            baseSortOrder
+        else
+            getSortOrder(limit, offset)
+
+        val tracks = mutableListOf<Track>()
+        return withContext(Dispatchers.IO) {
+            val query = ContentResolverCompat.query(
+                contentResolver,
+                uri,
+                this@TrackRepository.projection,
+                null,
+                null,
+                sortOrder,
+                null
+            )
+
+            query?.use { cursor ->
+                while (cursor.moveToNext())
+                    tracks.add(cursor.readTrack())
+            }
+
+            tracks.toList()
+        }
+    }
+
     suspend fun deleteTracks(trackIds: List<Long>) {
         val operations = arrayListOf<ContentProviderOperation>()
         trackIds.mapTo(operations) { trackId ->
