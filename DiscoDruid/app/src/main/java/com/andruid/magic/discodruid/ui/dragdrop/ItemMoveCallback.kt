@@ -3,6 +3,7 @@ package com.andruid.magic.discodruid.ui.dragdrop
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.andruid.magic.discodruid.ui.adapter.QueueTracksAdapter
+import com.andruid.magic.discodruid.ui.viewholder.QueueTrackViewHolder
 
 class ItemMoveCallback(
     private val adapter: ItemTouchHelperContract
@@ -32,7 +33,7 @@ class ItemMoveCallback(
 
     override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
         if (actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
-            if (viewHolder is QueueTracksAdapter.QueueTrackViewHolder)
+            if (viewHolder is QueueTrackViewHolder)
                 adapter.onRowSelected(viewHolder)
         }
 
@@ -41,13 +42,13 @@ class ItemMoveCallback(
 
     override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
         super.clearView(recyclerView, viewHolder)
-        if (viewHolder is QueueTracksAdapter.QueueTrackViewHolder)
+        if (viewHolder is QueueTrackViewHolder)
             adapter.onRowClear(viewHolder)
     }
 
     interface ItemTouchHelperContract {
         fun onRowMoved(fromPosition: Int, toPosition: Int)
-        fun onRowSelected(myViewHolder: QueueTracksAdapter.QueueTrackViewHolder)
-        fun onRowClear(myViewHolder: QueueTracksAdapter.QueueTrackViewHolder)
+        fun onRowSelected(myViewHolder: QueueTrackViewHolder)
+        fun onRowClear(myViewHolder: QueueTrackViewHolder)
     }
 }

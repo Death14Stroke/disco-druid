@@ -10,6 +10,9 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
+import androidx.recyclerview.selection.SelectionPredicates
+import androidx.recyclerview.selection.SelectionTracker
+import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -20,6 +23,8 @@ import com.andruid.magic.discodruid.databinding.ActivityQueueBinding
 import com.andruid.magic.discodruid.service.MusicService
 import com.andruid.magic.discodruid.ui.adapter.QueueTracksAdapter
 import com.andruid.magic.discodruid.ui.dragdrop.ItemMoveCallback
+import com.andruid.magic.discodruid.ui.selection.TrackDetailsLookup
+import com.andruid.magic.discodruid.ui.selection.TrackKeyProvider
 import com.andruid.magic.discodruid.ui.viewbinding.viewBinding
 import com.andruid.magic.discodruid.ui.viewmodel.BaseViewModelFactory
 import com.andruid.magic.discodruid.ui.viewmodel.QueueTracksViewModel
@@ -43,6 +48,17 @@ class QueueActivity : AppCompatActivity(), QueueTracksAdapter.StartDragListener 
         BaseViewModelFactory { QueueTracksViewModel(mediaBrowserCompat) }
     }
     private val tracksAdapter by lazy { QueueTracksAdapter(this) }
+    private val tracker by lazy {
+        SelectionTracker.Builder(
+            "mySelection",
+            binding.recyclerView,
+            TrackKeyProvider(tracksAdapter),
+            TrackDetailsLookup(binding.recyclerView),
+            StorageStrategy.createLongStorage()
+        ).withSelectionPredicate(
+            SelectionPredicates.createSelectAnything()
+        ).build()
+    }
     private val actionModeCallback = object : ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
             actionMode = mode
@@ -53,15 +69,15 @@ class QueueActivity : AppCompatActivity(), QueueTracksAdapter.StartDragListener 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu) = false
 
         override fun onDestroyActionMode(mode: ActionMode) {
-            //tracker.clearSelection()
+            tracker.clearSelection()
             actionMode = null
         }
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
             when (item.itemId) {
                 R.id.remove_item -> {
-                    //val count = tracker.selection.size()
-                    Toast.makeText(this@QueueActivity, "Deleted -1", Toast.LENGTH_SHORT).show()
+                    val count = tracker.selection.size()
+                    Toast.makeText(this@QueueActivity, "Deleted $count", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -109,6 +125,18 @@ class QueueActivity : AppCompatActivity(), QueueTracksAdapter.StartDragListener 
                 }
             })*/
         }
+
+        tracker.addObserver(object : SelectionTracker.SelectionObserver<Long>() {
+            override fun onSelectionChanged() {
+                super.onSelectionChanged()
+                if (!tracker.selection.isEmpty)
+                    showActionMode()
+                else
+                    hideActionMode()
+            }
+        })
+
+        tracksAdapter.tracker = tracker
     }
 
     private fun hideActionMode() {
@@ -118,7 +146,7 @@ class QueueActivity : AppCompatActivity(), QueueTracksAdapter.StartDragListener 
     private fun showActionMode() {
         if (actionMode == null)
             startSupportActionMode(actionModeCallback)
-        //actionMode?.title = "${tracker.selection.size()} selected"
+        actionMode?.title = "${tracker.selection.size()} selected"
     }
 
     private inner class MBConnectionCallback : MediaBrowserCompat.ConnectionCallback() {
