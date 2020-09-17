@@ -1,7 +1,7 @@
-package com.andruid.magic.discodruid.ui.viewholder
+package com.andruid.magic.discodruid.ui.selection
 
 import androidx.recyclerview.selection.ItemDetailsLookup
 
-interface BaseViewHolder {
+interface SelectionViewHolder {
     fun getItemDetails(): ItemDetailsLookup.ItemDetails<Long>?
 }

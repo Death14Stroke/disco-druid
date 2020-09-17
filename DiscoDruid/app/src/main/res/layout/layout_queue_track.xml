@@ -10,6 +10,7 @@
     </data>
 
     <com.google.android.material.circularreveal.cardview.CircularRevealCardView
+        android:id="@+id/cardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
@@ -70,6 +71,7 @@
                 android:id="@+id/dragHandleView"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
+                android:visibility="gone"
                 android:src="@android:drawable/ic_menu_agenda"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

@@ -13,6 +13,8 @@ const val EXTRA_ARTIST = "artist"
 const val EXTRA_ARTIST_ID = "artist_id"
 const val EXTRA_PLAYLIST = "playlist"
 const val EXTRA_PLAYLIST_ID = "playlist_id"
+const val EXTRA_FROM_POS = "from_position"
+const val EXTRA_TO_POS = "to_position"
 
 const val MODE_ALL_TRACKS = 0
 const val MODE_ALBUM_TRACKS = 1
@@ -32,5 +34,7 @@ const val MB_PLAY_QUEUE = "play_queue"
 const val MB_CURRENT_TRACK = "current_track"
 
 const val CMD_PREPARE_QUEUE = "com.andruid.magic.discodruid.PREPARE_QUEUE"
+const val CMD_REORDER_QUEUE = "com.andruid.magic.discodruid.REORDER_QUEUE"
+const val CMD_DELETE_FROM_QUEUE = "com.andruid.magic.discodruid.DELETE_FROM_QUEUE"
 
 const val PLAYLIST_MY_QUEUE = "My Droid"

@@ -1,20 +1,13 @@
 package com.andruid.magic.discodruid.ui.adapter
 
-import android.annotation.SuppressLint
-import android.graphics.Color
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
-import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.andruid.magic.discodruid.R
 import com.andruid.magic.discodruid.data.model.TrackViewRepresentation
-import com.andruid.magic.discodruid.databinding.LayoutQueueTrackBinding
-import com.andruid.magic.discodruid.ui.dragdrop.ItemMoveCallback
+import com.andruid.magic.discodruid.ui.dragdrop.DragCallback
+import com.andruid.magic.discodruid.ui.selection.SelectionAdapter
 import com.andruid.magic.discodruid.ui.viewholder.QueueTrackViewHolder
 import com.andruid.magic.medialoader.model.Track
 import java.util.*
@@ -30,40 +23,35 @@ private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<TrackViewRepresentati
 }
 
 class QueueTracksAdapter(
-    private val dragListener: StartDragListener
+    private val dragListener: DragCallback.StartDragListener,
+    private val onDragComplete: (fromPosition: Int, toPosition: Int) -> Unit
 ) :
     ListAdapter<TrackViewRepresentation, QueueTrackViewHolder>(DIFF_CALLBACK),
-    ItemMoveCallback.ItemTouchHelperContract, BaseAdapter<Track, Long> {
+    DragCallback.IDragDropContract, SelectionAdapter<Track, Long> {
     var currentTrack: Track? = null
         set(value) {
             prevPosition?.let { notifyItemChanged(it) }
             field = value
         }
-    var tracker: SelectionTracker<Long>? = null
     private var prevPosition: Int? = null
+    private var showHandle = false
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QueueTrackViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val binding = DataBindingUtil.inflate<LayoutQueueTrackBinding>(
-            inflater, R.layout.layout_queue_track, parent, false
-        )
-        return QueueTrackViewHolder(binding)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        QueueTrackViewHolder.from(parent)
 
     override fun onBindViewHolder(holder: QueueTrackViewHolder, position: Int) {
         getItem(position)?.let { viewRepresentation ->
             val track = viewRepresentation.track
-            val selected = tracker?.isSelected(track.audioId) ?: false
+            val selected = false
             val activated = currentTrack?.audioId == track.audioId
             if (activated)
                 prevPosition = position
 
-            holder.bind(viewRepresentation, activated, selected, dragListener)
+            holder.bind(viewRepresentation, activated, selected, showHandle, dragListener)
         }
     }
 
     override fun onRowMoved(fromPosition: Int, toPosition: Int) {
-        Log.d("dragLog", "onRowMoved from $fromPosition to $toPosition")
         val data = currentList.toMutableList()
         if (fromPosition < toPosition) {
             for (i in fromPosition until toPosition)
@@ -74,16 +62,20 @@ class QueueTracksAdapter(
         }
 
         submitList(data)
-
-        //notifyItemMoved(fromPosition, toPosition)
     }
 
-    override fun onRowSelected(myViewHolder: QueueTrackViewHolder) {
-        myViewHolder.itemView.setBackgroundColor(Color.GREEN)
+    override fun onRowSelected(viewHolder: RecyclerView.ViewHolder?) {
+        (viewHolder as QueueTrackViewHolder?)?.getRootView()
+            ?.setBackgroundResource(R.drawable.card_dragged)
     }
 
-    override fun onRowClear(myViewHolder: QueueTrackViewHolder) {
-        myViewHolder.itemView.setBackgroundColor(Color.MAGENTA)
+    override fun onRowClear(viewHolder: RecyclerView.ViewHolder?) {
+        (viewHolder as QueueTrackViewHolder?)?.getRootView()
+            ?.setBackgroundResource(R.drawable.selector_track)
+    }
+
+    override fun onDragComplete(fromPosition: Int, toPosition: Int) {
+        onDragComplete.invoke(fromPosition, toPosition)
     }
 
     override fun getItemAtPosition(position: Int) = getItem(position)?.track
@@ -94,7 +86,13 @@ class QueueTracksAdapter(
 
     override fun getKey(position: Int) = getItemAtPosition(position)?.audioId
 
-    interface StartDragListener {
-        fun requestDrag(viewHolder: RecyclerView.ViewHolder)
+    fun showDragHandles() {
+        showHandle = true
+        notifyItemRangeChanged(0, currentList.size)
+    }
+
+    fun hideDragHandles() {
+        showHandle = false
+        notifyItemRangeChanged(0, currentList.size)
     }
 }

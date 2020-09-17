@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.andruid.magic.discodruid.data.VIEW_TYPE_ALBUM_TRACKS
 import com.andruid.magic.discodruid.data.VIEW_TYPE_ALL_TRACKS
 import com.andruid.magic.discodruid.data.model.TrackViewRepresentation
+import com.andruid.magic.discodruid.ui.selection.SelectionAdapter
 import com.andruid.magic.discodruid.ui.viewholder.AlbumTrackViewHolder
 import com.andruid.magic.discodruid.ui.viewholder.TrackViewHolder
 import com.andruid.magic.medialoader.model.Track
@@ -29,7 +30,7 @@ class TracksAdapter(
     private val scope: CoroutineScope? = null,
     private val viewType: Int = VIEW_TYPE_ALL_TRACKS
 ) : PagingDataAdapter<TrackViewRepresentation, RecyclerView.ViewHolder>(DIFF_CALLBACK),
-    BaseAdapter<Track, Long> {
+    SelectionAdapter<Track, Long> {
     var tracker: SelectionTracker<Long>? = null
     var currentTrack: Track? = null
         set(value) {

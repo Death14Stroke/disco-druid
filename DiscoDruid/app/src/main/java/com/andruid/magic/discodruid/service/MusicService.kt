@@ -341,6 +341,21 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope, Player.EventLi
                     addTracksToQueue(tracks, selectedTrack)
                 }
             }
+            CMD_REORDER_QUEUE -> {
+                val fromPos = extras?.getInt(EXTRA_FROM_POS, 0) ?: 0
+                val toPos = extras?.getInt(EXTRA_TO_POS, fromPos) ?: fromPos
+
+                Log.d("queueLog", "moving from $fromPos to $toPos")
+
+                if (fromPos != toPos) {
+                    concatenatingMediaSource.moveMediaSource(fromPos, toPos)
+                    val track = tracksQueue.removeAt(fromPos)
+                    tracksQueue.add(toPos, track)
+                }
+            }
+            CMD_DELETE_FROM_QUEUE -> {
+
+            }
         }
     }
 
