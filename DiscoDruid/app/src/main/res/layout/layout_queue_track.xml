@@ -62,9 +62,19 @@
                 android:text="@{viewRep.timeString}"
                 android:textAppearance="?attr/textAppearanceOverline"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/dragHandleView"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="03:30" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/dragHandleView"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:src="@android:drawable/ic_menu_agenda"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.circularreveal.cardview.CircularRevealCardView>
 </layout>
