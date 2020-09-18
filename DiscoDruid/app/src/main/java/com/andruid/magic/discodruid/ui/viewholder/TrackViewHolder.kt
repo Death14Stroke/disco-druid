@@ -47,7 +47,6 @@ class TrackViewHolder(
         }
 
         binding.rootLayout.isActivated = activated
-        binding.rootLayout.isActivated = selected
 
         binding.executePendingBindings()
     }
